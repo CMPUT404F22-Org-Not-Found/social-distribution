@@ -1,13 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import FriendRequests from './components/FriendRequests';
+import Inbox from './components/Inbox';
 import './index.css';
-import App from './App';
+// import App from './App';
 import reportWebVitals from './reportWebVitals';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    {/* <App /> */}
+    <Inbox />
+    {/* <FriendRequests /> */}
   </React.StrictMode>
 );
 
