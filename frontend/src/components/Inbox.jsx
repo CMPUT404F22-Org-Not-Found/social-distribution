@@ -1,11 +1,16 @@
 import React from "react";
+import Post from "./Post";
 import Topbar from "./Topbar";
 
-function Inbox(){
-  return(
+import './Inbox.css';
+
+function Inbox() {
+  return (
     <div className="Inbox">
       <Topbar />
-      <p>This is a Test Sentence.</p>
+      <div className="Posts">
+        <Post />
+      </div>
     </div>
   );
 }

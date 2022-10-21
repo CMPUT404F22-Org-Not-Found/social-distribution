@@ -1,0 +1,9 @@
+.Card {
+    margin-left: 20%;
+    margin-right: 20%;
+}
+
+.CardActions {
+    justify-content: end;
+    margin-right: 5%;
+}
