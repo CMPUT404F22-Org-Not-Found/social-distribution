@@ -9,6 +9,7 @@ from rest_framework.views import APIView
 
 from .models import Author
 from .serializers import AuthorSerializer
+from .permissions import IsAuthorOrReadOnly
 
 
 
@@ -33,6 +34,7 @@ class AuthorList(APIView):
 
 class AuthorDetail(APIView):
     """Retrieve, update or delete an author instance."""
+    permission_classes = [IsAuthorOrReadOnly]
 
     def get_object(self, pk: str) -> Author:
         """Return an author instance."""
@@ -50,7 +52,7 @@ class AuthorDetail(APIView):
     def post(self, request: Request, pk: str, format: str = None) -> Response:
         """Return an error."""
         author = self.get_object(pk)
-        serializer = AuthorSerializer(author)
+        serializer = AuthorSerializer(author, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)

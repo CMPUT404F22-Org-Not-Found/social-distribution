@@ -2,8 +2,6 @@ from django.db import models
 from django.contrib.auth.models import User
 import uuid
 
-# a1 = Author(type="author", host="http://127.0.0.1", displayName="Adit Rada", github="https://github.com/adit333")
-
 class Author(models.Model):
     # The user can be null for remote authors
     user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True, null=True)
@@ -15,10 +13,10 @@ class Author(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     # The url to the author's profile
-    url = models.URLField(blank=True, null=True)
+    url = models.URLField(blank=True, null=True, editable=False)
 
     # The host home of the author
-    host = models.URLField(blank=True, null=True)
+    host = models.URLField(blank=True, null=True, editable=False)
 
     displayName = models.CharField(max_length=100, blank=True, null=True)
 
@@ -32,7 +30,7 @@ class Author(models.Model):
     followers = models.ManyToManyField("self", related_name="following", symmetrical=False, blank=True)
 
     def compute_url(self):
-        return str(self.host) + "author/" + str(self.id)
+        return f"{self.host}/authors/{self.id}"
 
     def save(self, *args, **kwargs):
         self.url = self.compute_url()
