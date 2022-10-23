@@ -1,5 +1,6 @@
 """Contains the views for the author app."""
 
+from django.core.paginator import Paginator
 from django.http import Http404
 from rest_framework import status
 from rest_framework.decorators import api_view
@@ -15,10 +16,12 @@ from .permissions import IsAuthorOrReadOnly
 
 class AuthorList(APIView):
     """List all authors, or create a new author."""
+    _DEFUALT_PAGE_SIZE = 10
+    _DEFAULT_PAGE_NUM = 1
 
     def get(self, request: Request, format: str = None) -> Response:
         """Return a list of all authors."""
-        authors = Author.objects.all()
+        authors = self._get_paginated_authors(request)
         serializer = AuthorSerializer(authors, many=True)
         return Response(serializer.data)
 
@@ -29,6 +32,14 @@ class AuthorList(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def _get_paginated_authors(self, request: Request) -> Paginator:
+        """Return a paginated list of authors."""
+        authors = Author.objects.all()
+        page_size = request.query_params.get("size", self._DEFUALT_PAGE_SIZE)
+        page_num = request.query_params.get("page", self._DEFAULT_PAGE_NUM)
+        paginator = Paginator(authors, page_size)
+        return paginator.get_page(page_num)
 
 
 
