@@ -4,6 +4,6 @@ from .views import AuthorList, AuthorDetail
 
 
 urlpatterns = [
-    path('', AuthorList.as_view()),
-    path('<uuid:pk>', AuthorDetail.as_view()),
+    path('', AuthorList.as_view(), name='author-list'),
+    path('<uuid:pk>', AuthorDetail.as_view(), name='author-detail'),
 ]

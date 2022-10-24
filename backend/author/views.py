@@ -3,7 +3,6 @@
 from django.core.paginator import Paginator
 from django.http import Http404
 from rest_framework import status
-from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
@@ -61,7 +60,7 @@ class AuthorDetail(APIView):
         return Response(serializer.data)
 
     def post(self, request: Request, pk: str, format: str = None) -> Response:
-        """Return an error."""
+        """Updates the author instance."""
         author = self.get_object(pk)
         serializer = AuthorSerializer(author, data=request.data)
         if serializer.is_valid():
