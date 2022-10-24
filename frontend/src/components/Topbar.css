@@ -1,5 +1,11 @@
 .IconButton {
-    size: large;
-    color: inherit;
-    margin-right: 2;
+  size: large;
+  color: inherit;
+  margin-right: 2;
+}
+
+.Toolbar {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }

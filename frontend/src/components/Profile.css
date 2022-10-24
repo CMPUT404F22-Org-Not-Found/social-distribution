@@ -1,0 +1,22 @@
+.Content {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.MyPosts {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.MyFriends {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.MuiList-root {
+  width: 20rem;
+  background-color: lightgray;
+}
