@@ -1,17 +1,14 @@
 import React from "react";
-import Post from "./Post";
-import Topbar from "./Topbar";
-
 import './Inbox.css';
+import Post from "./Post";
+// import Topbar from "./Topbar";
+// import FriendRequests from "./FriendRequests";
 
 function Inbox() {
   return (
     <div className="Inbox">
-      <Topbar />
-      <div className="Posts">
-        <Post />
-      </div>
-    </div>
+      <Post />
+    </div >
   );
 }
 
