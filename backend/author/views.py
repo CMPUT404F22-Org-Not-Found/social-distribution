@@ -1,5 +1,6 @@
 """Contains the views for the author app."""
 
+from django.shortcuts import render
 from django.core.paginator import Paginator
 from django.http import Http404
 from rest_framework import status
@@ -10,6 +11,7 @@ from rest_framework.views import APIView
 from .models import Author
 from .serializers import AuthorSerializer
 from .permissions import IsAuthorOrReadOnly
+from .forms import RegisterForm
 
 
 
@@ -73,3 +75,24 @@ class AuthorDetail(APIView):
         author = self.get_object(pk)
         author.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+class Register(APIView):
+    """Register a new author."""
+    def post(self, request: Request, format: str = None) -> Response:
+        """Creates a new author."""
+        form = RegisterForm(request.data)
+        if form.is_valid():
+            user = form.save()
+            displayName = form.cleaned_data.get("displayName")
+            github = form.cleaned_data.get("github")
+            profileImage = form.cleaned_data.get("profileImage")
+            author = Author.objects.create(user=user, displayName=displayName, github=github, profileImage=profileImage)
+            return Response(status=status.HTTP_201_CREATED)
+        return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def get(self, request: Request, format: str = None) -> Response:
+        """Return a form to register a new author."""
+        form = RegisterForm()
+        return render(request, 'register.html', {'form': form})
+
