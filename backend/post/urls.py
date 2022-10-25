@@ -1,9 +1,9 @@
 from django.conf.urls import include
 from django.urls import path
 
-from .views import PostList, PostDetail
+from .views import PostDetail
 
 urlpatterns = [
-    path('',PostList.as_view()),
-    path('<uuid:pk>', PostDetail.as_view()),
+    path('',PostDetail.as_view()),
+    path('<uuid:post_id>/', PostDetail.as_view()),
 ]
