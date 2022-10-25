@@ -1,6 +1,9 @@
+from email.policy import default
 from django.db import models
 from django.contrib.auth.models import User
 import uuid
+
+DEFAULT_HOST = "http://127.0.0.1:8000"
 
 class Author(models.Model):
     # The user can be null for remote authors
@@ -16,7 +19,7 @@ class Author(models.Model):
     url = models.URLField(blank=True, null=True, editable=False)
 
     # The host home of the author
-    host = models.URLField(blank=True, null=True, editable=False)
+    host = models.URLField(blank=True, default=DEFAULT_HOST, null=True, editable=False)
 
     displayName = models.CharField(max_length=100, blank=True, null=True)
 
