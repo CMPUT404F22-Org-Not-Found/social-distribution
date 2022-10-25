@@ -1,6 +1,5 @@
 """Contains test cases for the author app."""
 
-from re import S
 from django.test import TestCase
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient, APITestCase, APIRequestFactory
