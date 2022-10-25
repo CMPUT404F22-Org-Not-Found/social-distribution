@@ -17,25 +17,31 @@ function FriendRequests() {
     <StyledEngineProvider injectFirst>
       <div className="FriendRequest">
         <h1>Friend Requests</h1>
-        <List className="List">
-          {sampleFriendRequests.map((value) => (
-            <div>
-              <ListItem
-                key={value.name}
-                disableGutters
-                secondaryAction={
-                  <div>
-                    <Button variant="contained" className="ActionButton">Accept</Button>
-                    <Button variant="contained" className="ActionButton">Decline</Button>
-                  </div>
-                }
-              >
-                <ListItemText primary={value.name} />
-              </ListItem>
-              <Divider />
-            </div>
-          ))}
-        </List>
+        <div className="FriendList">
+          <List>
+            {sampleFriendRequests.map((value) => (
+              <div>
+                <ListItem
+                  key={value.name}
+                  disableGutters
+                  secondaryAction={
+                    <div className="RequestButtons">
+                      <div>
+                        <Button variant="contained">Accept</Button>
+                      </div>
+                      <div>
+                        <Button variant="contained">Decline</Button>
+                      </div>
+                    </div>
+                  }
+                >
+                  <ListItemText primary={value.name} />
+                </ListItem>
+                <Divider />
+              </div>
+            ))}
+          </List>
+        </div>
       </div >
     </StyledEngineProvider>
 
