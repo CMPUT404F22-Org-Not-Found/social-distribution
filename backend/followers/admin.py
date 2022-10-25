@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import FollowRequest
+from .models import FriendRequest
 # Register your models here.
 
-admin.site.register(FollowRequest)
+admin.site.register(FriendRequest)
