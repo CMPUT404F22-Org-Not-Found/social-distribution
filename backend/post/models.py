@@ -1,3 +1,4 @@
+from re import T
 from time import timezone
 from django.db import models
 from django.utils import timezone
@@ -23,7 +24,7 @@ class Post(models.Model):
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     type = models.CharField(default="post",max_length=4, editable=False)
-    title = models.CharField(max_length=255)
+    title = models.CharField(max_length=255,blank=True,null=True)
     source = models.URLField(max_length=500,null=True,blank=True)
     origin = models.URLField(max_length=500,null=True,blank=True)
     description = models.TextField(max_length=255, blank=True, null=True, default="")

@@ -49,8 +49,9 @@ class PostDetail(APIView):
             return Response(serializer.data,status=status.HTTP_200_OK)
         
         posts = list(self.list(pk))
-        page = request.query_params.get("page",1)
         size = request.query_params.get("size",5)
+        page = request.query_params.get("page",1)
+        
         paginator = Paginator(posts,size)
 
         try:
@@ -87,13 +88,12 @@ class PostDetail(APIView):
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
         
         request["id"] = str(uuid.uuid4())
-        request["author"] = AuthorSerializer(author).data
-        serializer = PostSerializer(data=request)
+        request["author"] = author
+        post, created = Post.objects.update_or_create(id=request["id"], defaults=request)
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status = status.HTTP_201_CREATED)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        serializer = PostSerializer(post)
+        return Response(serializer.data, status = status.HTTP_201_CREATED)
+        
 
 
     def delete(self,request,pk,post_id):
@@ -115,15 +115,17 @@ class PostDetail(APIView):
         if author is None:
             raise Http404
 
+        print(author)
+
         request = dict(request.data)
         request["id"] = post_id
-        serializer = PostSerializer(data = request)
+        request["author"] = author
 
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status = status.HTTP_201_CREATED)
-        return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
+        post, created = Post.objects.update_or_create(id=post_id, defaults=request)
+        serializer = PostSerializer(post)
 
+        return Response(serializer.data, status = status.HTTP_201_CREATED)
+        
 
 
         

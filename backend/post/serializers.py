@@ -1,17 +1,18 @@
 from .models import Post
 from rest_framework import serializers
 from author.serializers import AuthorSerializer
-
+from author.models import Author
 class PostSerializer(serializers.ModelSerializer):
 
     author = AuthorSerializer(read_only = False)
 
     class Meta:
         model = Post
-        fields = ("id","type","title","source","origin","description","contentType","content","author","categories","comments","published","visibility","unlisted")
+        fields = ("id","type","title","source","origin","description","contentType","content","author","categories","comments","published","visibility","unlisted","url")
 
     def create(self, validated_data):
-        return Post.objects.create(**validated_data)
+        post = Post.objects.create(**validated_data)
+        return post
     
     def update(self, instance, validated_data):
         
