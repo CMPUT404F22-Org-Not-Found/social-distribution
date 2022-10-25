@@ -1,10 +1,14 @@
-.Card {
+/* .Card {
     margin-left: 20%;
     margin-right: 20%;
     margin-bottom: 1rem;
-}
+} */
 
 .CardActions {
     justify-content: end;
     margin-right: 5%;
+}
+
+.Post {
+    width: 100%;
 }

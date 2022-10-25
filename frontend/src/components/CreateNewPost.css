@@ -1,29 +1,27 @@
-.Content {
-  display: flex;
+.PostsContent {
+  display: flexbox;
   flex-direction: column;
+  justify-content: center;
+  align-items: center;
   margin-left: 20%;
   margin-right: 20%;
 }
 
 .TextInput {
-  width: 70%;
-  min-width: 20rem;
+  width: 100%;
   align-self: center;
 }
 
 .UploadImage {
-  width: 50%;
-  min-width: 20rem;
   margin-top: 3rem;
-  align-self: center;
 }
 
 .ActionButtons {
   display: flex;
   flex-direction: row;
-  width: 50%;
-  min-width: 20rem;
+  /* width: 50%;
+  min-width: 20rem; */
   margin-top: 3rem;
   justify-content: space-between;
-  align-self: center;
+  /* align-self: center; */
 }
