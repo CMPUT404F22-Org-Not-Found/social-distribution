@@ -32,6 +32,17 @@ function Inbox() {
     },
   ]
 
+  const sampleComments = [
+    {
+      user: 'aditr',
+      comment: 'Welcome to the app. Adding extra words to check width.',
+    },
+    {
+      user: 'skotha',
+      comment: 'I love twitter.',
+    }
+  ]
+
   return (
     <div className="Inbox">
       <h1>Inbox</h1>
@@ -44,6 +55,7 @@ function Inbox() {
             alt={val.alt}
             date={val.date}
             fromProfile={false}
+            comments={sampleComments}
             />
           ))}
     </div >

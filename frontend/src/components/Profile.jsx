@@ -41,6 +41,17 @@ function Profile() {
     },
   ]
 
+  const sampleComments = [
+    {
+      user: 'aditr',
+      comment: 'Welcome to the app.',
+    },
+    {
+      user: 'skotha',
+      comment: 'I love twitter.',
+    }
+  ]
+
   return (
     <div className="Profile">
       <h1>My Profile</h1>
@@ -56,6 +67,7 @@ function Profile() {
             alt={val.alt}
             date={val.date}
             fromProfile={true}
+            comments={sampleComments}
             />
           ))}
         </div>

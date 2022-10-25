@@ -1,6 +1,5 @@
 import { Button, Divider, List, ListItem, ListItemText, StyledEngineProvider } from "@mui/material";
 import React from "react";
-import { useEffect } from "react";
 import './FriendRequests.css';
 
 function FriendRequests() {
