@@ -1,6 +1,6 @@
 """Contains the views for the author app."""
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
 from django.http import Http404
 from rest_framework import status
@@ -88,7 +88,8 @@ class Register(APIView):
             github = form.cleaned_data.get("github")
             profileImage = form.cleaned_data.get("profileImage")
             author = Author.objects.create(user=user, displayName=displayName, github=github, profileImage=profileImage)
-            return Response(status=status.HTTP_201_CREATED)
+            return redirect('login')
+            # return Response(status=status.HTTP_201_CREATED)
         return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
     
     def get(self, request: Request, format: str = None) -> Response:
