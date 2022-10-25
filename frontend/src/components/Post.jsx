@@ -1,4 +1,4 @@
-import { Avatar, Card, CardActions, CardContent, CardHeader, CardMedia, IconButton, Typography } from "@mui/material";
+import { Avatar, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, ListItem, ListItemText, TextField, Typography } from "@mui/material";
 import { red } from "@mui/material/colors";
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import ShareIcon from '@mui/icons-material/Share';
@@ -10,8 +10,19 @@ import React from "react";
 import './Post.css';
 
 function Post(props) {
+  const [open, setOpen] = React.useState(false);
+
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+
   const {
-    name, user, content, img, alt, date, fromProfile
+    name, user, content, img, alt, date, fromProfile, comments
   } = props
 
   function checkImageExists(image) {
@@ -64,7 +75,7 @@ function Post(props) {
           <IconButton aria-label="like">
             <FavoriteBorderIcon />
           </IconButton>
-          <IconButton aria-label="comment">
+          <IconButton aria-label="comment" onClick={handleClickOpen}>
             <ChatBubbleOutlineIcon />
           </IconButton>
           <IconButton aria-label="share">
@@ -73,6 +84,42 @@ function Post(props) {
           {checkFromProfile()}
         </CardActions>
       </Card>
+      <Dialog
+        open={open}
+        onClose={handleClose}
+        maxWidth='md'
+        fullWidth={true}
+      >
+        <DialogTitle>Comments on {name}'s post</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {comments.map((val) => (
+              <div>
+                <ListItem
+                  key={val.user}
+                  disableGutters
+                >
+                  <ListItemText primary={val.comment} secondary={val.user} />
+                </ListItem>
+                <Divider />
+              </div>
+            ))}
+          </DialogContentText>
+          <TextField
+            autoFocus
+            margin="dense"
+            id="name"
+            label="Add Comment"
+            type="comment"
+            fullWidth
+            variant="standard"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose}>Cancel</Button>
+          <Button onClick={handleClose}>Comment</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
@@ -87,4 +134,5 @@ Post.propTypes = {
   alt: PropTypes.string.isRequired,
   date: PropTypes.string.isRequired,
   fromProfile: PropTypes.bool.isRequired,
+  comments: PropTypes.array.isRequired,
 }
