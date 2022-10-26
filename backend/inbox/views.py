@@ -72,7 +72,9 @@ class InboxView(APIView):
         elif request_dict["type"] == "follow":
             return self._handle_POST_follow(request_dict, author, inbox)
             
-
+        elif request_dict["type"] == "like":
+            return self._handle_POST_like(request_dict, author, inbox)
+            
         return Response(status=status.HTTP_200_OK)
     
     def _handle_POST_post(self, post_request_dict: Dict, author: Author, inbox: Inbox) -> Response:
@@ -130,6 +132,13 @@ class InboxView(APIView):
                         "detail": f"Successfully sent the follow request to {author.displayName}'s inbox"},
                         status=status.HTTP_200_OK)
     
+    def _handle_POST_like(self, like_request_dict: Dict, author: Author, inbox: Inbox) -> Response:
+        
+        post_like_dict = like_request_dict["author"]
+        post_like_dict["id"] = uuid.UUID(post_like_dict["id"])
+
+        # complete
+
     def delete(self, request: Request, author_id: str, format: str = None) -> Response:
         """Clears the inbox of the author."""
         try:
