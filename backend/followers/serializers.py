@@ -9,6 +9,7 @@ class FriendRequestSerializer(serializers.ModelSerializer):
     """Serializer for the FriendRequest model."""
     actor = AuthorSerializer(many=False, required=True)
     object = AuthorSerializer(many=False, required=True)
+    summary = serializers.CharField(max_length=100, required=False)
 
     class Meta:
         model = FriendRequest
