@@ -1,6 +1,5 @@
 """Contains the views for the inbox app."""
 
-from urllib import response
 import uuid
 
 from typing import Dict

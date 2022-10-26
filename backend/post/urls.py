@@ -6,4 +6,5 @@ from .views import PostDetail
 urlpatterns = [
     path('',PostDetail.as_view()),
     path('<uuid:post_id>/', PostDetail.as_view()),
+    path('<uuid:post_id>/likes/', include('like.urls')),
 ]

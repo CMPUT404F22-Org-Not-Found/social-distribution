@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'post.apps.PostConfig',
     'followers.apps.FollowersConfig',
     'inbox.apps.InboxConfig',
+    'like.apps.LikeConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
