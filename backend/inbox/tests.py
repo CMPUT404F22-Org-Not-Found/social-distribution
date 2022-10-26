@@ -80,33 +80,141 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(response.data["author"], "http://testserver/authors/" + str(self.author.id))
 
         # Confirm that the post is in the inbox
-        self.assertEqual(response.data["items"][0][0]["type"], "post")
-        self.assertEqual(response.data["items"][0][0]["title"], "Test Post 1")
-        self.assertEqual(response.data["items"][0][0]["source"], "http://testserver")
-        self.assertEqual(response.data["items"][0][0]["origin"], "http://testserver")
-        self.assertEqual(response.data["items"][0][0]["description"], "Test Post 1 Description")
-        self.assertEqual(response.data["items"][0][0]["contentType"], "text/plain")
-        self.assertEqual(response.data["items"][0][0]["content"], "Test Post 1 Content")
-        self.assertEqual(response.data["items"][0][0]["author"]["id"], str(self.author.id))
-        self.assertEqual(response.data["items"][0][0]["author"]["host"], "http://testserver")
-        self.assertEqual(response.data["items"][0][0]["author"]["displayName"], "Test User 1")
-        self.assertEqual(response.data["items"][0][0]["author"]["url"], "http://testserver/authors/" + str(self.author.id))
-        self.assertEqual(response.data["items"][0][0]["author"]["github"], "github/test1.com")
-        self.assertEqual(response.data["items"][0][0]["author"]["profileImage"], "profile/test1.com")
+        self.assertEqual(response.data["items"][0]["type"], "post")
+        self.assertEqual(response.data["items"][0]["title"], "Test Post 1")
+        self.assertEqual(response.data["items"][0]["source"], "http://testserver")
+        self.assertEqual(response.data["items"][0]["origin"], "http://testserver")
+        self.assertEqual(response.data["items"][0]["description"], "Test Post 1 Description")
+        self.assertEqual(response.data["items"][0]["contentType"], "text/plain")
+        self.assertEqual(response.data["items"][0]["content"], "Test Post 1 Content")
+        self.assertEqual(response.data["items"][0]["author"]["id"], str(self.author.id))
+        self.assertEqual(response.data["items"][0]["author"]["host"], "http://testserver")
+        self.assertEqual(response.data["items"][0]["author"]["displayName"], "Test User 1")
+        self.assertEqual(response.data["items"][0]["author"]["url"], "http://testserver/authors/" + str(self.author.id))
+        self.assertEqual(response.data["items"][0]["author"]["github"], "github/test1.com")
+        self.assertEqual(response.data["items"][0]["author"]["profileImage"], "profile/test1.com")
 
         # Confirm that the friend request is in the inbox
-        self.assertEqual(response.data["items"][0][1]["type"], "Follow")
-        self.assertEqual(response.data["items"][0][1]["actor"]["id"], str(self.author2.id))
-        self.assertEqual(response.data["items"][0][1]["actor"]["host"], "http://testserver")
-        self.assertEqual(response.data["items"][0][1]["actor"]["displayName"], "Test User 2")
-        self.assertEqual(response.data["items"][0][1]["actor"]["url"], "http://testserver/authors/" + str(self.author2.id))
-        self.assertEqual(response.data["items"][0][1]["actor"]["github"], "github/test2.com")
-        self.assertEqual(response.data["items"][0][1]["actor"]["profileImage"], "profile/test2.com")
-        self.assertEqual(response.data["items"][0][1]["object"]["id"], str(self.author.id))
-        self.assertEqual(response.data["items"][0][1]["object"]["host"], "http://testserver")
-        self.assertEqual(response.data["items"][0][1]["object"]["displayName"], "Test User 1")
-        self.assertEqual(response.data["items"][0][1]["object"]["url"], "http://testserver/authors/" + str(self.author.id))
-        self.assertEqual(response.data["items"][0][1]["object"]["github"], "github/test1.com")
-        self.assertEqual(response.data["items"][0][1]["object"]["profileImage"], "profile/test1.com")
+        self.assertEqual(response.data["items"][1]["type"], "Follow")
+        self.assertEqual(response.data["items"][1]["actor"]["id"], str(self.author2.id))
+        self.assertEqual(response.data["items"][1]["actor"]["host"], "http://testserver")
+        self.assertEqual(response.data["items"][1]["actor"]["displayName"], "Test User 2")
+        self.assertEqual(response.data["items"][1]["actor"]["url"], "http://testserver/authors/" + str(self.author2.id))
+        self.assertEqual(response.data["items"][1]["actor"]["github"], "github/test2.com")
+        self.assertEqual(response.data["items"][1]["actor"]["profileImage"], "profile/test2.com")
+        self.assertEqual(response.data["items"][1]["object"]["id"], str(self.author.id))
+        self.assertEqual(response.data["items"][1]["object"]["host"], "http://testserver")
+        self.assertEqual(response.data["items"][1]["object"]["displayName"], "Test User 1")
+        self.assertEqual(response.data["items"][1]["object"]["url"], "http://testserver/authors/" + str(self.author.id))
+        self.assertEqual(response.data["items"][1]["object"]["github"], "github/test1.com")
+        self.assertEqual(response.data["items"][1]["object"]["profileImage"], "profile/test1.com")
         
+    def test_inbox_view_no_inbox(self):
+        request = self.factory.get('/inbox/999')
+        response = InboxView.as_view()(request, author_id=999)
+
+        self.assertEqual(response.status_code, 404)
+
+    def test_inbox_view_no_items(self):
+        self.inbox.posts.clear()
+        self.inbox.friend_requests.clear()
+        request = self.factory.get('/inbox/' + str(self.author.id))
+        response = InboxView.as_view()(request, author_id=str(self.author.id))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["type"], "inbox")
+        self.assertEqual(response.data["author"], "http://testserver/authors/" + str(self.author.id))
+        self.assertEqual(len(response.data["items"]), 0)
     
+    def test_inbox_view_no_author(self):
+        request = self.factory.get('/inbox/999')
+        response = InboxView.as_view()(request, author_id=999)
+
+        self.assertEqual(response.status_code, 404)
+    
+    def test_inbox_post_with_existing_post(self):
+        """When we POST a post to the inbox, if the post is already present, add the post to the inbox,
+        if the post is not present, create a new post and add it to the inbox.
+        """
+        data = {
+            "type": "post",
+            "id": self.post.id,
+            "title": "Test Post 1",
+            "source": "http://testserver",
+            "origin": "http://testserver",
+            "description": "Test Post 1 Description",
+            "contentType": "text/plain",
+            "content": "Test Post 1 Content",
+            "author": {
+                "id": str(self.author.id),
+                "host": "http://testserver",
+                "displayName": "Test User 1",
+                "url": "http://testserver/authors/" + str(self.author.id),
+                "github": "github/test1.com",
+                "profileImage": "profile/test1.com"
+            }
+        }
+        request = self.factory.post('/inbox/' + str(self.author.id), data, format='json')
+        response = InboxView.as_view()(request, author_id=str(self.author.id))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["type"], "post")
+        self.assertEqual(response.data["detail"], f"Successfully sent the post to {self.author.displayName}'s inbox")
+
+        # Check that the post is in the inbox
+        self.assertEqual(self.inbox.posts.count(), 1)
+        self.assertEqual(self.inbox.posts.first().title, "Test Post 1")
+        self.assertEqual(self.inbox.posts.first().source, "http://testserver")
+        self.assertEqual(self.inbox.posts.first().origin, "http://testserver")
+        self.assertEqual(self.inbox.posts.first().description, "Test Post 1 Description")
+        self.assertEqual(self.inbox.posts.first().contentType, "text/plain")
+        self.assertEqual(self.inbox.posts.first().content, "Test Post 1 Content")
+        self.assertEqual(str(self.inbox.posts.first().author.id), str(self.author.id))
+        self.assertEqual(self.inbox.posts.first().author.host, "http://testserver")
+        self.assertEqual(self.inbox.posts.first().author.displayName, "Test User 1")
+        self.assertEqual(self.inbox.posts.first().author.url, "http://testserver/authors/" + str(self.author.id))
+        self.assertEqual(self.inbox.posts.first().author.github, "github/test1.com")
+        self.assertEqual(self.inbox.posts.first().author.profileImage, "profile/test1.com")
+
+    def test_inbox_post_with_new_post(self):
+        """When we POST a post to the inbox, if the post is already present, add the post to the inbox,
+        if the post is not present, create a new post and add it to the inbox.
+        """
+        data = {
+            "type": "post",
+            "title": "Test Post 2",
+            "source": "http://testserver",
+            "origin": "http://testserver",
+            "description": "Test Post 2 Description",
+            "contentType": "text/plain",
+            "content": "Test Post 2 Content",
+            "author": {
+                "id": str(self.author.id),
+                "host": "http://testserver",
+                "displayName": "Test User 1",
+                "url": "http://testserver/authors/" + str(self.author.id),
+                "github": "github/test1.com",
+                "profileImage": "profile/test1.com"
+            }
+        }
+        request = self.factory.post('/inbox/' + str(self.author.id), data, format='json')
+        response = InboxView.as_view()(request, author_id=str(self.author.id))
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["type"], "post")
+        self.assertEqual(response.data["detail"], f"Successfully created a new post and sent to {self.author.displayName}'s inbox")
+
+        # Check that the post is in the inbox
+        self.assertEqual(self.inbox.posts.count(), 2)
+        added_post = self.inbox.posts.filter(title="Test Post 2").first()
+        self.assertEqual(added_post.title, "Test Post 2")
+        self.assertEqual(added_post.source, "http://testserver")
+        self.assertEqual(added_post.origin, "http://testserver")
+        self.assertEqual(added_post.description, "Test Post 2 Description")
+        self.assertEqual(added_post.contentType, "text/plain")
+        self.assertEqual(added_post.content, "Test Post 2 Content")
+        self.assertEqual(str(added_post.author.id), str(self.author.id))
+        self.assertEqual(added_post.author.host, "http://testserver")
+        self.assertEqual(added_post.author.displayName, "Test User 1")
+        self.assertEqual(added_post.author.url, "http://testserver/authors/" + str(self.author.id))
+        self.assertEqual(added_post.author.github, "github/test1.com")

@@ -23,9 +23,12 @@ class InboxView(APIView):
         try:
             author = Author.objects.get(pk=author_id)
         except Author.DoesNotExist:
-            raise Http404
+            raise Http404("Author does not exist")
 
-        inbox = Inbox.objects.get(author=author)
+        try:
+            inbox = Inbox.objects.get(author=author)
+        except Inbox.DoesNotExist:
+            raise Http404("Inbox does not exist")
 
         posts_list = list(inbox.posts.all().order_by("-published"))
         friend_requests_list = list(inbox.friend_requests.all())
@@ -36,7 +39,48 @@ class InboxView(APIView):
         response = {
             "type": "inbox",
             "author": str(author.url),
-            "items": [posts_serializer.data + friend_requests_serializer.data],
+            "items": posts_serializer.data + friend_requests_serializer.data,
         }
 
         return Response(response, status=status.HTTP_200_OK)
+
+    def post(self, request: Request, author_id: str, format: str = None) -> Response:
+        """Send a post to the author.
+            if the type is “post” then add that post to AUTHOR_IDs inbox
+            if the type is “follow” then add that follow is added to AUTHOR_IDs inbox to approve later
+            if the type is “like” then add that like to AUTHOR_IDs inbox
+            if the type is “comment” then add that comment to AUTHOR_IDs inbox
+        """
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            raise Http404("Author does not exist")
+
+        try:
+            inbox = Inbox.objects.get(author=author)
+        except Inbox.DoesNotExist:
+            raise Http404("Inbox does not exist")
+
+        request_dict = request.data
+        if request_dict["type"] == "post":
+            """When we POST a post to the inbox, if the post is already present, add the post to the inbox,
+            if the post is not present, create a new post and add it to the inbox.
+            """
+            request_dict["author"] = author # we replace the json author with the author object
+            post, was_post_created = Post.objects.get_or_create(id=request_dict.get("id", None),
+                                                                defaults=request_dict)
+            inbox.posts.add(post)
+            inbox.save()
+            if was_post_created:
+                return Response({"type": "post",
+                                 "detail": f"Successfully created a new post and sent to {author.displayName}'s inbox"},
+                                 status=status.HTTP_201_CREATED)
+            
+            return Response({"type": "post",
+                            "detail": f"Successfully sent the post to {author.displayName}'s inbox"},
+                            status=status.HTTP_200_OK)
+
+        elif request_dict["type"] == "follow":
+            pass
+
+        return Response(status=status.HTTP_200_OK)
