@@ -1,0 +1,25 @@
+/* .MuiButton-root{
+    margin-right: 1rem;
+} */
+
+.FriendList {
+    width: 60vw;
+}
+
+.MuiList-root {
+    min-width: 100%;
+}
+
+.FriendRequest {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.RequestButtons {
+    width: 12rem;
+    justify-content: space-between;
+    display: flex;
+    flex-direction: row;
+}

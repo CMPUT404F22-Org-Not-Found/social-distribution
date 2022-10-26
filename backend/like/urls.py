@@ -1,11 +1,9 @@
-"""Contains the urls for the like app."""
+"""Contains the urls for the Like app."""
 
-from django.conf.urls import include
 from django.urls import path
 
-from .views import LikedDetail,LikeDetail
+from .views import LikeView
 
 urlpatterns = [
-    path('', LikedDetail.as_view(), name='liked-detail'),
-
+    path('', LikeView.as_view(), name="like"),
 ]
