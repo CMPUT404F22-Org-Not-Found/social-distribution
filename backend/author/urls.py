@@ -4,6 +4,8 @@ from .views import AuthorList, AuthorDetail
 
 urlpatterns = [
     path('', AuthorList.as_view()),
-    path('<uuid:pk>', AuthorDetail.as_view()),
+    path('<uuid:pk>/', AuthorDetail.as_view()),
+    path('<uuid:pk>/posts/',include('post.urls')),
     path('<uuid:author_id>/followers/', include('followers.urls')),
 ]
+

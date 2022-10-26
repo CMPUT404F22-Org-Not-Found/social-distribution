@@ -32,6 +32,7 @@ ALLOWED_HOSTS = []
 
 INSTALLED_APPS = [
     'author.apps.AuthorConfig',
+    'post.apps.PostConfig',
     'followers.apps.FollowersConfig',
     'django.contrib.admin',
     'django.contrib.auth',
