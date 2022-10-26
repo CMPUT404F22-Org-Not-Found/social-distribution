@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
-import { AppBar, Box, IconButton, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Button, IconButton, Toolbar, Typography } from "@mui/material";
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import AddIcon from '@mui/icons-material/Add';
@@ -57,7 +57,7 @@ function Topbar() {
             </div>
 
             <div>
-              <Button variant="text" className="IconButton" onClick={onClickLogin}>
+              <Button className="IconButton" onClick={onClickLogin}>
                 Login
               </Button>
 

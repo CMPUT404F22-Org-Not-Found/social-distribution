@@ -8,7 +8,7 @@ function CreateNewPost() {
     <div className="CreateNewPost">
       <h1>Create a New Post</h1>
       <div className="PostsContent">
-        <TextField className="TextInput" id="outline-multiline-flexible" label="Multiline" multiline rows={10} />
+        <TextField className="TextInput" id="outline-multiline-flexible" label="Post Text" multiline rows={10} />
         <div className="UploadImage">
           <Button variant="contained" component="label">
             Upload Image
