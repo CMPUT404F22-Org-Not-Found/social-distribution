@@ -38,6 +38,10 @@ function Topbar() {
     navigate('/profile');
   }
 
+  const onClickLogin = () => {
+    navigate('/login');
+  }
+
   return (
     <div className="TopBar">
       <Box sx={{ flexGrow: 1 }}>
@@ -53,6 +57,10 @@ function Topbar() {
             </div>
 
             <div>
+              <Button variant="text" className="IconButton" onClick={onClickLogin}>
+                Login
+              </Button>
+
               <IconButton className="IconButton" onClick={onClickFriendRequests}>
                 <PersonAddAltIcon htmlColor="white"/>
               </IconButton>
