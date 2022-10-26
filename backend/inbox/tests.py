@@ -393,3 +393,14 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(str(added_friend_request.object.id), str(self.author2.id))
         self.assertEqual(added_friend_request.object.displayName, "Test User 2")
 
+    def test_inbox_delete(self):
+        """Clear an inbox."""
+        self.assertEqual(self.inbox.posts.count(), 1)
+        self.assertEqual(self.inbox.friend_requests.count(), 1)
+
+        request = self.factory.delete('/inbox/' + str(self.author.id))
+        response = InboxView.as_view()(request, author_id=str(self.author.id))
+
+        self.assertEqual(response.status_code, 204)
+        self.assertEqual(self.inbox.posts.count(), 0)
+        self.assertEqual(self.inbox.friend_requests.count(), 0)

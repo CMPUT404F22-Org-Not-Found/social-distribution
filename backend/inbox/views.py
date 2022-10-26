@@ -1,5 +1,6 @@
 """Contains the views for the inbox app."""
 
+from urllib import response
 import uuid
 
 from typing import Dict
@@ -69,10 +70,6 @@ class InboxView(APIView):
             return self._handle_POST_post(request_dict, author, inbox)
 
         elif request_dict["type"] == "follow":
-            """When we POST a follow request to the inbox, if the follow request is already present,
-            add the follow request to the inbox,
-            if the follow request is not present, create a new follow request and add it to the inbox.
-            """
             return self._handle_POST_follow(request_dict, author, inbox)
             
 
@@ -132,3 +129,26 @@ class InboxView(APIView):
         return Response({"type": "follow",
                         "detail": f"Successfully sent the follow request to {author.displayName}'s inbox"},
                         status=status.HTTP_200_OK)
+    
+    def delete(self, request: Request, author_id: str, format: str = None) -> Response:
+        """Clears the inbox of the author."""
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            raise Http404("Author does not exist")
+
+        try:
+            inbox = Inbox.objects.get(author=author)
+        except Inbox.DoesNotExist:
+            raise Http404("Inbox does not exist")
+
+        inbox.posts.clear()
+        inbox.friend_requests.clear()
+        inbox.save()
+
+        response_dict = {
+            "type": "inbox",
+            "author": str(author.id),
+            "detail": f"Successfully cleared {author.displayName}'s inbox",
+        }
+        return Response(response_dict, status=status.HTTP_204_NO_CONTENT)
