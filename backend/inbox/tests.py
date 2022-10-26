@@ -66,6 +66,7 @@ class InboxViewTestCase(APITestCase):
         self.u2 = User.objects.create_user(username='testuser2', password='12345')
         self.author2 = Author.objects.create(user=self.u2, host="http://testserver", displayName="Test User 2",
                               github="github/test2.com", profileImage="profile/test2.com")
+        self.inbox2 = Inbox.objects.create(author=self.author2)
         self.friend_request = FriendRequest.objects.create(actor=self.author2, object=self.author)
         self.inbox.friend_requests.add(self.friend_request)
         self.post = Post.objects.create(title="Test Post 1", source="http://testserver", origin="http://testserver",
@@ -134,7 +135,7 @@ class InboxViewTestCase(APITestCase):
 
         self.assertEqual(response.status_code, 404)
     
-    def test_inbox_post_with_existing_post(self):
+    def test_inbox_POST_with_existing_post(self):
         """When we POST a post to the inbox, if the post is already present, add the post to the inbox,
         if the post is not present, create a new post and add it to the inbox.
         """
@@ -178,7 +179,7 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(self.inbox.posts.first().author.github, "github/test1.com")
         self.assertEqual(self.inbox.posts.first().author.profileImage, "profile/test1.com")
 
-    def test_inbox_post_with_new_post(self):
+    def test_inbox_POST_with_new_post(self):
         """When we POST a post to the inbox, if the post is already present, add the post to the inbox,
         if the post is not present, create a new post and add it to the inbox.
         """
@@ -221,7 +222,7 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(added_post.author.url, "http://testserver/authors/" + str(self.author.id))
         self.assertEqual(added_post.author.github, "github/test1.com")
 
-    def test_inbox_post_with_new_post_new_author(self):
+    def test_inbox_POST_with_new_post_new_author(self):
         """For posts coming from a remote server, we will create a new author if the author does not exist.
             And add the post to the inbox.
         """
@@ -272,3 +273,123 @@ class InboxViewTestCase(APITestCase):
         new_author = Author.objects.filter(displayName="Test User 3").first()
         self.assertEqual(str(new_author.id), str(new_author_uuid))
  
+    def test_inbox_POST_follow_request_with_existing_authors(self):
+        """Create a friend request from author 1 to author 2."""
+        data = {
+            "type": "follow",
+            "summary": "Test User 1 wants to follow Test User 2",
+            "actor": {
+                "id": str(self.author.id),
+                "host": "http://testserver",
+                "displayName": "Test User 1",
+                "url": "http://testserver/authors/" + str(self.author.id),
+                "github": "github/test1.com",
+                "profileImage": "profile/test1.com"
+            },
+            "object": {
+                "id": str(self.author2.id),
+                "host": "http://testserver",
+                "displayName": "Test User 2",
+                "url": "http://testserver/authors/" + str(self.author2.id),
+                "github": "github/test2.com",
+                "profileImage": "profile/test2.com"
+            }
+        }
+        request = self.factory.post('/inbox/' + str(self.author2.id), data, format='json')
+        response = InboxView.as_view()(request, author_id=str(self.author2.id))
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["type"], "follow")
+        self.assertEqual(response.data["detail"], f"Successfully created a new follow request and sent to {self.author2.displayName}'s inbox")
+
+        # Check that the friend request is in the inbox
+        self.assertEqual(self.inbox2.friend_requests.count(), 1)
+        added_friend_request = self.inbox2.friend_requests.filter(actor=self.author).first()
+        self.assertEqual(str(added_friend_request.actor.id), str(self.author.id))
+        self.assertEqual(added_friend_request.actor.displayName, "Test User 1")
+        self.assertEqual(str(added_friend_request.object.id), str(self.author2.id))
+        self.assertEqual(added_friend_request.object.displayName, "Test User 2")
+
+    def test_inbox_POST_follow_request_with_new_author(self):
+        """Create a friend request from a new author (the remote author) to author 2."""
+        new_author_uuid = uuid.uuid4()
+        data = {
+            "type": "follow",
+            "summary": "Test User 3 wants to follow Test User 2",
+            "actor": {
+                "id": str(new_author_uuid),
+                "host": "http://testserver",
+                "displayName": "Test User 3",
+                "url": "http://testserver/authors/" + str(new_author_uuid),
+                "github": "github/test3.com",
+                "profileImage": "profile/test3.com"
+            },
+            "object": {
+                "id": str(self.author2.id),
+                "host": "http://testserver",
+                "displayName": "Test User 2",
+                "url": "http://testserver/authors/" + str(self.author2.id),
+                "github": "github/test2.com",
+                "profileImage": "profile/test2.com"
+            }
+        }
+        request = self.factory.post('/inbox/' + str(self.author2.id), data, format='json')
+        response = InboxView.as_view()(request, author_id=str(self.author2.id))
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["type"], "follow")
+        self.assertEqual(response.data["detail"], f"Successfully created a new follow request and sent to {self.author2.displayName}'s inbox")
+
+        # Check that the friend request is in the inbox
+        self.assertEqual(self.inbox2.friend_requests.count(), 1)
+        added_friend_request = self.inbox2.friend_requests.filter(actor__id=new_author_uuid).first()
+        self.assertEqual(str(added_friend_request.actor.id), str(new_author_uuid))
+        self.assertEqual(added_friend_request.actor.displayName, "Test User 3")
+        self.assertEqual(str(added_friend_request.object.id), str(self.author2.id))
+        self.assertEqual(added_friend_request.object.displayName, "Test User 2")
+
+        # Check that the new remote author is created
+        self.assertEqual(Author.objects.count(), 3)
+        new_author = Author.objects.filter(displayName="Test User 3").first()
+        self.assertEqual(str(new_author.id), str(new_author_uuid))
+
+    def test_inbox_POST_follow_request_with_existing_authors_and_existing_friend_request(self):
+        """Create a friend request from author 1 to author 2, but the friend request already exists."""
+        # Create a friend request from author 1 to author 2
+        self.inbox2.friend_requests.create(actor=self.author, object=self.author2)
+
+        data = {
+            "type": "follow",
+            "summary": "Test User 1 wants to follow Test User 2",
+            "actor": {
+                "id": str(self.author.id),
+                "host": "http://testserver",
+                "displayName": "Test User 1",
+                "url": "http://testserver/authors/" + str(self.author.id),
+                "github": "github/test1.com",
+                "profileImage": "profile/test1.com"
+            },
+            "object": {
+                "id": str(self.author2.id),
+                "host": "http://testserver",
+                "displayName": "Test User 2",
+                "url": "http://testserver/authors/" + str(self.author2.id),
+                "github": "github/test2.com",
+                "profileImage": "profile/test2.com"
+            }
+        }
+        request = self.factory.post('/inbox/' + str(self.author2.id), data, format='json')
+        response = InboxView.as_view()(request, author_id=str(self.author2.id))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["type"], "follow")
+        self.assertEqual(response.data["detail"], f"Successfully sent the follow request to {self.author2.displayName}'s inbox")
+
+        # Check that the friend request is in the inbox
+        self.assertEqual(self.inbox2.friend_requests.count(), 1)
+        added_friend_request = self.inbox2.friend_requests.filter(actor=self.author).first()
+        self.assertEqual(str(added_friend_request.actor.id), str(self.author.id))
+        self.assertEqual(added_friend_request.actor.displayName, "Test User 1")
+        self.assertEqual(str(added_friend_request.object.id), str(self.author2.id))
+        self.assertEqual(added_friend_request.object.displayName, "Test User 2")
+

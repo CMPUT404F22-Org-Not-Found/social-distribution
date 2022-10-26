@@ -73,7 +73,7 @@ class InboxView(APIView):
             add the follow request to the inbox,
             if the follow request is not present, create a new follow request and add it to the inbox.
             """
-            pass
+            return self._handle_POST_follow(request_dict, author, inbox)
             
 
         return Response(status=status.HTTP_200_OK)
@@ -100,4 +100,35 @@ class InboxView(APIView):
         
         return Response({"type": "post",
                         "detail": f"Successfully sent the post to {author.displayName}'s inbox"},
+                        status=status.HTTP_200_OK)
+
+    def _handle_POST_follow(self, follow_request_dict: Dict, author: Author, inbox: Inbox) -> Response:
+        """When we POST a follow request to the inbox, if the follow request is already present,
+        add the follow request to the inbox,
+        if the follow request is not present, create a new follow request and add it to the inbox.
+        """
+        # The object in friend requests is the recipient of the friend request and 
+        # the recipient Author should thus already exist in the database.
+        # The actor in friend requests is the sender of the friend request and
+        # the sender Author may exist if he is a local author or may not exist if he is a remote author,
+        # in which case we create him.
+        recipient_dict = follow_request_dict["object"]
+        recipieent_autor = Author.objects.get(id=recipient_dict["id"])
+        follow_request_dict["object"] = recipieent_autor
+        sender_dict = follow_request_dict["actor"]
+        sender_author, _ = Author.objects.get_or_create(id=sender_dict["id"], defaults=sender_dict)
+        follow_request_dict["actor"] = sender_author
+
+        follow_request, was_follow_request_created = FriendRequest.objects.get_or_create(
+            actor=sender_author, object=recipieent_autor, defaults=follow_request_dict
+        )
+        inbox.friend_requests.add(follow_request)
+        inbox.save()
+        if was_follow_request_created:
+            return Response({"type": "follow",
+                                "detail": f"Successfully created a new follow request and sent to {author.displayName}'s inbox"},
+                                status=status.HTTP_201_CREATED)
+        
+        return Response({"type": "follow",
+                        "detail": f"Successfully sent the follow request to {author.displayName}'s inbox"},
                         status=status.HTTP_200_OK)
