@@ -76,3 +76,22 @@ class LikeViewTestCase(APITestCase):
         response = self.client.get(f"/authors/1/posts/{self.post.id}/likes")
         self.assertEqual(response.status_code, 404)
 
+    def test_like_view_POST(self):
+        """Send a POST to the Like view. This says author like the post, both are given in the url."""
+        post2 = Post.objects.create(title="Test Post 2", source="http://test.com/2", origin="http://test.com/1", 
+                                        description="Test post 2", contentType="text/plain",
+                                        content="Test post", author=self.author,
+                                        url=f"http://test.com/authors/{self.author.id}/2", visibility="PUBLIC")
+
+        response = self.client.post(f"/authors/{self.author.id}/posts/{post2.id}/likes/")
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["type"], "Like")
+        self.assertEqual(response.data["detail"], f"{self.author.displayName} liked {post2.url}.")
+
+        # Check that the like was created
+        self.assertEqual(Like.objects.count(), 2)
+        created_like = Like.objects.get(author=self.author, object=post2.url)
+        self.assertIsNotNone(created_like)
+        self.assertEqual(created_like.summary, f"{self.author.displayName} likes {post2.title}.")
+

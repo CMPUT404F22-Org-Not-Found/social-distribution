@@ -25,4 +25,21 @@ class LikeView(APIView):
         likes = list(Like.objects.filter(object=post.url))
         likes = LikeSerializer(likes, many=True)
         likes_dict = {"type": "likes", "items": likes.data}
-        return Response(likes_dict, status=status.HTTP_200_OK)           
+        return Response(likes_dict, status=status.HTTP_200_OK)
+
+    def post(self, request: Request, pk: str, post_id: str) -> Response:
+        """Add a like to the post."""
+        try:
+            author = Author.objects.get(pk=pk)
+        except Author.DoesNotExist:
+            raise Http404("Author does not exist")
+
+        try:
+            post = Post.objects.get(pk=post_id)
+        except Post.DoesNotExist:
+            raise Http404("Post does not exist")
+
+        like = Like.objects.create(author=author, object=post.url, summary=f"{author.displayName} likes {post.title}.")
+        response_dict = {"type": "Like",
+                         "detail": f"{author.displayName} liked {post.url}."}
+        return Response(response_dict, status=status.HTTP_201_CREATED)        
