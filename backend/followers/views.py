@@ -7,6 +7,7 @@ from rest_framework.request import Request
 from rest_framework.views import APIView
 
 from author.models import Author
+from django.http import Http404
 from author.serializers import AuthorSerializer
 
 from .models import FriendRequest
