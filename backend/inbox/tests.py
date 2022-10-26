@@ -1,5 +1,7 @@
 """Contains the tests for the Inbox app."""
 
+import uuid
+
 from django.test import TestCase
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient, APITestCase, APIRequestFactory
@@ -218,3 +220,55 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(added_post.author.displayName, "Test User 1")
         self.assertEqual(added_post.author.url, "http://testserver/authors/" + str(self.author.id))
         self.assertEqual(added_post.author.github, "github/test1.com")
+
+    def test_inbox_post_with_new_post_new_author(self):
+        """For posts coming from a remote server, we will create a new author if the author does not exist.
+            And add the post to the inbox.
+        """
+        # Here a new author (Test User 3) is a remote author and is sending a post to the inbox of Test User 1
+        new_author_uuid = uuid.uuid4()
+        data = {
+            "type": "post",
+            "title": "Test Post 3",
+            "source": "http://testserver",
+            "origin": "http://testserver",
+            "description": "Test Post 3 Description",
+            "contentType": "text/plain",
+            "content": "Test Post 3 Content",
+            "author": {
+                "id": new_author_uuid,
+                "host": "http://testserver",
+                "displayName": "Test User 3",
+                "url": "http://testserver/authors/999",
+                "github": "github/test3.com",
+                "profileImage": "profile/test3.com"
+            }
+        }
+        request = self.factory.post('/inbox/' + str(self.author.id), data, format='json')
+        response = InboxView.as_view()(request, author_id=str(self.author.id))
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["type"], "post")
+        self.assertEqual(response.data["detail"], f"Successfully created a new post and sent to Test User 1's inbox")
+
+        # Check that the post is in the inbox
+        self.assertEqual(self.inbox.posts.count(), 2)
+        added_post = self.inbox.posts.filter(title="Test Post 3").first()
+        self.assertEqual(added_post.title, "Test Post 3")
+        self.assertEqual(added_post.source, "http://testserver")
+        self.assertEqual(added_post.origin, "http://testserver")
+        self.assertEqual(added_post.description, "Test Post 3 Description")
+        self.assertEqual(added_post.contentType, "text/plain")
+        self.assertEqual(added_post.content, "Test Post 3 Content")
+        self.assertEqual(str(added_post.author.id), str(new_author_uuid))
+        self.assertEqual(added_post.author.host, "http://testserver")
+        self.assertEqual(added_post.author.displayName, "Test User 3")
+        self.assertEqual(added_post.author.url, "http://testserver/authors/" + str(new_author_uuid))
+        self.assertEqual(added_post.author.github, "github/test3.com")
+        self.assertEqual(added_post.author.profileImage, "profile/test3.com")
+
+        # Check that the new remote author is created
+        self.assertEqual(Author.objects.count(), 3)
+        new_author = Author.objects.filter(displayName="Test User 3").first()
+        self.assertEqual(str(new_author.id), str(new_author_uuid))
+ 

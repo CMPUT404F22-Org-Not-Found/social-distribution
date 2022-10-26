@@ -1,5 +1,8 @@
 """Contains the views for the inbox app."""
 
+import uuid
+
+from typing import Dict
 from django.http import Http404
 from rest_framework import status
 from rest_framework.response import Response
@@ -63,24 +66,38 @@ class InboxView(APIView):
 
         request_dict = request.data
         if request_dict["type"] == "post":
-            """When we POST a post to the inbox, if the post is already present, add the post to the inbox,
-            if the post is not present, create a new post and add it to the inbox.
-            """
-            request_dict["author"] = author # we replace the json author with the author object
-            post, was_post_created = Post.objects.get_or_create(id=request_dict.get("id", None),
-                                                                defaults=request_dict)
-            inbox.posts.add(post)
-            inbox.save()
-            if was_post_created:
-                return Response({"type": "post",
-                                 "detail": f"Successfully created a new post and sent to {author.displayName}'s inbox"},
-                                 status=status.HTTP_201_CREATED)
-            
-            return Response({"type": "post",
-                            "detail": f"Successfully sent the post to {author.displayName}'s inbox"},
-                            status=status.HTTP_200_OK)
+            return self._handle_POST_post(request_dict, author, inbox)
 
         elif request_dict["type"] == "follow":
+            """When we POST a follow request to the inbox, if the follow request is already present,
+            add the follow request to the inbox,
+            if the follow request is not present, create a new follow request and add it to the inbox.
+            """
             pass
+            
 
         return Response(status=status.HTTP_200_OK)
+    
+    def _handle_POST_post(self, post_request_dict: Dict, author: Author, inbox: Inbox) -> Response:
+        """When we POST a post to the inbox, if the post is already present, add the post to the inbox,
+        if the post is not present, create a new post and add it to the inbox.
+        """
+        post_author_dict = post_request_dict["author"]
+        post_author_dict["id"] = uuid.UUID(post_author_dict["id"])
+        # We may need to create a new author for remote author posts
+        post_author, _ = Author.objects.get_or_create(
+            id=post_author_dict["id"], defaults=post_author_dict
+        )
+        post_request_dict["author"] = post_author # we replace the json author with the author object
+        post, was_post_created = Post.objects.get_or_create(id=post_request_dict.get("id", None),
+                                                            defaults=post_request_dict)
+        inbox.posts.add(post)
+        inbox.save()
+        if was_post_created:
+            return Response({"type": "post",
+                                "detail": f"Successfully created a new post and sent to {author.displayName}'s inbox"},
+                                status=status.HTTP_201_CREATED)
+        
+        return Response({"type": "post",
+                        "detail": f"Successfully sent the post to {author.displayName}'s inbox"},
+                        status=status.HTTP_200_OK)
