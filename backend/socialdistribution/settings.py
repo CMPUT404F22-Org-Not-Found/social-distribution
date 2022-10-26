@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'author.apps.AuthorConfig',
     'post.apps.PostConfig',
     'followers.apps.FollowersConfig',
+    'comment.apps.CommentConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
