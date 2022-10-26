@@ -43,3 +43,21 @@ class LikeView(APIView):
         response_dict = {"type": "Like",
                          "detail": f"{author.displayName} liked {post.url}."}
         return Response(response_dict, status=status.HTTP_201_CREATED)        
+
+
+class LikedView(APIView):
+    
+    def get(self, request: Request, author_id: str) -> Response:
+        """Return the posts that the author liked."""
+        try:
+            author = Author.objects.get(pk=author_id)
+        except Author.DoesNotExist:
+            raise Http404("Author does not exist")
+
+        liked = list(author.liked.all())
+        liked_serializer = LikeSerializer(liked, many=True)
+        liked_dict = {
+            "type":"liked",
+            "items": liked_serializer.data
+        }
+        return Response(liked_dict, status=status.HTTP_200_OK)

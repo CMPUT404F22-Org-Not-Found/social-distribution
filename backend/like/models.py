@@ -9,7 +9,7 @@ class Like(models.Model):
     type = models.CharField(max_length=5, default="Like", editable=False)
 
     # The author who liked the object
-    author = models.ForeignKey(Author, related_name="like_author", on_delete=models.CASCADE)
+    author = models.ForeignKey(Author, related_name="liked", on_delete=models.CASCADE)
 
     # The object that was liked
     object = models.URLField(max_length=500, editable=False)

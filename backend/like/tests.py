@@ -95,3 +95,34 @@ class LikeViewTestCase(APITestCase):
         self.assertIsNotNone(created_like)
         self.assertEqual(created_like.summary, f"{self.author.displayName} likes {post2.title}.")
 
+
+class LikedViewTest(APITestCase):
+    """Tests for the Liked view."""
+
+    def setUp(self):
+        """Set up the test case."""
+        self.user = User.objects.create_user(username="test", password="test")
+        self.author = Author.objects.create(user=self.user, displayName="Test", host="http://test.com")
+        self.post = Post.objects.create(title="Test", source="http://test.com/1", origin="http://test.com/1", 
+                                        description="Test post", contentType="text/plain",
+                                        content="Test post", author=self.author,
+                                        url=f"http://test.com/authors/{self.author.id}/1", visibility="PUBLIC")
+
+        self.like = Like.objects.create(author=self.author, object=self.post.url, summary="Test likes test post.")
+
+    def test_liked_view_get(self):
+        """Test the GET method of the Liked view."""
+        response = self.client.get(f"/authors/{self.author.id}/liked/")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["type"], "liked")
+        self.assertEqual(response.data["items"][0]["type"], "Like")
+        self.assertEqual(response.data["items"][0]["author"]["id"], str(self.author.id))
+        self.assertEqual(response.data["items"][0]["object"], self.post.url)
+        self.assertEqual(response.data["items"][0]["summary"], "Test likes test post.")
+
+    def test_liked_view_get_no_author(self):
+        """Test the GET method of the Liked view with a non-existent author."""
+        response = self.client.get(f"/authors/1/liked/")
+        self.assertEqual(response.status_code, 404)
+
+
