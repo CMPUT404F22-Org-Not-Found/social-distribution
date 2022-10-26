@@ -4,7 +4,7 @@ function Notifications() {
 
   return (
     <div className="Notifications">
-      <h1>All Notifications</h1>
+      <h1>Inbox</h1>
 
     </div>
   );

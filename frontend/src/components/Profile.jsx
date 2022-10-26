@@ -1,9 +1,13 @@
 import { Divider, List, ListItem, ListItemText } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import Post from "./Post";
 import "./Profile.css"
+import axiosInstance from "../axiosInstance";
+import axios from "axios";
+import { useEffect } from "react";
 
 function Profile() {
+  const [allPosts, setAllPosts] = useState([]);
 
   const sampleFriendList = [
     {
@@ -41,6 +45,28 @@ function Profile() {
     },
   ]
 
+  function getPosts(){
+    const params = {
+      id: '...',
+    };
+
+    // axiosInstance.get(`/authors/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/posts/`)
+    // .then((response) => {
+    //   setAllPosts(response.data.data);
+    //   console.log(allPosts);
+    // });
+    const baseURL = "http://localhost:8000/authors/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/posts/"
+    axios.get(baseURL).then((response) => {
+      setAllPosts(response.data.items);
+    });
+    
+  }
+
+  useEffect(() => {
+    getPosts();
+  });
+
+
   const sampleComments = [
     {
       user: 'aditr',
@@ -58,14 +84,14 @@ function Profile() {
       <div className="Content">
         <div className="MyPosts">
           <h3>My Posts</h3>
-          {samplePosts.map((val) => (
+          {allPosts.map((val) => (
             <Post 
-            name={val.name}
-            user={val.user}
-            content={val.content}
-            img={val.img}
-            alt={val.alt}
-            date={val.date}
+            name={val.author.displayName}
+            user={val.author.id}
+            content={val.description}
+            img={null}
+            alt={null}
+            date={'Oct 26, 2022'}
             fromProfile={true}
             comments={sampleComments}
             />

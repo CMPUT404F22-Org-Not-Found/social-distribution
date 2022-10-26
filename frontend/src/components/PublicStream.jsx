@@ -1,5 +1,5 @@
 import React from "react";
-import './Inbox.css';
+import './PublicStream.css';
 import Post from "./Post";
 // import Topbar from "./Topbar";
 // import FriendRequests from "./FriendRequests";
@@ -45,7 +45,7 @@ function Inbox() {
 
   return (
     <div className="Inbox">
-      <h1>Inbox</h1>
+      <h1>Public Posts</h1>
        {samplePosts.map((val) => (
             <Post 
             name={val.name}

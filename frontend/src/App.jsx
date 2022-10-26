@@ -1,7 +1,7 @@
 import './App.css';
 import React from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
-import Inbox from './components/Inbox';
+import Inbox from './components/PublicStream';
 import FriendRequests from './components/FriendRequests';
 import Dashboard from './components/Dashboard';
 import CreateNewPost from './components/CreateNewPost';
