@@ -15,6 +15,7 @@ from post.models import Post
 from post.serializers import PostSerializer
 from followers.models import FriendRequest
 from followers.serializers import FriendRequestSerializer
+from like.models import Like
 from .models import Inbox
 
 
@@ -70,6 +71,9 @@ class InboxView(APIView):
 
         elif request_dict["type"] == "follow":
             return self._handle_POST_follow(request_dict, author, inbox)
+        
+        elif request_dict["type"] == "like":
+            return self._handle_POST_like(request_dict, author, inbox)
             
 
         return Response(status=status.HTTP_200_OK)
@@ -109,14 +113,14 @@ class InboxView(APIView):
         # the sender Author may exist if he is a local author or may not exist if he is a remote author,
         # in which case we create him.
         recipient_dict = follow_request_dict["object"]
-        recipieent_autor = Author.objects.get(id=recipient_dict["id"])
-        follow_request_dict["object"] = recipieent_autor
+        recipient_autor = Author.objects.get(id=recipient_dict["id"])
+        follow_request_dict["object"] = recipient_autor
         sender_dict = follow_request_dict["actor"]
         sender_author, _ = Author.objects.get_or_create(id=sender_dict["id"], defaults=sender_dict)
         follow_request_dict["actor"] = sender_author
 
         follow_request, was_follow_request_created = FriendRequest.objects.get_or_create(
-            actor=sender_author, object=recipieent_autor, defaults=follow_request_dict
+            actor=sender_author, object=recipient_autor, defaults=follow_request_dict
         )
         inbox.friend_requests.add(follow_request)
         inbox.save()
@@ -128,6 +132,31 @@ class InboxView(APIView):
         return Response({"type": "follow",
                         "detail": f"Successfully sent the follow request to {author.displayName}'s inbox"},
                         status=status.HTTP_200_OK)
+
+    def _handle_POST_like(self, like_request_dict: Dict, author: Author, inbox: Inbox) -> Response:
+        """When a like object is sent to the inbox, if it is already in the DB, add it to the inbox,
+        if it is not in the DB, create a new like object and add it to the inbox.
+        If the author is a remote author, create a new author object for him.
+        """
+        like_author = Author.objects.get_or_create(id=like_request_dict["author"]["id"],
+                                                   defaults=like_request_dict["author"])
+        like_request_dict["author"] = like_author
+
+        like, was_like_created = Like.objects.get_or_create(
+            author=like_author, object=like_request_dict["object"], defaults=like_request_dict)
+        
+        inbox.likes.add(like)
+        inbox.save()
+
+        if was_like_created:
+            return Response({"type": "like",
+                                "detail": f"Successfully created a new like and sent to {author.displayName}'s inbox"},
+                                status=status.HTTP_201_CREATED)
+
+        return Response({"type": "like",
+                        "detail": f"Successfully sent the like to {author.displayName}'s inbox"},
+                        status=status.HTTP_200_OK)
+
     
     def delete(self, request: Request, author_id: str, format: str = None) -> Response:
         """Clears the inbox of the author."""
