@@ -2,7 +2,6 @@ from django.conf.urls import include
 from django.urls import path
 
 from .views import PostDetail
-from like.views import LikeDetail
 
 urlpatterns = [
     path('',PostDetail.as_view(),name="post-list"),
