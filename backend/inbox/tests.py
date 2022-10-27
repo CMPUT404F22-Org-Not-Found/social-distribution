@@ -399,8 +399,8 @@ class InboxViewTestCase(APITestCase):
         # Create a post from author 2
         post = Post.objects.create(
             title="Test Post 1",
-            source="http://testserver/posts/" + str(self.post1.id),
-            origin="http://testserver/posts/" + str(self.post1.id),
+            source="http://testserver/posts/" + str(self.post.id),
+            origin="http://testserver/posts/" + str(self.post.id),
             description="Test Post 1 Description",
             contentType="text/plain",
             content="Test Post 1 Content",
@@ -443,8 +443,8 @@ class InboxViewTestCase(APITestCase):
         # Create a post from author 2
         post = Post.objects.create(
             title="Test Post 1",
-            source="http://testserver/posts/" + str(self.post1.id),
-            origin="http://testserver/posts/" + str(self.post1.id),
+            source="http://testserver/posts/" + str(self.post.id),
+            origin="http://testserver/posts/" + str(self.post.id),
             description="Test Post 1 Description",
             contentType="text/plain",
             content="Test Post 1 Content",

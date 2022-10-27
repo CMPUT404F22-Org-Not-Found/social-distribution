@@ -1,11 +1,11 @@
 """Contains the models for the Inbox app."""
 
 from django.db import models
-
 from author.models import Author
 from post.models import Post
 from followers.models import FriendRequest
 from like.models import Like
+from comment.models import Comment
 
 
 class Inbox(models.Model):
@@ -23,5 +23,8 @@ class Inbox(models.Model):
     # The likes that are in this inbox
     likes = models.ManyToManyField(Like, related_name="inbox_like", blank=True, symmetrical=False)
 
+    # The comments that are in this inbox
+    comments = models.ManyToManyField(Comment, related_name='inbox_comment', blank=True, symmetrical=False)
+    
     def __str__(self):
         return f"Inbox of {self.author.displayName} - {str(self.author.id)}"
