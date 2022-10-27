@@ -64,7 +64,7 @@ class CommentDetail(APIView):
                 "comments": serializer.data
             }
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(result, status=status.HTTP_200_OK)
 
         comment = self.get_comment(post,comment_id)
 
@@ -97,7 +97,6 @@ class CommentDetail(APIView):
             request["author"] = author 
 
         comment, created = Comment.objects.update_or_create(id=request["id"], defaults=request)
-        comment.update_url()
 
         serializer = CommentSerializer(comment)
 

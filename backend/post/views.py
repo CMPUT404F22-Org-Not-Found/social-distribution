@@ -100,7 +100,6 @@ class PostDetail(APIView):
             request["categories"] = json.dumps(request["categories"])
 
         post, created = Post.objects.update_or_create(id=request["id"], defaults=request)
-        post.update_url()
         serializer = PostSerializer(post)
 
         return Response(serializer.data, status = status.HTTP_201_CREATED)
@@ -133,7 +132,6 @@ class PostDetail(APIView):
                 request["categories"] = json.dumps(request["categories"])
 
         post, created = Post.objects.update_or_create(id=post_id, defaults=request)
-        post.update_url()
         serializer = PostSerializer(post)
 
         return Response(serializer.data, status = status.HTTP_201_CREATED)
