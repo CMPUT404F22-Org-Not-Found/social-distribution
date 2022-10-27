@@ -414,7 +414,7 @@ class InboxViewTestCase(APITestCase):
         data = {
             "type": "like",
             "summary": "Test User 1 likes Test Post 1",
-            "actor": {
+            "author": {
                 "id": str(self.author.id),
                 "host": "http://testserver",
                 "displayName": "Test User 1",
@@ -461,7 +461,7 @@ class InboxViewTestCase(APITestCase):
         data = {
             "type": "like",
             "summary": "Test User 1 likes Test Post 1",
-            "actor": {
+            "author": {
                 "id": str(self.author.id),
                 "host": "http://testserver",
                 "displayName": "Test User 1",

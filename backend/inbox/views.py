@@ -145,9 +145,9 @@ class InboxView(APIView):
         if it is not in the DB, create a new like object and add it to the inbox.
         If the author is a remote author, create a new author object for them.
         """
-        
-        like_author = Author.objects.get_or_create(id=like_request_dict["actor"]["id"],
-                                                   defaults=like_request_dict["actor"])
+        print(like_request_dict)
+        like_author = Author.objects.get_or_create(id=like_request_dict["author"]["id"],
+                                                   defaults=like_request_dict["author"])
         like_request_dict["author"] = like_author
 
         like, was_like_created = Like.objects.get_or_create(
