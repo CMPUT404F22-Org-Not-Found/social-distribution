@@ -1,10 +1,6 @@
-
-from django import urls
-from author.serializers import AuthorSerializer
 import uuid
 import json
 from django.http import Http404
-
 from django.core.paginator import Paginator
 from .models import Post
 from author.models import Author
@@ -12,7 +8,35 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import PostSerializer
-# Create your views here.
+
+
+class PublicView(APIView):
+    def retrieve(self):
+        try:
+            return Post.objects.filter(visibility="PUBLIC").order_by('-published')
+        except Post.DoesNotExist:
+            return None
+        
+    def get(self,request):
+
+        posts = list(self.retrieve())
+        size = request.query_params.get("size",5)
+        page = request.query_params.get("page",1)
+        
+        paginator = Paginator(posts,size)
+
+        try:
+            postsDisplay = paginator.page(page)
+        except:
+            postsDisplay = paginator.page(1)
+
+        serializer = PostSerializer(postsDisplay,many=True)
+        result = {
+            "type": "public_posts", 
+            "items": serializer.data
+        }
+
+        return Response(result,status=status.HTTP_200_OK)
 
 class PostDetail(APIView):
 
