@@ -59,6 +59,6 @@ class Post(models.Model):
     def get_absolute_url(self):
         return reverse('post-details', args=[str(self.author.id),str(self.id)])
 
-    def update_url(self):
+    def save(self, *args, **kwargs):
         self.url = str(self.author.url) + '/posts/' + str(self.id)
-        self.save()
+        super().save(*args, **kwargs)
