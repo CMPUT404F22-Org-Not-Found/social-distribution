@@ -1,18 +1,42 @@
-
-from author.serializers import AuthorSerializer
-from functools import partial
 import uuid
+import json
 from django.http import Http404
-
 from django.core.paginator import Paginator
 from .models import Post
 from author.models import Author
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.request import Request
 from .serializers import PostSerializer
-# Create your views here.
+
+
+class PublicView(APIView):
+    def retrieve(self):
+        try:
+            return Post.objects.filter(visibility="PUBLIC").order_by('-published')
+        except Post.DoesNotExist:
+            return None
+        
+    def get(self,request):
+
+        posts = list(self.retrieve())
+        size = request.query_params.get("size",5)
+        page = request.query_params.get("page",1)
+        
+        paginator = Paginator(posts,size)
+
+        try:
+            postsDisplay = paginator.page(page)
+        except:
+            postsDisplay = paginator.page(1)
+
+        serializer = PostSerializer(postsDisplay,many=True)
+        result = {
+            "type": "public_posts", 
+            "items": serializer.data
+        }
+
+        return Response(result,status=status.HTTP_200_OK)
 
 class PostDetail(APIView):
 
@@ -61,7 +85,8 @@ class PostDetail(APIView):
          
         serializer = PostSerializer(postsDisplay,many=True)
         result = {
-            "items" : serializer.data
+            "type": "posts", 
+            "items": serializer.data
         }
 
         return Response(result,status=status.HTTP_200_OK)
@@ -83,18 +108,26 @@ class PostDetail(APIView):
             serializer = PostSerializer(post, data=request, partial=True)
 
             if serializer.is_valid():
-                serializer.save()
+                post = serializer.save()
+
+                if "categories" in request:
+                    post.categories = json.dumps(request["categories"])
+                    post.save()
+
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors,status=status.HTTP_400_BAD_REQUEST)
         
         request["id"] = str(uuid.uuid4())
         request["author"] = author
+
+        if "categories" in request:
+            request["categories"] = json.dumps(request["categories"])
+
         post, created = Post.objects.update_or_create(id=request["id"], defaults=request)
-
         serializer = PostSerializer(post)
-        return Response(serializer.data, status = status.HTTP_201_CREATED)
-        
 
+        return Response(serializer.data, status = status.HTTP_201_CREATED)
+       
 
     def delete(self,request,pk,post_id):
 
@@ -115,11 +148,12 @@ class PostDetail(APIView):
         if author is None:
             raise Http404
 
-        print(author)
-
         request = dict(request.data)
         request["id"] = post_id
         request["author"] = author
+
+        if "categories" in request:
+                request["categories"] = json.dumps(request["categories"])
 
         post, created = Post.objects.update_or_create(id=post_id, defaults=request)
         serializer = PostSerializer(post)

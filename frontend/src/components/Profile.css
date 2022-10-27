@@ -1,0 +1,28 @@
+.Content {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.MyPosts {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 5%;
+  margin-right: 5%;
+  width: 100%;
+  
+}
+
+.MyFriends {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-right: 5%;
+}
+
+.List {
+  width: 20vw;
+  min-width: 10rem;
+  background-color: lightgray;
+}
