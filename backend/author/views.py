@@ -46,7 +46,7 @@ class AuthorList(APIView):
 
 class AuthorDetail(APIView):
     """Retrieve, update or delete an author instance."""
-    #permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAuthorOrReadOnly]
 
     def get_object(self, pk: str) -> Author:
         """Return an author instance."""

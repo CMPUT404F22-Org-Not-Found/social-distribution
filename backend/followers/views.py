@@ -12,7 +12,7 @@ from author.serializers import AuthorSerializer
 
 from .models import FriendRequest
 from .serializers import FriendRequestSerializer
-from author.permissions import IsAuthorOrReadOnly
+from .permissions import IsAuthorOrReadOnly
 
 class FollowerList(APIView):
     """List all the followers of a given author."""
@@ -38,7 +38,7 @@ class FollowerList(APIView):
 
 class FollowerDetail(APIView):
     """Check if foreign author is following, or put as follower, or delete as follower."""
-    #permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAuthorOrReadOnly]
 
     def get(self, request: Request, author_id: str, foreign_id: str, format: str = None) -> Response:
         """Return a boolean indicating if the foreign author is following the given author."""

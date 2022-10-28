@@ -84,11 +84,11 @@ class FollowersListViewTest(APITestCase):
         self.assertEqual(response.data["type"], "followers")
         self.assertEqual(response.data["items"][0]["type"], "author")
         self.assertEqual(response.data["items"][0]["id"], str(self.author2.id))
-        self.assertEqual(response.data["items"][0]["url"], "http://testserver/authors/" + str(self.author.id)) # should it start with None?
+        self.assertEqual(response.data["items"][0]["url"], "http://testserver/authors/" + str(self.author2.id))
         self.assertEqual(response.data["items"][0]["host"], "http://testserver")
-        self.assertEqual(response.data["items"][0]["displayName"], "Test User 1")
-        self.assertEqual(response.data["items"][0]["github"], "github/test1.com")
-        self.assertEqual(response.data["items"][0]["profileImage"], "profile/test1.com")
+        self.assertEqual(response.data["items"][0]["displayName"], "Test User 2")
+        self.assertEqual(response.data["items"][0]["github"], "github/test2.com")
+        self.assertEqual(response.data["items"][0]["profileImage"], "profile/test2.com")
 
 class FollowersDetailViewTest(APITestCase):
     def setUp(self):
@@ -102,7 +102,7 @@ class FollowersDetailViewTest(APITestCase):
         self.user2 = User.objects.create_user(username='testuser2', password='12345')
         self.author2 = Author.objects.create(user=self.user2, host="http://testserver", displayName="TestAuthor2",
                                 github="github/test2.com", profileImage="profile/test2.com")
-    
+        self.client.force_authenticate(user=self.user2)
     def test_followers_detail_view_get(self):
         # test given author 2 is not following author 1
         request = self.factory.get('/authors/' + str(self.author.id) + '/followers/' + str(self.author2.id), format='json')
@@ -118,7 +118,7 @@ class FollowersDetailViewTest(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["type"], "follower")
         self.assertEqual(response.data["id"], str(self.author2.id))
-        self.assertEqual(response.data["url"], "http://testserver/authors/" + str(self.author2.id)) # should it start with None?
+        self.assertEqual(response.data["url"], "http://testserver/authors/" + str(self.author2.id))
         self.assertEqual(response.data["host"], "http://testserver")
         self.assertEqual(response.data["displayName"], "TestAuthor2")
         self.assertEqual(response.data["github"], "github/test2.com")

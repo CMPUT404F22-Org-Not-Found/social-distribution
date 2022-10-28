@@ -18,13 +18,13 @@ from followers.serializers import FriendRequestSerializer
 from like.models import Like
 from comment.models import Comment
 from .models import Inbox
-from author.permissions import IsAuthorOrReadOnly
+from followers.permissions import IsAuthorOrReadOnly
 
 
 class InboxView(APIView):
     """The inbox view."""
 
-    #permission_classes = [IsAuthorOrReadOnly]
+    permission_classes = [IsAuthorOrReadOnly]
     
     def get(self, request: Request, author_id: str, format: str = None) -> Response:
         """Return the inbox of the author, which icludes all the posts, friend requests sent to the author."""
@@ -90,7 +90,7 @@ class InboxView(APIView):
         if the post is not present, create a new post and add it to the inbox.
         """
         post_author_dict = post_request_dict["author"]
-        post_author_dict["id"] = uuid.UUID(post_author_dict["id"])
+        post_author_dict["id"] = post_author_dict["id"]
         # We may need to create a new author for remote author posts
         post_author, _ = Author.objects.get_or_create(
             id=post_author_dict["id"], defaults=post_author_dict
@@ -145,7 +145,7 @@ class InboxView(APIView):
         if it is not in the DB, create a new like object and add it to the inbox.
         If the author is a remote author, create a new author object for them.
         """
-        print(like_request_dict)
+
         like_author = Author.objects.get_or_create(id=like_request_dict["author"]["id"],
                                                    defaults=like_request_dict["author"])
         like_request_dict["author"] = like_author
