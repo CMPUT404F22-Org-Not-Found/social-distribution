@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import PostSerializer
-
+from author.permissions import IsAuthenticated
 
 class PublicView(APIView):
     def retrieve(self):
@@ -39,6 +39,8 @@ class PublicView(APIView):
         return Response(result,status=status.HTTP_200_OK)
 
 class PostDetail(APIView):
+
+    permission_classes = [IsAuthenticated]
 
     def get_object(self,author,post_id):
         try:
