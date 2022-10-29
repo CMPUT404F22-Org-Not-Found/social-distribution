@@ -1,13 +1,13 @@
 import { Divider, List, ListItem, ListItemText } from "@mui/material";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Post from "./Post";
 import "./Profile.css"
 import axiosInstance from "../axiosInstance";
 import axios from "axios";
-import { useEffect } from "react";
 
 function Profile() {
   const [allPosts, setAllPosts] = useState([]);
+  const [allFollowers, setAllFollowers] = useState([]);
 
   const sampleFriendList = [
     {
@@ -45,7 +45,14 @@ function Profile() {
     },
   ]
 
-  function getPosts(){
+  function getFollowers() {
+    const baseURL = "http://localhost:8000/authors/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/followers/"
+    axios.get(baseURL).then((response) => {
+      setAllFollowers(response.data.items);
+    });
+  }
+
+  function getPosts() {
     const params = {
       id: '...',
     };
@@ -59,12 +66,15 @@ function Profile() {
     axios.get(baseURL).then((response) => {
       setAllPosts(response.data.items);
     });
-    
+
   }
 
   useEffect(() => {
     getPosts();
-  });
+    console.log(allPosts);
+    getFollowers();
+    console.log(allFollowers);
+  }, []);
 
 
   const sampleComments = [
@@ -78,6 +88,23 @@ function Profile() {
     }
   ]
 
+  function checkImageExists(val) {
+    if (val.contentType == "image/png;base64" || val.contentType == "image/jpeg;base64") {
+      return val.content
+    }
+    else {
+      return null;
+    }
+  }
+
+  function checkNoFollowers() {
+    let style = 'none';
+    if (allFollowers.length === 0) {
+      style = ' ';
+    }
+    return style;
+  }
+
   return (
     <div className="Profile">
       <h1>My Profile</h1>
@@ -85,15 +112,15 @@ function Profile() {
         <div className="MyPosts">
           <h3>My Posts</h3>
           {allPosts.map((val) => (
-            <Post 
-            name={val.author.displayName}
-            user={val.author.id}
-            content={val.description}
-            img={null}
-            alt={null}
-            date={'Oct 26, 2022'}
-            fromProfile={true}
-            comments={sampleComments}
+            <Post
+              name={val.author.displayName}
+              user={val.author.id}
+              content={val.description}
+              img={checkImageExists(val)}
+              alt={null}
+              date={'Oct 26, 2022'}
+              fromProfile={true}
+              comments={val.comments}
             />
           ))}
         </div>
@@ -101,7 +128,10 @@ function Profile() {
           <h3>My Friends</h3>
           <div className="List">
             <List>
-              {sampleFriendList.map((value) => (
+              <ListItem style={{ display: checkNoFollowers() }} key={"none"} disableGutters >
+                <ListItemText primary={"No followers."} />
+              </ListItem>
+              {allFollowers.map((value) => (
                 <div>
                   <ListItem key={value.name} disableGutters >
                     <ListItemText primary={value.name} />
