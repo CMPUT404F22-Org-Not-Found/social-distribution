@@ -12,7 +12,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Comment
-        fields = ("id","type","comment","contentType","author","published")
+        fields = ("id","type","comment","contentType","url","author","published")
 
     def create(self, validated_data):
         #For in-case of a new author
