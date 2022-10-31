@@ -12,6 +12,7 @@ function Inbox() {
     const baseURL = "http://localhost:8000/authors/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/inbox/"
 
     axios.get(baseURL).then((response) => {
+      console.log(response.data);
       setAllInboxItems(response.data.items);
     });
     console.log(allInboxItems);
@@ -46,7 +47,7 @@ function Inbox() {
             comments={val.comments}
           />
         );
-      } else if (val.type === "Follow") {
+      } else {
         return (
           <Card className="Card" variant="outlined">
             <CardContent>

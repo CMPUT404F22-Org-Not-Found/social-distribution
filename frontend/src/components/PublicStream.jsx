@@ -48,10 +48,11 @@ function PublicStream() {
     //   console.log(allPosts);
     // });
     const baseURL = "http://localhost:8000/authors/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/posts/"
+    const newURL = "http://localhost:8000/public/"
     axios.get(baseURL).then((response) => {
       setAllPosts(response.data.items);
     });
-
+    console.log(allPosts);
   }
 
   useEffect(() => {

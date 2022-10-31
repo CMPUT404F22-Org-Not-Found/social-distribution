@@ -114,7 +114,9 @@ function Post(props) {
   }
 
   const handleLike = () => {
-
+    // check if the post had been liked by the current user
+    // if yes, delete like
+    // if no, post new like
   };
 
   const displayLike = () => {
