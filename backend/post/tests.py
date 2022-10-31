@@ -4,8 +4,8 @@ from rest_framework.test import APITestCase, APIClient, APIRequestFactory
 from post.models import Post
 from django.contrib.auth.models import User
 from author.models import Author
-from .views import PostDetail, PublicView
-from author.serializers import AuthorSerializer
+from .views import PostDetail, PostList, PublicView
+
 # Create your tests here.
 
 class PostModelTest(TestCase):
@@ -143,3 +143,57 @@ class PublicViewTest(APITestCase):
         self.assertEqual(res.status_code,200)
         self.assertEqual(2,len(res.data["items"]))
 
+class PostListViewTest(APITestCase):
+
+    def setUp(self):
+        self.user = User.objects.create_user(username = "test", password = "test")
+        self.author = Author.objects.create(user = self.user, displayName = "Test", host = "http://127.0.0.1:8000/") 
+        self.client = APIClient()
+        self.factory = APIRequestFactory()
+        self.client.force_authenticate(user=self.user)
+
+        self.post1 = Post.objects.create(
+    
+            title="Test Title",
+            source = "http://127.0.0.1:8000/",
+            origin = "http://127.0.0.1:8000/",
+            description = "Test Post",
+            contentType = "text/plain",
+            content = "test content",
+            author = self.author,
+        )
+
+        self.post2 = Post.objects.create(
+    
+            title="Test Title 1",
+            source = "http://127.0.0.1:8000/",
+            origin = "http://127.0.0.1:8000/",
+            description = "Test Post",
+            contentType = "text/plain",
+            content = "test content",
+            author = self.author,
+        )
+
+    def test_post_get(self):
+        req = self.factory.get('/authors/{}/posts'.format(self.author.id), format='json')        
+        res = PostList.as_view()(req, pk = self.author.id)
+        self.assertEqual(res.status_code,200)
+        self.assertEqual(2,len(res.data["items"]))
+
+
+    def test_post_post(self):
+        self.assertEqual(2, len(self.author.post_author.all()))
+        data = {
+            "type": "post", 
+            "title": "First post", 
+            "description": "This is the first post", 
+            "contentType": "text/plain",
+            "content": "This is the first post content", 
+            "categories": ["web", "tutorial"], 
+            "visibility":"PUBLIC"
+        }
+
+        res = self.client.post('/authors/{}/posts/'.format(self.author.id), data = data)
+        self.assertEqual(res.status_code,201)
+        self.assertEqual(3, len(self.author.post_author.all()))
+        
