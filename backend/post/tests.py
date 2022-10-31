@@ -90,11 +90,11 @@ class PostDetailTest(APITestCase):
             "visibility":"PUBLIC", 
         }
 
-        res = self.client.put('/authors/{}/posts/{}/'.format(self.author.id,self.post.id), data = data)
+        res = self.client.put('/authors/{}/posts/{}/'.format(self.author.id,self.post.id), data = data, format = 'json')
         self.assertEqual(res.status_code,201)
         post = Post.objects.get(id = self.post.id)
         post_title = post.title
-        self.assertEqual(post_title, "['Second post']")
+        self.assertEqual(post_title, "Second post")
         self.assertEqual(1, len(self.author.post_author.all()))
 
     def test_post_delete(self):
