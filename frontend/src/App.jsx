@@ -7,6 +7,8 @@ import Dashboard from './components/Dashboard';
 import CreateNewPost from './components/CreateNewPost';
 import Profile from './components/Profile';
 import PublicStream from './components/PublicStream';
+import Login from './components/Login';
+import Register from './components/Register';
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
           <Route path="/inbox" element={<Inbox />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </div>
   );

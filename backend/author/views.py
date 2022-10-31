@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
 
+from inbox.models import Inbox
 from .models import Author
 from .serializers import AuthorSerializer
 from .permissions import IsAuthorOrReadOnly
@@ -88,6 +89,7 @@ class Register(APIView):
             github = form.cleaned_data.get("github")
             profileImage = form.cleaned_data.get("profileImage")
             author = Author.objects.create(user=user, displayName=displayName, github=github, profileImage=profileImage)
+            Inbox.objects.create(author=author)
             return redirect('login')
             # return Response(status=status.HTTP_201_CREATED)
         return Response(form.errors, status=status.HTTP_400_BAD_REQUEST)
