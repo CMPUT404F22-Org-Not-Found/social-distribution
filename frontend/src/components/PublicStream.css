@@ -1,4 +1,4 @@
-.Inbox {
+.StreamOfPosts {
   display: flex;
   flex-direction: column;
   justify-content: center;

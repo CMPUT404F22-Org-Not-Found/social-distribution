@@ -4,7 +4,7 @@ import { AppBar, Box, Button, IconButton, Toolbar, Typography } from "@mui/mater
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import AddIcon from '@mui/icons-material/Add';
-import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive';
+import InboxIcon from '@mui/icons-material/Inbox';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
 import './Topbar.css';
@@ -23,7 +23,7 @@ function Topbar() {
   }
 
   const onClickHome = () => {
-    navigate('/inbox');
+    navigate('/public-stream');
   }
 
   const onClickCreateNewPost = () => {
@@ -31,7 +31,7 @@ function Topbar() {
   }
 
   const onClickNotifications = () => {
-    navigate('/notifications');
+    navigate('/inbox');
   }
 
   const onClickProfile = () => {
@@ -70,7 +70,7 @@ function Topbar() {
               </IconButton>
 
               <IconButton className="IconButton" onClick={onClickNotifications}>
-                <NotificationsActiveIcon htmlColor="white" />
+                <InboxIcon htmlColor="white" />
               </IconButton>
 
               <IconButton className="IconButton" onClick={onClickProfile}>

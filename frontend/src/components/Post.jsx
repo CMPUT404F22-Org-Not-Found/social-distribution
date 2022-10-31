@@ -6,11 +6,13 @@ import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import PropTypes from 'prop-types';
 
-import React from "react";
-import './Post.css';
+import React, { useState, useEffect } from "react";import './Post.css';
+import axios from "axios";
 
 function Post(props) {
-  const [open, setOpen] = React.useState(false);
+  const [open, setOpen] = useState(false);
+  const [commentsForPost, setCommentsForPost] = useState([]);
+
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -42,6 +44,22 @@ function Post(props) {
       )
     }
 
+  }
+
+  useEffect(() => {
+    getCommentsForPost(comments);
+    console.log(commentsForPost);
+  }, []);
+
+
+
+  function getCommentsForPost(commentsUrl) {
+    console.log(commentsUrl);
+    axios.get(commentsUrl+"/").then((response) => {
+      setCommentsForPost(response.data);
+    });
+    console.log(commentsForPost);
+    return commentsForPost;
   }
 
   return (
@@ -93,13 +111,13 @@ function Post(props) {
         <DialogTitle>Comments on {name}'s post</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {comments.map((val) => (
+            {commentsForPost.map((val) => (
               <div>
                 <ListItem
-                  key={val.user}
+                  key={val.author.displayName}
                   disableGutters
                 >
-                  <ListItemText primary={val.comment} secondary={val.user} />
+                  <ListItemText primary={val.comment} secondary={val.author.displayName} />
                 </ListItem>
                 <Divider />
               </div>
@@ -134,5 +152,5 @@ Post.propTypes = {
   alt: PropTypes.string.isRequired,
   date: PropTypes.string.isRequired,
   fromProfile: PropTypes.bool.isRequired,
-  comments: PropTypes.array.isRequired,
+  comments: PropTypes.string.isRequired,
 }
