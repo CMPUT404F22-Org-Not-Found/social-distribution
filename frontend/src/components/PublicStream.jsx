@@ -38,21 +38,17 @@ function PublicStream() {
   ]
 
   function getPosts() {
-    const params = {
-      id: '...',
-    };
-
     // axiosInstance.get(`/authors/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/posts/`)
     // .then((response) => {
     //   setAllPosts(response.data.data);
     //   console.log(allPosts);
     // });
-    const baseURL = "http://localhost:8000/authors/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/posts/"
-    const newURL = "http://localhost:8000/public/"
+    const baseURL = "http://localhost:8000/public/"
     axios.get(baseURL).then((response) => {
+      // console.log(response.data.items)
       setAllPosts(response.data.items);
     });
-    console.log(allPosts);
+    console.log(allPosts); 
   }
 
   useEffect(() => {

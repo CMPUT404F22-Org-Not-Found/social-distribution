@@ -177,7 +177,7 @@ function Post(props) {
         <DialogTitle>Comments on {name}'s post</DialogTitle>
         <DialogContent>
           <DialogContentText>
-            {commentsForPost.map((val) => (
+            {commentsForPost && commentsForPost.length > 0 && commentsForPost.map((val) => (
               <div>
                 <ListItem
                   key={val.id}
