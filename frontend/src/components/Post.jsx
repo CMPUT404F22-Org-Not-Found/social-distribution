@@ -1,18 +1,44 @@
-import { Avatar, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, ListItem, ListItemText, TextField, Typography } from "@mui/material";
+import { Alert, Avatar, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, ListItem, ListItemText, Snackbar, TextField, Typography } from "@mui/material";
 import { red } from "@mui/material/colors";
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 import ShareIcon from '@mui/icons-material/Share';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import PropTypes from 'prop-types';
 
-import React, { useState, useEffect } from "react";import './Post.css';
+import React, { useState, useEffect } from "react"; import './Post.css';
 import axios from "axios";
 
 function Post(props) {
   const [open, setOpen] = useState(false);
   const [commentsForPost, setCommentsForPost] = useState([]);
+  const [newComment, setNewComment] = useState("");
 
+  const {
+    name, user, author, content, img, alt, date, fromProfile, comments
+  } = props
+
+  const [stateSnackBar, setStateSnackBar] = useState({
+    openSnackBar: false,
+    vertical: 'top',
+    horizontal: 'center',
+  });
+
+  const { vertical, horizontal, openSnackBar } = stateSnackBar;
+
+  const handleOpenSnackBar = () => {
+    setStateSnackBar({ openSnackBar: true, ...stateSnackBar });
+    console.log("Snackbar opened");
+  };
+
+  const handleCloseSnackBar = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setStateSnackBar({ ...stateSnackBar, openSnackBar: false });
+    console.log("Snackbar closed");
+  };
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -22,10 +48,36 @@ function Post(props) {
     setOpen(false);
   };
 
+  const handleChange = (event) => {
+    setNewComment(event.target.value);
+  }
 
-  const {
-    name, user, content, img, alt, date, fromProfile, comments
-  } = props
+  const handleSubmit = () => {
+    const commentDate = new Date();
+    const postData = {
+      type: "comment",
+      author: author,
+      comment: newComment,
+      contentType: "text/plain",
+      published: commentDate.toISOString(),
+    };
+
+    axios.post(comments + "/", postData)
+      .then((response) => {
+        handleClose();
+        handleOpenSnackBar({
+          vertical: 'top',
+          horizontal: 'center',
+        });
+      });
+    console.log(postData);
+    console.log(comments);
+    handleClose();
+    handleOpenSnackBar();
+
+    console.log(newComment);
+    window.location.reload();
+  };
 
   function checkImageExists(image) {
     let style = '';
@@ -35,16 +87,15 @@ function Post(props) {
     return style
   }
 
-  function checkFromProfile() {
+  const checkFromProfile = () => {
     if (fromProfile) {
       return (
         <IconButton aria-label="edit">
           <EditIcon />
         </IconButton>
       )
-    }
-
-  }
+    };
+  };
 
   useEffect(() => {
     getCommentsForPost(comments);
@@ -55,12 +106,25 @@ function Post(props) {
 
   function getCommentsForPost(commentsUrl) {
     console.log(commentsUrl);
-    axios.get(commentsUrl+"/").then((response) => {
+    axios.get(commentsUrl + "/").then((response) => {
       setCommentsForPost(response.data);
     });
     console.log(commentsForPost);
     return commentsForPost;
   }
+
+  const handleLike = () => {
+
+  };
+
+  const displayLike = () => {
+    return (
+      <FavoriteIcon />
+    );
+    // return(
+    // <FavoriteBorderIcon />
+    // );
+  };
 
   return (
     <div className="Post">
@@ -90,8 +154,8 @@ function Post(props) {
         </CardContent>
 
         <CardActions className="CardActions">
-          <IconButton aria-label="like">
-            <FavoriteBorderIcon />
+          <IconButton aria-label="like" onClick={handleLike}>
+            {displayLike()}
           </IconButton>
           <IconButton aria-label="comment" onClick={handleClickOpen}>
             <ChatBubbleOutlineIcon />
@@ -114,7 +178,7 @@ function Post(props) {
             {commentsForPost.map((val) => (
               <div>
                 <ListItem
-                  key={val.author.displayName}
+                  key={val.id}
                   disableGutters
                 >
                   <ListItemText primary={val.comment} secondary={val.author.displayName} />
@@ -131,13 +195,24 @@ function Post(props) {
             type="comment"
             fullWidth
             variant="standard"
+            onChange={handleChange}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleClose}>Comment</Button>
+          <Button onClick={handleSubmit}>Comment</Button>
         </DialogActions>
       </Dialog>
+      <Snackbar
+        anchorOrigin={{ vertical, horizontal }}
+        open={openSnackBar}
+        autoHideDuration={6000}
+        onClose={handleCloseSnackBar}
+        key={vertical + horizontal}
+      >
+        <Alert severity="success" onClose={handleCloseSnackBar}>Comment Posted</Alert>
+      </Snackbar>
+
     </div>
   );
 }
@@ -147,6 +222,7 @@ export default Post;
 Post.propTypes = {
   name: PropTypes.string.isRequired,
   user: PropTypes.string.isRequired,
+  author: PropTypes.object.isRequired,
   content: PropTypes.string.isRequired,
   img: PropTypes.string.isRequired,
   alt: PropTypes.string.isRequired,

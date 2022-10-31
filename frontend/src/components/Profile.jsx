@@ -115,6 +115,7 @@ function Profile() {
             <Post
               name={val.author.displayName}
               user={val.author.id}
+              author={val.author}
               content={val.description}
               img={checkImageExists(val)}
               alt={null}
