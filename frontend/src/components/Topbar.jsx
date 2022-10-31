@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
-import { AppBar, Box, IconButton, Toolbar, Typography } from "@mui/material";
+import { AppBar, Box, Button, IconButton, Toolbar, Typography } from "@mui/material";
 import DynamicFeedIcon from '@mui/icons-material/DynamicFeed';
 import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import AddIcon from '@mui/icons-material/Add';
@@ -38,6 +38,10 @@ function Topbar() {
     navigate('/profile');
   }
 
+  const onClickLogin = () => {
+    navigate('/login');
+  }
+
   return (
     <div className="TopBar">
       <Box sx={{ flexGrow: 1 }}>
@@ -53,6 +57,10 @@ function Topbar() {
             </div>
 
             <div>
+              <Button className="IconButton" onClick={onClickLogin}>
+                Login
+              </Button>
+
               <IconButton className="IconButton" onClick={onClickFriendRequests}>
                 <PersonAddAltIcon htmlColor="white"/>
               </IconButton>

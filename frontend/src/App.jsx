@@ -7,6 +7,8 @@ import Dashboard from './components/Dashboard';
 import CreateNewPost from './components/CreateNewPost';
 import Notifications from './components/Notifications';
 import Profile from './components/Profile';
+import Login from './components/Login';
+import Register from './components/Register';
 
 function App() {
   return (
@@ -18,8 +20,10 @@ function App() {
           <Route path="/friend-requests" element={<FriendRequests />} />
           <Route path="/new-post" element={<CreateNewPost />} />
           <Route path="/notifications" element={<Notifications />} />
-          <Route path="/profile" element={<Profile />} />
+          <Route path="/profile" element={<Profile />} />=
         </Route>
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
       </Routes>
     </div>
   );
