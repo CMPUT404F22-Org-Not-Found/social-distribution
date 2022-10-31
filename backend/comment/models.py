@@ -32,6 +32,6 @@ class Comment(models.Model):
     def get_id(self):
         return self.id
     
-    def update_url(self):
+    def save(self, *args, **kwargs):
         self.url = str(self.post.url) + "/comments/" + str(self.id)
-        self.save()
+        super().save(*args, **kwargs)

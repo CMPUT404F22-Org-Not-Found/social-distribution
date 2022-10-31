@@ -129,7 +129,7 @@ class AuthorDetailViewTest(APITestCase):
     def test_author_detail_view_post(self):
         data = {"type": "author", "id": str(self.author.id), "host": "http://testserver",
                 "url": "http://testserver/authors/" + str(self.author.id), "displayName": "Test User 11",}
-        response = self.client.post('/authors/' + str(self.author.id), data=data)
+        response = self.client.post('/authors/' + str(self.author.id) + "/", data=data)
 
         self.assertEqual(response.status_code, 200)
         
