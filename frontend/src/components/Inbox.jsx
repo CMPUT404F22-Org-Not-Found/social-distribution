@@ -12,6 +12,7 @@ function Inbox() {
     const baseURL = "http://localhost:8000/authors/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/inbox/"
 
     axios.get(baseURL).then((response) => {
+      console.log("REsponse Data");
       console.log(response.data);
       setAllInboxItems(response.data.items);
     });
@@ -24,6 +25,7 @@ function Inbox() {
   }, []);
 
   function checkImageExists(val) {
+    console.log(allInboxItems)
     if (val.contentType === "image/png;base64" || val.contentType === "image/jpeg;base64") {
       return val.content
     }

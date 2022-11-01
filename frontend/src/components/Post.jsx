@@ -107,7 +107,8 @@ function Post(props) {
   function getCommentsForPost(commentsUrl) {
     console.log(commentsUrl);
     axios.get(commentsUrl + "/").then((response) => {
-      setCommentsForPost(response.data);
+      console.log(response.data.comments);
+      setCommentsForPost(response.data.comments);
     });
     console.log(commentsForPost);
     return commentsForPost;
