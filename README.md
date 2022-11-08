@@ -57,11 +57,11 @@ CMPUT 404 Group Project Repo
 * Friend Request
     1. GET //service/author/{AUTHOR_ID}/followers/friendrequest/
         - Pending friend requests recieved by the Author
-    2. GET //service/author/{AUTHOR_ID}/followers/friendrequest//{FRIEND_ID} 
+    2. GET //service/author/{AUTHOR_ID}/followers/friendrequest/{FOREIGN_ID} 
         - Check if foreign author has sent a friend request to the Author
     3. POST //service/author/{AUTHOR_ID}/followers/friendrequest//{FRIEND_ID}    
         - Foreign author sends a freind request to the Author
-    4. DELETE //service/author/{AUTHOR_ID}/followers/friendrequest//{FRIEND_ID}  
+    4. DELETE //service/author/{AUTHOR_ID}/followers/friendrequest/{FOREIGN_ID}  
         - Remove the friend request sent by the foreign author to the Author
 
 * Likes
@@ -80,3 +80,37 @@ CMPUT 404 Group Project Repo
 
     Tip: when sending the request for the author dict inside friend request/post, you only
         need to include the author id
+
+### What to do when we want to send a friend request?
+ Suppose we want to send a friend request from FOREIGN_AUTHOR to AUTHOR, we need to send a POST request to the following endpoint:
+    1. POST //service/author/{AUTHOR_ID}/inbox/
+        - AUTHOR_ID is the id of the AUTHOR
+        - The body of the request should be in the following format:
+            {
+                "type": "follow",
+                "actor": {
+                    "id": FOREIGN_AUTHOR_ID
+                },
+                "object": {
+                    "id": AUTHOR_ID
+                },
+                "summary": "FOREIGN_AUTHOR wants to follow you"
+            }
+
+    OR (for quick internal testing not to be used in real)
+    1. POST //service/author/{AUTHOR_ID}/followers/friendrequest/{FOREIGN_ID}
+        - FOREIGN_ID is the id of the FOREIGN_AUTHOR
+        - AUTHOR_ID is the id of the AUTHOR
+    2. POST //service/author/{AUTHOR_ID}/inbox/
+        - AUTHOR_ID is the id of the AUTHOR
+        - The body of the request is going to be the same as above
+    
+### What do we do when we want to accept a friend request?
+    Suppose AUTHOR accepts the friend request from FOREIGN_AUTHOR, we then do the following:
+    1. PUT //service/author/{AUTHOR_ID}/followers/{FOLLOWER_ID}
+        - AUTHOR_ID is the id of the AUTHOR
+        - FOLLOWER_ID is the id of the FOREIGN_AUTHOR
+    2. DELETE //service/author/{AUTHOR_ID}/followers/friendrequest/{FOREIGN_ID}
+        - AUTHOR_ID is the id of the AUTHOR
+        - FOREIGN_ID is the id of the FOREIGN_AUTHOR
+    
