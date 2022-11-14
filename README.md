@@ -81,6 +81,10 @@ CMPUT 404 Group Project Repo
     Tip: when sending the request for the author dict inside friend request/post, you only
         need to include the author id
 
+* Token
+    1. http post http://127.0.0.1:8000/api-token-auth/ username=vitor password=123
+        - Get token for user vitor with password 123
+
 ### What to do when we want to send a friend request?
  Suppose we want to send a friend request from FOREIGN_AUTHOR to AUTHOR, we need to send a POST request to the following endpoint:
     1. POST //service/author/{AUTHOR_ID}/inbox/
