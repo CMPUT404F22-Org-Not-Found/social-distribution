@@ -66,7 +66,7 @@ function Profile() {
     axios.get(baseURL).then((response) => {
       setAllPosts(response.data.items);
     });
-
+    console.log(allPosts);
   }
 
   useEffect(() => {
@@ -115,6 +115,7 @@ function Profile() {
             <Post
               name={val.author.displayName}
               user={val.author.id}
+              author={val.author}
               content={val.description}
               img={checkImageExists(val)}
               alt={null}
@@ -133,8 +134,8 @@ function Profile() {
               </ListItem>
               {allFollowers.map((value) => (
                 <div>
-                  <ListItem key={value.name} disableGutters >
-                    <ListItemText primary={value.name} />
+                  <ListItem key={value.id} disableGutters >
+                    <ListItemText primary={value.displayName} />
                   </ListItem>
                   <Divider />
                 </div>

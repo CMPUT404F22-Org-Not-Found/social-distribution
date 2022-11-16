@@ -38,20 +38,17 @@ function PublicStream() {
   ]
 
   function getPosts() {
-    const params = {
-      id: '...',
-    };
-
     // axiosInstance.get(`/authors/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/posts/`)
     // .then((response) => {
     //   setAllPosts(response.data.data);
     //   console.log(allPosts);
     // });
-    const baseURL = "http://localhost:8000/authors/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/posts/"
+    const baseURL = "http://localhost:8000/public/"
     axios.get(baseURL).then((response) => {
+      // console.log(response.data.items)
       setAllPosts(response.data.items);
     });
-
+    console.log(allPosts); 
   }
 
   useEffect(() => {
@@ -86,11 +83,12 @@ function PublicStream() {
         <Post
           name={val.author.displayName}
           user={val.author.id}
+          author={val.author}
           content={val.description}
           img={checkImageExists(val)}
           alt={null}
           date={'Oct 26, 2022'}
-          fromProfile={true}
+          fromProfile={false}
           comments={val.comments}
         />
       ))}

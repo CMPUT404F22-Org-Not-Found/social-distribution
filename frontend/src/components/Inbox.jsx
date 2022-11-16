@@ -1,28 +1,31 @@
+import { Card, CardContent, CardHeader, Typography } from "@mui/material";
 import axios from "axios";
 import React, { useState } from "react";
 import { useEffect } from "react";
 import Post from "./Post";
 import './PublicStream.css';
 
-
-
 function Inbox() {
-  const [allInboxPosts, setAllInboxPosts] = useState([]);
+  const [allInboxItems, setAllInboxItems] = useState([]);
 
-  function getInboxPosts() {
-    const baseURL = "http://localhost:8000/author/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/inbox/"
+  function getInboxItems() {
+    const baseURL = "http://localhost:8000/authors/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/inbox/"
 
     axios.get(baseURL).then((response) => {
-      setAllInboxPosts(response.data.items);
+      console.log("REsponse Data");
+      console.log(response.data);
+      setAllInboxItems(response.data.items);
     });
+    console.log(allInboxItems);
   }
 
   useEffect(() => {
-    getInboxPosts();
-    console.log(allInboxPosts)
+    getInboxItems();
+    console.log(allInboxItems)
   }, []);
 
   function checkImageExists(val) {
+    console.log(allInboxItems)
     if (val.contentType === "image/png;base64" || val.contentType === "image/jpeg;base64") {
       return val.content
     }
@@ -31,21 +34,40 @@ function Inbox() {
     }
   }
 
+    const inboxItemType = (val) => {
+      if (val.type == 'post') {
+        return (
+          <Post
+            name={val.author.displayName}
+            user={val.author.id}
+            author={val.author}
+            content={val.description}
+            img={checkImageExists(val)}
+            alt={null}
+            date={'Oct 26, 2022'}
+            fromProfile={false}
+            comments={val.comments}
+          />
+        );
+      } else {
+        return (
+          <Card className="Card" variant="outlined">
+            <CardContent>
+              <Typography variant="body2" color="text.primary">
+                {val.summary}
+              </Typography>
+            </CardContent>
+          </Card>
+        );
+      };
+    };
+
 
   return (
     <div className="StreamOfPosts">
       <h1>Inbox</h1>
-      {allInboxPosts.map((val) => (
-        <Post
-          name={val.author.displayName}
-          user={val.author.id}
-          content={val.description}
-          img={checkImageExists(val)}
-          alt={null}
-          date={'Oct 26, 2022'}
-          fromProfile={true}
-          comments={val.comments}
-        />
+      {allInboxItems.map((val) => (
+        inboxItemType(val)
       ))}
     </div>
   );
