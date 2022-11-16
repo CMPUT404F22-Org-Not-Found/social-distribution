@@ -20,6 +20,7 @@ from django.conf.urls import include
 from django.urls import path
 from author.views import Register
 from post.views import PublicView
+from rest_framework.authtoken import views as rest_framework_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -28,4 +29,5 @@ urlpatterns = [
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(template_name='logout.html'), name='logout'),
     path('public/', PublicView.as_view(), name='public'),
+    path('api-token-auth/', rest_framework_views.obtain_auth_token)
 ]

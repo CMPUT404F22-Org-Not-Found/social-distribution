@@ -16,6 +16,7 @@ from post.serializers import PostSerializer
 from followers.models import FriendRequest
 from followers.serializers import FriendRequestSerializer
 from like.models import Like
+from like.serializers import LikeSerializer
 from .models import Inbox
 
 
@@ -36,14 +37,16 @@ class InboxView(APIView):
 
         posts_list = list(inbox.posts.all().order_by("-published"))
         friend_requests_list = list(inbox.friend_requests.all())
+        likes_list = list(inbox.likes.all())
 
         posts_serializer = PostSerializer(posts_list, many=True)
         friend_requests_serializer = FriendRequestSerializer(friend_requests_list, many=True)
+        likes_serializer = LikeSerializer(likes_list, many=True)
 
         response = {
             "type": "inbox",
             "author": str(author.url),
-            "items": posts_serializer.data + friend_requests_serializer.data,
+            "items": posts_serializer.data + friend_requests_serializer.data + likes_serializer.data,
         }
 
         return Response(response, status=status.HTTP_200_OK)
