@@ -18,7 +18,7 @@ function App() {
           <Route path="/" element={<Navigate replace to="/public-stream" />} />
           <Route path="/public-stream" element={<PublicStream />} />
           <Route path="/friend-requests" element={<FriendRequests />} />
-          <Route path="/new-post" element={<CreateNewPost />} />
+          {/* <Route path="/new-post " element={<CreateNewPost />} /> */}
           <Route path="/inbox" element={<Inbox />} />
           <Route path="/profile" element={<Profile />} />
         </Route>

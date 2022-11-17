@@ -5,12 +5,12 @@
 } */
 
 .CardActions {
-    justify-content: end;
-    margin-right: 5%;
+  justify-content: end;
+  margin-right: 5%;
 }
 
 .Post {
-    width: 100%;
+  width: 100%;
 }
 
 /* .MuiDialog-root {
@@ -18,5 +18,17 @@
 } */
 
 .Card {
-    width: 100%;
+  width: 100%;
+}
+
+.TextContent {
+  margin-top: 5rem;
+  margin-bottom: 1rem;
+  width: 100%;
+  align-self: center;
+}
+
+.ImageContent {
+  margin-top: 3rem;
+  width: 50%;
 }

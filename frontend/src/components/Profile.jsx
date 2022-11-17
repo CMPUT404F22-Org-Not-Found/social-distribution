@@ -113,15 +113,18 @@ function Profile() {
           <h3>My Posts</h3>
           {allPosts.map((val) => (
             <Post
-              name={val.author.displayName}
-              user={val.author.id}
-              author={val.author}
-              content={val.description}
-              img={checkImageExists(val)}
-              alt={null}
-              date={'Oct 26, 2022'}
-              fromProfile={true}
-              comments={val.comments}
+            id={val.id}
+            name={val.author.displayName}
+            user={val.author.id}
+            author={val.author}
+            title={val.title}
+            description={val.description}
+            contentType={val.contentType}
+            content={val.content}
+            img={checkImageExists(val)}
+            fromProfile={true}
+            comments={val.comments}
+            visibility={val.visibility}
             />
           ))}
         </div>

@@ -9,15 +9,17 @@ import PropTypes from 'prop-types';
 
 import React, { useState, useEffect } from "react"; import './Post.css';
 import axios from "axios";
+import CreateNewPost from "./CreateNewPost";
 
 function Post(props) {
-  const [open, setOpen] = useState(false);
+  const {
+    id, name, user, author, title, description, contentType, content, img, fromProfile, comments, visibility,
+  } = props
+
+  const [openCommentDialog, setOpenCommentDialog] = useState(false);
   const [commentsForPost, setCommentsForPost] = useState([]);
   const [newComment, setNewComment] = useState("");
-
-  const {
-    name, user, author, content, img, alt, date, fromProfile, comments
-  } = props
+  const [openEditDialog, setOpenEditDialog] = useState(false);
 
   const [stateSnackBar, setStateSnackBar] = useState({
     openSnackBar: false,
@@ -40,19 +42,36 @@ function Post(props) {
     console.log("Snackbar closed");
   };
 
-  const handleClickOpen = () => {
-    setOpen(true);
+  // HANDLE COMMENT DIALOG
+  const handleClickOpenCommentDialog = () => {
+    setOpenCommentDialog(true);
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleCloseCommentDialog = () => {
+    setOpenCommentDialog(false);
   };
 
-  const handleChange = (event) => {
+  const handleChangeComment = (event) => {
     setNewComment(event.target.value);
   }
 
-  const handleSubmit = () => {
+  // HANDLE EDIT DIALOG
+  const handleOpenEditDialog = () => {
+    setOpenEditDialog(true);
+  };
+
+  const handleCloseEditDialog = () => {
+    setOpenEditDialog(false);
+  };
+
+  const handleSubmitEdit = () => {
+    const url = author.url + "/posts/" + id + "/";
+    const postData = {
+
+    }
+  };
+
+  const handleSubmitComments = () => {
     const commentDate = new Date();
     const postData = {
       type: "comment",
@@ -64,7 +83,7 @@ function Post(props) {
 
     axios.post(comments + "/", postData)
       .then((response) => {
-        handleClose();
+        handleCloseCommentDialog();
         handleOpenSnackBar({
           vertical: 'top',
           horizontal: 'center',
@@ -72,7 +91,7 @@ function Post(props) {
       });
     console.log(postData);
     console.log(comments);
-    handleClose();
+    handleCloseCommentDialog();
     handleOpenSnackBar();
 
     console.log(newComment);
@@ -90,7 +109,7 @@ function Post(props) {
   const checkFromProfile = () => {
     if (fromProfile) {
       return (
-        <IconButton aria-label="edit">
+        <IconButton aria-label="edit" onClick={handleOpenEditDialog}>
           <EditIcon />
         </IconButton>
       )
@@ -138,14 +157,13 @@ function Post(props) {
               {name[0]}
             </Avatar>
           }
-          title={user}
-          subheader={date}
+          title={title}
+          subheader={name}
         />
         <CardMedia
           component="img"
           width="5rem"
           image={img}
-          alt={alt}
           style={{ display: checkImageExists(img) }}
         />
         { }
@@ -160,7 +178,7 @@ function Post(props) {
           <IconButton aria-label="like" onClick={handleLike}>
             {displayLike()}
           </IconButton>
-          <IconButton aria-label="comment" onClick={handleClickOpen}>
+          <IconButton aria-label="comment" onClick={handleClickOpenCommentDialog}>
             <ChatBubbleOutlineIcon />
           </IconButton>
           <IconButton aria-label="share">
@@ -169,9 +187,11 @@ function Post(props) {
           {checkFromProfile()}
         </CardActions>
       </Card>
+
+      {/* Dialog for comments */}
       <Dialog
-        open={open}
-        onClose={handleClose}
+        open={openCommentDialog}
+        onClose={handleCloseCommentDialog}
         maxWidth='md'
         fullWidth={true}
       >
@@ -198,17 +218,47 @@ function Post(props) {
             type="comment"
             fullWidth
             variant="standard"
-            onChange={handleChange}
+            onChange={handleChangeComment}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleClose}>Cancel</Button>
-          <Button onClick={handleSubmit}>Comment</Button>
+          <Button onClick={handleCloseCommentDialog}>Cancel</Button>
+          <Button onClick={handleSubmitComments}>Comment</Button>
         </DialogActions>
       </Dialog>
+
+      {/* Dialog for editing post */}
+      <Dialog
+        open={openEditDialog}
+        onClose={handleCloseEditDialog}
+        maxWidth='md'
+        fullWidth={true}
+      >
+        <DialogTitle>Edit Post</DialogTitle>
+        <DialogContent>
+          <CreateNewPost
+            id={id}
+            name={name}
+            user={user}
+            author={author}
+            title={title}
+            description={description}
+            contentType={contentType}
+            content={content}
+            img={img}
+            visibility={visibility}
+            newPost={false}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseEditDialog}>Cancel</Button>
+          <Button onClick={handleSubmitEdit}>Save</Button>
+        </DialogActions>
+      </Dialog>
+
       <Snackbar
         anchorOrigin={{ vertical, horizontal }}
-        open={openSnackBar}
+        openCommentDialog={openSnackBar}
         autoHideDuration={6000}
         onClose={handleCloseSnackBar}
         key={vertical + horizontal}
@@ -223,13 +273,16 @@ function Post(props) {
 export default Post;
 
 Post.propTypes = {
+  id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   user: PropTypes.string.isRequired,
   author: PropTypes.object.isRequired,
+  title: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+  contentType: PropTypes.string.isRequired,
   content: PropTypes.string.isRequired,
   img: PropTypes.string.isRequired,
-  alt: PropTypes.string.isRequired,
-  date: PropTypes.string.isRequired,
   fromProfile: PropTypes.bool.isRequired,
   comments: PropTypes.string.isRequired,
+  visibility: PropTypes.string.isRequired,
 }
