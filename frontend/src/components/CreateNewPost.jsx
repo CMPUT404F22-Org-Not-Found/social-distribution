@@ -48,6 +48,14 @@ function CreateNewPost(props) {
     return false;
   };
 
+  const ifEditPost = () => {
+    if (!newPost) {
+      return (
+        <Button className="DeleteButton" variant="contained" onClick={handleDeletePost}>DELETE</Button>
+      );
+    }
+  }
+
   const handlePost = () => {
     if (allFilled()) {
       console.log("All feilds have been filled, make post")
@@ -69,16 +77,22 @@ function CreateNewPost(props) {
 
     } else {
       console.log("edit existing post");
-      console.log("Data to post:",postData);
+      console.log("Data to post:", postData);
       axios.post(url, postData)
-      .then((response) => {
-        console.log("successfully edited post");
-      });
-
+        .then((response) => {
+          console.log("successfully edited post");
+        });
     }
-
-
   };
+
+  const handleDeletePost = () => {
+    const url = author.url + "/posts/" + id + "/";
+
+    axios.delete(url)
+      .then((response) => {
+        console.log("Deleted post");
+      });
+  }
 
   return (
     <div className="CreateNewPost">
@@ -144,6 +158,7 @@ function CreateNewPost(props) {
         <div className="formElement">
           <div className="ActionButtons">
             <Button variant="outlined">Cancel</Button>
+            {ifEditPost()}
             <Button variant="contained" onClick={handlePost}>Post</Button>
           </div>
         </div>

@@ -32,6 +32,10 @@
   /* align-self: center; */
 }
 
+.DeleteButton{
+  color: red;
+}
+
 .VisibilitySelection {
   align-items: flex-start;
 }
