@@ -86,10 +86,11 @@ class InboxView(APIView):
         if the post is not present, create a new post and add it to the inbox.
         """
         post_author_dict = post_request_dict["author"]
-        post_author_dict["id"] = uuid.UUID(post_author_dict["id"])
+        # The id given is a url, so we need to extract the id from the url
+        author_id = uuid.UUID(get_author_id_from_url(post_author_dict["id"]))
         # We may need to create a new author for remote author posts
         post_author, _ = Author.objects.get_or_create(
-            id=post_author_dict["id"], defaults=post_author_dict
+            author_id=author_id, defaults=post_author_dict
         )
         post_request_dict["author"] = post_author # we replace the json author with the author object
         post, was_post_created = Post.objects.get_or_create(id=post_request_dict.get("id", None),
@@ -116,10 +117,10 @@ class InboxView(APIView):
         # the sender Author may exist if he is a local author or may not exist if he is a remote author,
         # in which case we create him.
         recipient_dict = follow_request_dict["object"]
-        recipient_autor = Author.objects.get(id=recipient_dict["id"])
+        recipient_autor = Author.objects.get(author_id=get_author_id_from_url(recipient_dict["id"]))
         follow_request_dict["object"] = recipient_autor
         sender_dict = follow_request_dict["actor"]
-        sender_author, _ = Author.objects.get_or_create(id=sender_dict["id"], defaults=sender_dict)
+        sender_author, was_created = Author.objects.get_or_create(author_id=get_author_id_from_url(sender_dict["id"]), defaults=sender_dict)
         follow_request_dict["actor"] = sender_author
 
         follow_request, was_follow_request_created = FriendRequest.objects.get_or_create(
@@ -141,8 +142,9 @@ class InboxView(APIView):
         if it is not in the DB, create a new like object and add it to the inbox.
         If the author is a remote author, create a new author object for him.
         """
-        like_author = Author.objects.get_or_create(id=like_request_dict["author"]["id"],
-                                                   defaults=like_request_dict["author"])
+        like_author = Author.objects.get_or_create(
+            author_id=get_author_id_from_url(like_request_dict["author"]["id"]),
+            defaults=like_request_dict["author"])
         like_request_dict["author"] = like_author
 
         like, was_like_created = Like.objects.get_or_create(
@@ -183,3 +185,7 @@ class InboxView(APIView):
             "detail": f"Successfully cleared {author.displayName}'s inbox",
         }
         return Response(response_dict, status=status.HTTP_204_NO_CONTENT)
+
+def get_author_id_from_url(url: str) -> str:
+    """Returns the author id from the url."""
+    return url.split("/")[-1]

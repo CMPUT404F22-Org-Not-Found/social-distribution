@@ -20,20 +20,20 @@ class AuthorModelTestCase(TestCase):
         self.assertEqual(author.github, "github/test1.com")
         self.assertEqual(author.profileImage, "profile/test1.com")
         self.assertEqual(author.host, "http://testserver")
-        self.assertEqual(author.url, "http://testserver/authors/" + str(author.id))
+        self.assertEqual(author.url, "http://testserver/authors/" + str(author.author_id))
 
     def test_author_model_str(self):
         author = Author.objects.get(user__username='testuser1')
-        self.assertEqual(str(author), "Test User 1 - " + str(author.id))
+        self.assertEqual(str(author), "Test User 1 - " + str(author.author_id))
     
     def test_author_model_compute_url(self):
         author = Author.objects.get(user__username='testuser1')
-        self.assertEqual(author.compute_url(), "http://testserver/authors/" + str(author.id))
+        self.assertEqual(author.compute_url(), "http://testserver/authors/" + str(author.author_id))
     
     def test_author_model_save(self):
         author = Author.objects.get(user__username='testuser1')
         author.save()
-        self.assertEqual(author.url, "http://testserver/authors/" + str(author.id))
+        self.assertEqual(author.url, "http://testserver/authors/" + str(author.author_id))
     
     def test_author_model_followers(self):
         author = Author.objects.get(user__username='testuser1')
@@ -66,18 +66,20 @@ class AuthorListViewTest(APITestCase):
         response = AuthorList.as_view()(request)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data[0]["type"], "author")
-        self.assertEqual(response.data[0]["id"], str(self.author.id))
+        # self.assertEqual(response.data[0]["author_id"], str(self.author.author_id))
+        self.assertEqual(response.data[0]["id"], "http://testserver/authors/" + str(self.author.author_id))
         self.assertEqual(response.data[0]["host"], "http://testserver")
-        self.assertEqual(response.data[0]["url"], "http://testserver/authors/" + str(self.author.id))
+        self.assertEqual(response.data[0]["url"], "http://testserver/authors/" + str(self.author.author_id))
         self.assertEqual(response.data[0]["displayName"], "Test User 1")
         self.assertEqual(response.data[0]["github"], "github/test1.com")
         self.assertEqual(response.data[0]["profileImage"], "profile/test1.com")
     
         # Confirm author 2
         self.assertEqual(response.data[1]["type"], "author")
-        self.assertEqual(response.data[1]["id"], str(self.author2.id))
+        # self.assertEqual(response.data[1]["author_id"], str(self.author2.author_id))
+        self.assertEqual(response.data[1]["id"], "http://testserver/authors/" + str(self.author2.author_id))
         self.assertEqual(response.data[1]["host"], "http://testserver")
-        self.assertEqual(response.data[1]["url"], "http://testserver/authors/" + str(self.author2.id))
+        self.assertEqual(response.data[1]["url"], "http://testserver/authors/" + str(self.author2.author_id))
         self.assertEqual(response.data[1]["displayName"], "Test User 2")
         self.assertEqual(response.data[1]["github"], "github/test2.com")
         self.assertEqual(response.data[1]["profileImage"], "profile/test2.com")
@@ -91,9 +93,9 @@ class AuthorListViewTest(APITestCase):
 
         # Confirm author 2
         self.assertEqual(response.data[0]["type"], "author")
-        self.assertEqual(response.data[0]["id"], str(self.author2.id))
+        # self.assertEqual(response.data[0]["author_id"], str(self.author2.author_id))
         self.assertEqual(response.data[0]["host"], "http://testserver")
-        self.assertEqual(response.data[0]["url"], "http://testserver/authors/" + str(self.author2.id))
+        self.assertEqual(response.data[0]["url"], "http://testserver/authors/" + str(self.author2.author_id))
         self.assertEqual(response.data[0]["displayName"], "Test User 2")
         self.assertEqual(response.data[0]["github"], "github/test2.com")
         self.assertEqual(response.data[0]["profileImage"], "profile/test2.com")
@@ -109,13 +111,13 @@ class AuthorDetailViewTest(APITestCase):
         self.client.force_authenticate(user=self.user)
 
     def test_author_detail_view_get(self):
-        request = self.factory.get('/authors/' + str(self.author.id), format='json')
-        response = AuthorDetail.as_view()(request, pk=self.author.id)
+        request = self.factory.get('/authors/' + str(self.author.author_id), format='json')
+        response = AuthorDetail.as_view()(request, pk=self.author.author_id)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["type"], "author")
-        self.assertEqual(response.data["id"], str(self.author.id))
+        # self.assertEqual(response.data["author_id"], str(self.author.author_id))
         self.assertEqual(response.data["host"], "http://testserver")
-        self.assertEqual(response.data["url"], "http://testserver/authors/" + str(self.author.id))
+        self.assertEqual(response.data["url"], "http://testserver/authors/" + str(self.author.author_id))
         self.assertEqual(response.data["displayName"], "Test User 1")
         self.assertEqual(response.data["github"], "github/test1.com")
         self.assertEqual(response.data["profileImage"], "profile/test1.com")
@@ -127,17 +129,17 @@ class AuthorDetailViewTest(APITestCase):
         self.assertEqual(response.data["detail"], "Not found.")
     
     def test_author_detail_view_post(self):
-        data = {"type": "author", "id": str(self.author.id), "host": "http://testserver",
-                "url": "http://testserver/authors/" + str(self.author.id), "displayName": "Test User 11",}
-        response = self.client.post('/authors/' + str(self.author.id) + "/", data=data)
+        data = {"type": "author", "author_id": str(self.author.author_id), "host": "http://testserver",
+                "url": "http://testserver/authors/" + str(self.author.author_id), "displayName": "Test User 11",}
+        response = self.client.post('/authors/' + str(self.author.author_id) + "/", data=data)
 
         self.assertEqual(response.status_code, 200)
         
         # Confirm author
         self.assertEqual(response.data["type"], "author")
-        self.assertEqual(response.data["id"], str(self.author.id))
+        # self.assertEqual(response.data["author_id"], str(self.author.author_id))
         self.assertEqual(response.data["host"], "http://testserver")
-        self.assertEqual(response.data["url"], "http://testserver/authors/" + str(self.author.id))
+        self.assertEqual(response.data["url"], "http://testserver/authors/" + str(self.author.author_id))
         self.assertEqual(response.data["displayName"], "Test User 11")
         self.assertEqual(response.data["github"], "github/test1.com")
         self.assertEqual(response.data["profileImage"], "profile/test1.com")

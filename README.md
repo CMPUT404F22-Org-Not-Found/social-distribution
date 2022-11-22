@@ -86,7 +86,9 @@ CMPUT 404 Group Project Repo
         - Get token for user vitor with password 123
 
 ### What to do when we want to send a friend request?
+
  Suppose we want to send a friend request from FOREIGN_AUTHOR to AUTHOR, we need to send a POST request to the following endpoint:
+ 
     1. POST //service/author/{AUTHOR_ID}/inbox/
         - AUTHOR_ID is the id of the AUTHOR
         - The body of the request should be in the following format:

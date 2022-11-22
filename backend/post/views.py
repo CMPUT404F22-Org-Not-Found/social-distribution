@@ -51,7 +51,7 @@ class PostList(APIView):
 
     def list(self,pk):
         try:
-            return Post.objects.filter(author__id = pk,visibility = "PUBLIC", unlisted = False).order_by("-published")
+            return Post.objects.filter(author__author_id = pk,visibility = "PUBLIC", unlisted = False).order_by("-published")
         except Post.DoesNotExist:
             return None
 

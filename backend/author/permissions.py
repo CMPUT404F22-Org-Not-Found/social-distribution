@@ -15,7 +15,7 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
         # if request.method == "POST":
         #     return request.user.is_authenticated and request.user.author.id == view.kwargs["pk"]
         
-        return request.user.is_authenticated and request.user.author.id == view.kwargs["pk"]
+        return request.user.is_authenticated and request.user.author.author_id == view.kwargs["pk"]
 
 class IsAuthenticated(permissions.BasePermission):
 

@@ -67,12 +67,12 @@ class PostDetailTest(APITestCase):
 
     def post_404(self):
         uuid = uuid4()
-        req = self.factory.get('/authors/{}/posts/{}/'.format(self.author.id,uuid),format = 'json')
+        req = self.factory.get('/authors/{}/posts/{}/'.format(self.author.author_id,uuid),format = 'json')
         res = PostDetail.as_view()(req, pk = self.author.id, post_id = uuid )
         self.assertEqual(res.status_code,404)
 
     def valid_post(self):
-        req = self.factory.get('/authors/{}/posts/{}/'.format(self.author.id,self.post.id),format = 'json')
+        req = self.factory.get('/authors/{}/posts/{}/'.format(self.author.author_id,self.post.id),format = 'json')
         res = PostDetail.as_view()(req, pk = self.author.id, post_id = self.post.id)
         self.assertEqual(res.data["id"],self.post.id)
     
@@ -90,7 +90,7 @@ class PostDetailTest(APITestCase):
             "visibility":"PUBLIC", 
         }
 
-        res = self.client.put('/authors/{}/posts/{}/'.format(self.author.id,self.post.id), data = data, format = 'json')
+        res = self.client.put('/authors/{}/posts/{}/'.format(self.author.author_id,self.post.id), data = data, format = 'json')
         self.assertEqual(res.status_code,201)
         post = Post.objects.get(id = self.post.id)
         post_title = post.title
@@ -99,7 +99,7 @@ class PostDetailTest(APITestCase):
 
     def test_post_delete(self):
         self.assertEqual(1, len(self.author.post_author.all()))
-        self.client.delete('/authors/{}/posts/{}/'.format(self.author.id,self.post.id))
+        self.client.delete('/authors/{}/posts/{}/'.format(self.author.author_id,self.post.id))
         self.assertEqual(0, len(self.author.post_author.all()))
 
 
@@ -175,8 +175,8 @@ class PostListViewTest(APITestCase):
         )
 
     def test_post_get(self):
-        req = self.factory.get('/authors/{}/posts'.format(self.author.id), format='json')        
-        res = PostList.as_view()(req, pk = self.author.id)
+        req = self.factory.get('/authors/{}/posts'.format(self.author.author_id), format='json')        
+        res = PostList.as_view()(req, pk = self.author.author_id)
         self.assertEqual(res.status_code,200)
         self.assertEqual(2,len(res.data["items"]))
 
@@ -193,7 +193,7 @@ class PostListViewTest(APITestCase):
             "visibility":"PUBLIC"
         }
 
-        res = self.client.post('/authors/{}/posts/'.format(self.author.id), data = data)
+        res = self.client.post('/authors/{}/posts/'.format(self.author.author_id), data = data)
         self.assertEqual(res.status_code,201)
         self.assertEqual(3, len(self.author.post_author.all()))
         
