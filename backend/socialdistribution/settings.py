@@ -31,18 +31,24 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    # Local apps
     'author.apps.AuthorConfig',
     'post.apps.PostConfig',
     'followers.apps.FollowersConfig',
     'comment.apps.CommentConfig',
     'inbox.apps.InboxConfig',
     'like.apps.LikeConfig',
+    'node.apps.NodeConfig',
+
+    # Django apps
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Third party apps
     'rest_framework',
     'corsheaders',
     'rest_framework.authtoken',
