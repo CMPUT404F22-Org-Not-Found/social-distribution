@@ -13,7 +13,8 @@ import Register from './components/Register';
 function App() {
   return (
     <div className="App">
-      <Routes>
+      <p>Testing deployment</p>
+      {/* <Routes>
         <Route path="" element={<Dashboard />}>
           <Route path="/" element={<Navigate replace to="/public-stream" />} />
           <Route path="/public-stream" element={<PublicStream />} />
@@ -24,7 +25,7 @@ function App() {
         </Route>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-      </Routes>
+      </Routes> */}
     </div>
   );
 }
