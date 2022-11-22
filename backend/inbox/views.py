@@ -87,14 +87,14 @@ class InboxView(APIView):
         """
         post_author_dict = post_request_dict["author"]
         # The id given is a url, so we need to extract the id from the url
-        author_id = uuid.UUID(get_author_id_from_url(post_author_dict["id"]))
+        author_id = get_author_id_from_url(post_author_dict["id"])
         # We may need to create a new author for remote author posts
         post_author, _ = Author.objects.get_or_create(
             author_id=author_id, defaults=post_author_dict
         )
         post_request_dict["author"] = post_author # we replace the json author with the author object
-        post, was_post_created = Post.objects.get_or_create(id=post_request_dict.get("id", None),
-                                                            defaults=post_request_dict)
+        post_id = get_post_id_from_url(post_request_dict.get("id", ""))
+        post, was_post_created = Post.objects.get_or_create(post_id=post_id, defaults=post_request_dict)
         inbox.posts.add(post)
         inbox.save()
         if was_post_created:
@@ -186,6 +186,13 @@ class InboxView(APIView):
         }
         return Response(response_dict, status=status.HTTP_204_NO_CONTENT)
 
-def get_author_id_from_url(url: str) -> str:
+def get_author_id_from_url(url: str) -> uuid:
     """Returns the author id from the url."""
-    return url.split("/")[-1]
+    return uuid.UUID(url.split("/")[-1])
+
+def get_post_id_from_url(url: str) -> uuid:
+    """Returns the post id from the url."""
+    try:
+        return uuid.UUID(url.split("/")[-1])
+    except Exception:
+        return None

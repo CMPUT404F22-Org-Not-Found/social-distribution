@@ -87,8 +87,8 @@ class InboxViewTestCase(APITestCase):
         # Confirm that the post is in the inbox
         self.assertEqual(response.data["items"][0]["type"], "post")
         self.assertEqual(response.data["items"][0]["title"], "Test Post 1")
-        self.assertEqual(response.data["items"][0]["source"], "http://testserver" + "posts/" + str(self.post.id))
-        self.assertEqual(response.data["items"][0]["origin"], "http://testserver" + "posts/" + str(self.post.id))
+        self.assertEqual(response.data["items"][0]["source"], "http://testserver" + "posts/" + str(self.post.post_id))
+        self.assertEqual(response.data["items"][0]["origin"], "http://testserver" + "posts/" + str(self.post.post_id))
         self.assertEqual(response.data["items"][0]["description"], "Test Post 1 Description")
         self.assertEqual(response.data["items"][0]["contentType"], "text/plain")
         self.assertEqual(response.data["items"][0]["content"], "Test Post 1 Content")

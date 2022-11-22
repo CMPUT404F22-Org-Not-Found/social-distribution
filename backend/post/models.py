@@ -25,7 +25,8 @@ class Post(models.Model):
         ("PRIVATE","PRIVATE")
     ]
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    post_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.URLField(max_length=200, blank=True, null=True, editable=False)
     type = models.CharField(default="post",max_length=4, editable=False)
     title = models.CharField(max_length=255,null=True)
     source = models.URLField(max_length=500,default=DEFAULT_HOST)
@@ -48,17 +49,18 @@ class Post(models.Model):
         return self.id
         
     def get_source(self):
-        return str(self.source) + 'posts/' + str(self.id)
+        return str(self.source) + 'posts/' + str(self.post_id)
     
     def get_origin(self):
-        return str(self.origin) + 'posts/' + str(self.id)
+        return str(self.origin) + 'posts/' + str(self.post_id)
 
     def get_comments(self):
-        return str(self.author.url) + '/posts/' + str(self.id) + '/comments'
+        return str(self.author.url) + '/posts/' + str(self.post_id) + '/comments'
     
     def get_absolute_url(self):
-        return reverse('post-details', args=[str(self.author.id),str(self.id)])
+        return reverse('post-details', args=[str(self.author.id),str(self.post_id)])
 
     def save(self, *args, **kwargs):
-        self.url = str(self.author.url) + '/posts/' + str(self.id)
+        self.url = str(self.author.url) + '/posts/' + str(self.post_id)
+        self.id = self.url
         super().save(*args, **kwargs)

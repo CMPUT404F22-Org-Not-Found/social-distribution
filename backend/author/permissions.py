@@ -28,8 +28,8 @@ class IsAuthenticated(permissions.BasePermission):
 
             post_id = view.kwargs["post_id"]
             post = None
-            if Post.objects.filter(id=post_id).exists():
-                post = Post.objects.get(id=post_id)
+            if Post.objects.filter(post_id=post_id).exists():
+                post = Post.objects.get(post_id=post_id)
                 return request.user.is_authenticated and request.user.author.id == post.author.id
 
             if post is None:

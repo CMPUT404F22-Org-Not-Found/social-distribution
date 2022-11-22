@@ -87,13 +87,15 @@ class PostList(APIView):
         
         request = dict(request.data)
 
-        request["id"] = str(uuid.uuid4())
+        post_id = str(uuid.uuid4())
+        post_id_url = author.url + "/posts/" + post_id
+        request["id"] = post_id_url
         request["author"] = author
 
         if "categories" in request:
             request["categories"] = json.dumps(request["categories"])
 
-        post, created = Post.objects.update_or_create(id=request["id"], defaults=request)
+        post, created = Post.objects.update_or_create(post_id=post_id, defaults=request)
         serializer = PostSerializer(post)
 
         return Response(serializer.data, status = status.HTTP_201_CREATED)
@@ -104,7 +106,7 @@ class PostDetail(APIView):
 
     def get_object(self,author,post_id):
         try:
-            return author.post_author.get(id=post_id)
+            return author.post_author.get(post_id=post_id)
         except Post.DoesNotExist:
             return None
 
@@ -171,28 +173,16 @@ class PostDetail(APIView):
             raise Http404
 
         request = dict(request.data)
-        request["id"] = post_id
+
+        post_id_url = author.url + "/posts/" + str(post_id)
+        request["id"] = post_id_url
         request["author"] = author
 
         if "categories" in request:
                 request["categories"] = json.dumps(request["categories"])
 
-        post, created = Post.objects.update_or_create(id=post_id, defaults=request)
+        post, created = Post.objects.update_or_create(post_id=post_id, defaults=request)
         serializer = PostSerializer(post)
 
         return Response(serializer.data, status = status.HTTP_201_CREATED)
         
-
-
-        
-
-        
-
-        
-        
-
-
-
-
-
-

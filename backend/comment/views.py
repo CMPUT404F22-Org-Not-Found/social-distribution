@@ -21,7 +21,7 @@ class CommentDetail(APIView):
 
     def get_post(self,author,post_id):
         try:
-            return author.post_author.get(id=post_id)
+            return author.post_author.get(post_id=post_id)
         except Post.DoesNotExist:
             return None
     

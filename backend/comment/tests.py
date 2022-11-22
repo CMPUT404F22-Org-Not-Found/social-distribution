@@ -66,8 +66,8 @@ class CommentDetailTest(APITestCase):
         self.comment2 = Comment.objects.create(post = self.post, author = self.author1, comment = "test2")
 
     def test_comment_get(self):
-        req = self.factory.get('/authors/{}/posts{}/comments/'.format(self.author1.author_id,self.post.id), format='json')        
-        res = CommentDetail.as_view()(req,pk = self.author1.author_id, post_id = self.post.id)
+        req = self.factory.get('/authors/{}/posts{}/comments/'.format(self.author1.author_id,self.post.post_id), format='json')        
+        res = CommentDetail.as_view()(req,pk = self.author1.author_id, post_id = self.post.post_id)
         self.assertEqual(res.status_code,200)
         self.assertEqual(2,len(res.data["comments"]))
 
@@ -81,6 +81,6 @@ class CommentDetailTest(APITestCase):
             "contentType": "text/plain"
         }
 
-        res = self.client.post('/authors/{}/posts/{}/comments/'.format(self.author1.author_id,self.post.id), data = data, format = 'json')
+        res = self.client.post('/authors/{}/posts/{}/comments/'.format(self.author1.author_id,self.post.post_id), data = data, format = 'json')
         self.assertEqual(res.status_code,201)
         self.assertEqual(3,len(self.post.post_comment.all()))

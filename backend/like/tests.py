@@ -58,7 +58,7 @@ class LikeViewTestCase(APITestCase):
 
     def test_like_view_get(self):
         """Test the GET method of the Like view."""
-        response = self.client.get(f"/authors/{self.author.author_id}/posts/{self.post.id}/likes/")
+        response = self.client.get(f"/authors/{self.author.author_id}/posts/{self.post.post_id}/likes/")
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["type"], "likes")
         self.assertEqual(response.data["items"][0]["type"], "Like")
@@ -83,7 +83,7 @@ class LikeViewTestCase(APITestCase):
                                         content="Test post", author=self.author,
                                         url=f"http://test.com/authors/{self.author.id}/2", visibility="PUBLIC")
 
-        response = self.client.post(f"/authors/{self.author.author_id}/posts/{post2.id}/likes/")
+        response = self.client.post(f"/authors/{self.author.author_id}/posts/{post2.post_id}/likes/")
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data["type"], "Like")
