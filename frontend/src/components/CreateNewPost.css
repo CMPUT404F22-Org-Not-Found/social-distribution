@@ -7,14 +7,20 @@
   margin-right: 20%;
 }
 
+.formElement {
+  margin-top: 1rem;
+  text-align: start;
+}
+
 .TextInput {
   width: 100%;
   align-self: center;
 }
 
-.UploadImage {
+/* .UploadImage {
   margin-top: 3rem;
-}
+  margin-bottom: 2rem;
+} */
 
 .ActionButtons {
   display: flex;
@@ -24,4 +30,12 @@
   margin-top: 3rem;
   justify-content: space-between;
   /* align-self: center; */
+}
+
+.DeleteButton{
+  color: red;
+}
+
+.VisibilitySelection {
+  align-items: flex-start;
 }
