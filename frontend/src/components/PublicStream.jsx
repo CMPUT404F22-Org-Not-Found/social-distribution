@@ -3,7 +3,7 @@ import './PublicStream.css';
 import Post from "./Post";
 // import Topbar from "./Topbar";
 // import FriendRequests from "./FriendRequests";
-import axios from "axios";
+import axiosInstance from "../axiosInstance";
 
 function PublicStream() {
   // const [counter, setCounter] = useState(0);
@@ -37,14 +37,14 @@ function PublicStream() {
     },
   ]
 
-  function getPosts() {
+  function getPosts() { 
     // axiosInstance.get(`/authors/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/posts/`)
     // .then((response) => {
     //   setAllPosts(response.data.data);
     //   console.log(allPosts);
     // });
-    const baseURL = "http://localhost:8000/public/"
-    axios.get(baseURL).then((response) => {
+    const baseURL = "public/"
+    axiosInstance.get(baseURL).then((response) => {
       // console.log(response.data.items)
       setAllPosts(response.data.items);
     });
