@@ -88,7 +88,8 @@ class Register(APIView):
             displayName = form.cleaned_data.get("displayName")
             github = form.cleaned_data.get("github")
             profileImage = form.cleaned_data.get("profileImage")
-            author = Author.objects.create(user=user, displayName=displayName, github=github, profileImage=profileImage)
+            author = Author.objects.create(user=user, displayName=displayName, github=github,
+                        profileImage=profileImage, host=request.build_absolute_uri('/'))
             Inbox.objects.create(author=author)
             return redirect('login')
             # return Response(status=status.HTTP_201_CREATED)
