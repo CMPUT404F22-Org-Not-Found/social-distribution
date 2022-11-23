@@ -27,7 +27,7 @@ class CommentDetail(APIView):
     
     def get_comment(self,post,comment_id):
         try:
-            return post.post_comment.get(id=comment_id)
+            return post.post_comment.get(comment_id=comment_id)
         except Comment.DoesNotExist:
             return None
 
@@ -88,7 +88,7 @@ class CommentDetail(APIView):
         
         request = dict(request.data)
         request["post"] = post
-        request["id"] = str(uuid.uuid4())
+        request["comment_id"] = str(uuid.uuid4())
         author_data = request["author"]
         if author_data is None:
             request["author"] = author
@@ -96,7 +96,7 @@ class CommentDetail(APIView):
             author = self.get_author(pk = author_data["id"].split("/")[-1])
             request["author"] = author 
 
-        comment, created = Comment.objects.update_or_create(id=request["id"], defaults=request)
+        comment, created = Comment.objects.update_or_create(comment_id=request["comment_id"], defaults=request)
 
         serializer = CommentSerializer(comment)
 

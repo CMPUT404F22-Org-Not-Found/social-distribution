@@ -29,6 +29,7 @@ class Post(models.Model):
     id = models.URLField(max_length=200, blank=True, null=True, editable=False)
     type = models.CharField(default="post",max_length=4, editable=False)
     title = models.CharField(max_length=255,null=True)
+    count = models.IntegerField(default=0,blank=True,null=True)
     source = models.URLField(max_length=500,default=DEFAULT_HOST)
     origin = models.URLField(max_length=500,default=DEFAULT_HOST)
     description = models.TextField(max_length=255, blank=True, null=True, default="")

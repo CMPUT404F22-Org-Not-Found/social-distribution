@@ -16,10 +16,11 @@ class PostSerializer(serializers.ModelSerializer):
     origin = serializers.URLField(source="get_origin",required=False,read_only=True)
     categories = serializers.SerializerMethodField()
     commentsSrc = serializers.SerializerMethodField()
+    count = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ("id","type","title","source","origin","description","contentType","content","author","categories","comments","commentsSrc","published","visibility","unlisted","url")
+        fields = ("id","type","title","source","origin","description","contentType","content","author","categories","count","comments","commentsSrc","published","visibility","unlisted","url")
 
     def create(self, validated_data):
         post = Post.objects.create(**validated_data)
@@ -29,7 +30,6 @@ class PostSerializer(serializers.ModelSerializer):
         
         instance.title = validated_data.get('title',instance.title)
         instance.description = validated_data.get('description',instance.description)
-        instance.contentType = validated_data.get('contentType', instance.categories)
         instance.content = validated_data.get('content', instance.content)
         instance.visibility = validated_data.get('visibility', instance.visibility)
         instance.unlisted = validated_data.get('unlisted', instance.unlisted)
@@ -58,3 +58,6 @@ class PostSerializer(serializers.ModelSerializer):
             categories = []
         
         return categories
+
+    def get_count(self,post):
+        return len(list(post.post_comment.all()))

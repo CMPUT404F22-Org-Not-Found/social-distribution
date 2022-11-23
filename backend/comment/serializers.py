@@ -19,7 +19,7 @@ class CommentSerializer(serializers.ModelSerializer):
         author_dict = validated_data.pop("author",None)
 
         if author_dict:
-            author = Author.objects.get(pk=author_dict["id"])
+            author = Author.objects.get(id=author_dict["id"])
             validated_data['author'] = author
 
         comment = Comment.objects.create(**validated_data)
