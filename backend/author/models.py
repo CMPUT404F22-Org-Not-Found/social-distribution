@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 import uuid
 
-DEFAULT_HOST = "http://127.0.0.1:8000"
+DEFAULT_HOST = "http://127.0.0.1:8000/"
 
 class Author(models.Model):
     # The user can be null for remote authors
@@ -37,7 +37,7 @@ class Author(models.Model):
     followers = models.ManyToManyField("self", related_name="following", symmetrical=False, blank=True)
 
     def compute_url(self):
-        return f"{self.host}/authors/{self.author_id}"
+        return f"{self.host}authors/{self.author_id}"
 
     def save(self, *args, **kwargs):
         self.url = self.compute_url()
