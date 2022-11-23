@@ -17,7 +17,8 @@ class Comment(models.Model):
         ("image/jpeg;base64","image/jpeg;base64")
     ]
 
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    comment_id = models.UUIDField(primary_key=True, default=uuid.uuid4(), editable=False)
+    id = models.URLField(max_length=200, blank=True, null=True, editable=False)
     type = models.CharField(default="comment",max_length=7, editable=False)
     comment = models.TextField()
     contentType = models.CharField(max_length=30, choices=CONTENT_CHOICE, default='text/plain')
@@ -33,5 +34,6 @@ class Comment(models.Model):
         return self.id
     
     def save(self, *args, **kwargs):
-        self.url = str(self.post.url) + "/comments/" + str(self.id)
+        self.url = str(self.post.url) + "/comments/" + str(self.comment_id)
+        self.id = self.url
         super().save(*args, **kwargs)
