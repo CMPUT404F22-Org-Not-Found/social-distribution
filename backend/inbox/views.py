@@ -69,13 +69,13 @@ class InboxView(APIView):
             raise Http404("Inbox does not exist")
 
         request_dict = request.data
-        if request_dict["type"] == "post":
+        if request_dict["type"].lower() == "post":
             return self._handle_POST_post(request_dict, author, inbox)
 
-        elif request_dict["type"] == "follow":
+        elif request_dict["type"].lower() == "follow":
             return self._handle_POST_follow(request_dict, author, inbox)
         
-        elif request_dict["type"] == "like":
+        elif request_dict["type"].lower() == "like":
             return self._handle_POST_like(request_dict, author, inbox)
             
 
@@ -93,7 +93,7 @@ class InboxView(APIView):
             author_id=author_id, defaults=post_author_dict
         )
         post_request_dict["author"] = post_author # we replace the json author with the author object
-        post_id = get_post_id_from_url(post_request_dict.get("id", ""))
+        post_id = get_post_id_from_url(post_request_dict.get("id", f"a/{uuid.uuid4()}"))
         post, was_post_created = Post.objects.get_or_create(post_id=post_id, defaults=post_request_dict)
         inbox.posts.add(post)
         inbox.save()
@@ -142,14 +142,13 @@ class InboxView(APIView):
         if it is not in the DB, create a new like object and add it to the inbox.
         If the author is a remote author, create a new author object for him.
         """
-        like_author = Author.objects.get_or_create(
+        like_author, _ = Author.objects.get_or_create(
             author_id=get_author_id_from_url(like_request_dict["author"]["id"]),
             defaults=like_request_dict["author"])
         like_request_dict["author"] = like_author
 
         like, was_like_created = Like.objects.get_or_create(
             author=like_author, object=like_request_dict["object"], defaults=like_request_dict)
-        
         inbox.likes.add(like)
         inbox.save()
 

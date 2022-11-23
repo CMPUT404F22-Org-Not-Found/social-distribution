@@ -395,7 +395,6 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(str(added_friend_request.object.id), str(self.author2.id))
         self.assertEqual(added_friend_request.object.displayName, "Test User 2")
 
-    @skip("Not implemented yet")
     def test_inbox_POST_like_request_with_existing_authors(self):
         """Send a like object of author 1 liking a post from author 2 to author 2's inbox."""
         # Create a post from author 2
@@ -410,7 +409,7 @@ class InboxViewTestCase(APITestCase):
             visibility="PUBLIC",
             unlisted=False
         )
-        post.url = f"http://testserver/authors/{self.author2.author_id}/{post.id}"
+        post.url = f"http://testserver/authors/{self.author2.author_id}/{post.post_id}"
         post.save()
 
         data = {
@@ -431,7 +430,7 @@ class InboxViewTestCase(APITestCase):
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data["type"], "like")
-        self.assertEqual(response.data["detail"], f"Successfully created a new like request and sent to {self.author2.displayName}'s inbox")
+        self.assertEqual(response.data["detail"], f"Successfully created a new like and sent to {self.author2.displayName}'s inbox")
 
         # Check that the like request is in the inbox
         self.assertEqual(self.inbox2.likes.count(), 1)
@@ -440,14 +439,13 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(added_like_request.object, post.url)
         self.assertEqual(added_like_request.summary, "Test User 1 likes Test Post 1")
     
-    @skip("Not implemented yet")
     def test_inbox_POST_like_request_with_existing_authors_and_existing_like_request(self):
         """Send a like object of author 1 liking a post from author 2 to author 2's inbox, but the like request already exists."""
         # Create a post from author 2
         post = Post.objects.create(
             title="Test Post 1",
-            source="http://testserver/posts/" + str(self.post.id),
-            origin="http://testserver/posts/" + str(self.post.id),
+            source="http://testserver/posts/" + str(self.post.post_id),
+            origin="http://testserver/posts/" + str(self.post.post_id),
             description="Test Post 1 Description",
             contentType="text/plain",
             content="Test Post 1 Content",
@@ -455,11 +453,11 @@ class InboxViewTestCase(APITestCase):
             visibility="PUBLIC",
             unlisted=False
         )
-        post.url = f"http://testserver/authors/{self.author2.id}/{post.id}"
+        post.url = f"http://testserver/authors/{self.author2.author_id}/{post.post_id}"
         post.save()
 
         # Create a like request from author 1 to author 2's post
-        self.inbox2.likes.create(author=self.author, object=post.url)
+        self.inbox2.likes.create(author=self.author, object=post.url, summary="Test User 1 likes Test Post 1")
 
         data = {
             "type": "like",
@@ -474,12 +472,12 @@ class InboxViewTestCase(APITestCase):
             },
             "object": post.url
         }
-        request = self.factory.post('/inbox/' + str(self.author2.id), data, format='json')
-        response = InboxView.as_view()(request, author_id=str(self.author2.id))
+        request = self.factory.post('/inbox/' + str(self.author2.author_id), data, format='json')
+        response = InboxView.as_view()(request, author_id=str(self.author2.author_id))
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["type"], "like")
-        self.assertEqual(response.data["detail"], f"Successfully sent the like request to {self.author2.displayName}'s inbox")
+        self.assertEqual(response.data["detail"], f"Successfully sent the like to {self.author2.displayName}'s inbox")
 
         # Check that the like request is in the inbox
         self.assertEqual(self.inbox2.likes.count(), 1)
