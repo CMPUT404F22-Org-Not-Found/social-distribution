@@ -24,4 +24,4 @@ class Inbox(models.Model):
     likes = models.ManyToManyField(Like, related_name="inbox_like", blank=True, symmetrical=False)
 
     def __str__(self):
-        return f"Inbox of {self.author.displayName} - {str(self.author.id)}"
+        return f"Inbox of {self.author.displayName} - {str(self.author.author_id)}"

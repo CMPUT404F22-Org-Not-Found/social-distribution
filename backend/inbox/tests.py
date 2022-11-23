@@ -29,11 +29,11 @@ class InboxModelTestCase(TestCase):
         self.assertEqual(inbox.author.github, "github/test1.com")
         self.assertEqual(inbox.author.profileImage, "profile/test1.com")
         self.assertEqual(inbox.author.host, "http://testserver")
-        self.assertEqual(inbox.author.url, "http://testserver/authors/" + str(inbox.author.id))
+        self.assertEqual(inbox.author.url, "http://testserver/authors/" + str(inbox.author.author_id))
 
     def test_inbox_model_str(self):
         inbox = Inbox.objects.get(author__user__username='testuser1')
-        self.assertEqual(str(inbox), "Inbox of Test User 1 - " + str(inbox.author.id))
+        self.assertEqual(str(inbox), "Inbox of Test User 1 - " + str(inbox.author.author_id))
 
     def test_inbox_model_posts(self):
         inbox = Inbox.objects.get(author__user__username='testuser1')
@@ -77,25 +77,25 @@ class InboxViewTestCase(APITestCase):
         self.inbox.posts.add(self.post)
 
     def test_inbox_view(self):
-        request = self.factory.get('/inbox/' + str(self.author.id))
-        response = InboxView.as_view()(request, author_id=str(self.author.id))
+        request = self.factory.get('/inbox/' + str(self.author.author_id))
+        response = InboxView.as_view()(request, author_id=str(self.author.author_id))
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["type"], "inbox")
-        self.assertEqual(response.data["author"], "http://testserver/authors/" + str(self.author.id))
+        self.assertEqual(response.data["author"], "http://testserver/authors/" + str(self.author.author_id))
 
         # Confirm that the post is in the inbox
         self.assertEqual(response.data["items"][0]["type"], "post")
         self.assertEqual(response.data["items"][0]["title"], "Test Post 1")
-        self.assertEqual(response.data["items"][0]["source"], "http://testserver" + "posts/" + str(self.post.id))
-        self.assertEqual(response.data["items"][0]["origin"], "http://testserver" + "posts/" + str(self.post.id))
+        self.assertEqual(response.data["items"][0]["source"], "http://testserver" + "posts/" + str(self.post.post_id))
+        self.assertEqual(response.data["items"][0]["origin"], "http://testserver" + "posts/" + str(self.post.post_id))
         self.assertEqual(response.data["items"][0]["description"], "Test Post 1 Description")
         self.assertEqual(response.data["items"][0]["contentType"], "text/plain")
         self.assertEqual(response.data["items"][0]["content"], "Test Post 1 Content")
         self.assertEqual(response.data["items"][0]["author"]["id"], str(self.author.id))
         self.assertEqual(response.data["items"][0]["author"]["host"], "http://testserver")
         self.assertEqual(response.data["items"][0]["author"]["displayName"], "Test User 1")
-        self.assertEqual(response.data["items"][0]["author"]["url"], "http://testserver/authors/" + str(self.author.id))
+        self.assertEqual(response.data["items"][0]["author"]["url"], "http://testserver/authors/" + str(self.author.author_id))
         self.assertEqual(response.data["items"][0]["author"]["github"], "github/test1.com")
         self.assertEqual(response.data["items"][0]["author"]["profileImage"], "profile/test1.com")
 
@@ -104,13 +104,13 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(response.data["items"][1]["actor"]["id"], str(self.author2.id))
         self.assertEqual(response.data["items"][1]["actor"]["host"], "http://testserver")
         self.assertEqual(response.data["items"][1]["actor"]["displayName"], "Test User 2")
-        self.assertEqual(response.data["items"][1]["actor"]["url"], "http://testserver/authors/" + str(self.author2.id))
+        self.assertEqual(response.data["items"][1]["actor"]["url"], "http://testserver/authors/" + str(self.author2.author_id))
         self.assertEqual(response.data["items"][1]["actor"]["github"], "github/test2.com")
         self.assertEqual(response.data["items"][1]["actor"]["profileImage"], "profile/test2.com")
         self.assertEqual(response.data["items"][1]["object"]["id"], str(self.author.id))
         self.assertEqual(response.data["items"][1]["object"]["host"], "http://testserver")
         self.assertEqual(response.data["items"][1]["object"]["displayName"], "Test User 1")
-        self.assertEqual(response.data["items"][1]["object"]["url"], "http://testserver/authors/" + str(self.author.id))
+        self.assertEqual(response.data["items"][1]["object"]["url"], "http://testserver/authors/" + str(self.author.author_id))
         self.assertEqual(response.data["items"][1]["object"]["github"], "github/test1.com")
         self.assertEqual(response.data["items"][1]["object"]["profileImage"], "profile/test1.com")
         
@@ -123,12 +123,12 @@ class InboxViewTestCase(APITestCase):
     def test_inbox_view_no_items(self):
         self.inbox.posts.clear()
         self.inbox.friend_requests.clear()
-        request = self.factory.get('/inbox/' + str(self.author.id))
-        response = InboxView.as_view()(request, author_id=str(self.author.id))
+        request = self.factory.get('/inbox/' + str(self.author.author_id))
+        response = InboxView.as_view()(request, author_id=str(self.author.author_id))
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["type"], "inbox")
-        self.assertEqual(response.data["author"], "http://testserver/authors/" + str(self.author.id))
+        self.assertEqual(response.data["author"], "http://testserver/authors/" + str(self.author.author_id))
         self.assertEqual(len(response.data["items"]), 0)
     
     def test_inbox_view_no_author(self):
@@ -154,13 +154,13 @@ class InboxViewTestCase(APITestCase):
                 "id": str(self.author.id),
                 "host": "http://testserver",
                 "displayName": "Test User 1",
-                "url": "http://testserver/authors/" + str(self.author.id),
+                "url": "http://testserver/authors/" + str(self.author.author_id),
                 "github": "github/test1.com",
                 "profileImage": "profile/test1.com"
             }
         }
-        request = self.factory.post('/inbox/' + str(self.author.id), data, format='json')
-        response = InboxView.as_view()(request, author_id=str(self.author.id))
+        request = self.factory.post('/inbox/' + str(self.author.author_id), data, format='json')
+        response = InboxView.as_view()(request, author_id=str(self.author.author_id))
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["type"], "post")
@@ -177,7 +177,7 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(str(self.inbox.posts.first().author.id), str(self.author.id))
         self.assertEqual(self.inbox.posts.first().author.host, "http://testserver")
         self.assertEqual(self.inbox.posts.first().author.displayName, "Test User 1")
-        self.assertEqual(self.inbox.posts.first().author.url, "http://testserver/authors/" + str(self.author.id))
+        self.assertEqual(self.inbox.posts.first().author.url, "http://testserver/authors/" + str(self.author.author_id))
         self.assertEqual(self.inbox.posts.first().author.github, "github/test1.com")
         self.assertEqual(self.inbox.posts.first().author.profileImage, "profile/test1.com")
 
@@ -197,13 +197,13 @@ class InboxViewTestCase(APITestCase):
                 "id": str(self.author.id),
                 "host": "http://testserver",
                 "displayName": "Test User 1",
-                "url": "http://testserver/authors/" + str(self.author.id),
+                "url": "http://testserver/authors/" + str(self.author.author_id),
                 "github": "github/test1.com",
                 "profileImage": "profile/test1.com"
             }
         }
-        request = self.factory.post('/inbox/' + str(self.author.id), data, format='json')
-        response = InboxView.as_view()(request, author_id=str(self.author.id))
+        request = self.factory.post('/inbox/' + str(self.author.author_id), data, format='json')
+        response = InboxView.as_view()(request, author_id=str(self.author.author_id))
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data["type"], "post")
@@ -221,7 +221,7 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(str(added_post.author.id), str(self.author.id))
         self.assertEqual(added_post.author.host, "http://testserver")
         self.assertEqual(added_post.author.displayName, "Test User 1")
-        self.assertEqual(added_post.author.url, "http://testserver/authors/" + str(self.author.id))
+        self.assertEqual(added_post.author.url, "http://testserver/authors/" + str(self.author.author_id))
         self.assertEqual(added_post.author.github, "github/test1.com")
 
     def test_inbox_POST_with_new_post_new_author(self):
@@ -239,7 +239,7 @@ class InboxViewTestCase(APITestCase):
             "contentType": "text/plain",
             "content": "Test Post 3 Content",
             "author": {
-                "id": new_author_uuid,
+                "id": f"http://testserver/authors/{new_author_uuid}",
                 "host": "http://testserver",
                 "displayName": "Test User 3",
                 "url": "http://testserver/authors/999",
@@ -247,8 +247,8 @@ class InboxViewTestCase(APITestCase):
                 "profileImage": "profile/test3.com"
             }
         }
-        request = self.factory.post('/inbox/' + str(self.author.id), data, format='json')
-        response = InboxView.as_view()(request, author_id=str(self.author.id))
+        request = self.factory.post('/inbox/' + str(self.author.author_id), data, format='json')
+        response = InboxView.as_view()(request, author_id=str(self.author.author_id))
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data["type"], "post")
@@ -263,7 +263,7 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(added_post.description, "Test Post 3 Description")
         self.assertEqual(added_post.contentType, "text/plain")
         self.assertEqual(added_post.content, "Test Post 3 Content")
-        self.assertEqual(str(added_post.author.id), str(new_author_uuid))
+        self.assertEqual(str(added_post.author.author_id), str(new_author_uuid))
         self.assertEqual(added_post.author.host, "http://testserver")
         self.assertEqual(added_post.author.displayName, "Test User 3")
         self.assertEqual(added_post.author.url, "http://testserver/authors/" + str(new_author_uuid))
@@ -273,7 +273,7 @@ class InboxViewTestCase(APITestCase):
         # Check that the new remote author is created
         self.assertEqual(Author.objects.count(), 3)
         new_author = Author.objects.filter(displayName="Test User 3").first()
-        self.assertEqual(str(new_author.id), str(new_author_uuid))
+        self.assertEqual(str(new_author.author_id), str(new_author_uuid))
  
     def test_inbox_POST_follow_request_with_existing_authors(self):
         """Create a friend request from author 1 to author 2."""
@@ -281,24 +281,24 @@ class InboxViewTestCase(APITestCase):
             "type": "follow",
             "summary": "Test User 1 wants to follow Test User 2",
             "actor": {
-                "id": str(self.author.id),
+                "id": str(self.author.author_id),
                 "host": "http://testserver",
                 "displayName": "Test User 1",
-                "url": "http://testserver/authors/" + str(self.author.id),
+                "url": "http://testserver/authors/" + str(self.author.author_id),
                 "github": "github/test1.com",
                 "profileImage": "profile/test1.com"
             },
             "object": {
-                "id": str(self.author2.id),
+                "id": str(self.author2.author_id),
                 "host": "http://testserver",
                 "displayName": "Test User 2",
-                "url": "http://testserver/authors/" + str(self.author2.id),
+                "url": "http://testserver/authors/" + str(self.author2.author_id),
                 "github": "github/test2.com",
                 "profileImage": "profile/test2.com"
             }
         }
-        request = self.factory.post('/inbox/' + str(self.author2.id), data, format='json')
-        response = InboxView.as_view()(request, author_id=str(self.author2.id))
+        request = self.factory.post('/inbox/' + str(self.author2.author_id), data, format='json')
+        response = InboxView.as_view()(request, author_id=str(self.author2.author_id))
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data["type"], "follow")
@@ -319,7 +319,7 @@ class InboxViewTestCase(APITestCase):
             "type": "follow",
             "summary": "Test User 3 wants to follow Test User 2",
             "actor": {
-                "id": str(new_author_uuid),
+                "id": f"http://testserver/authors/{new_author_uuid}",
                 "host": "http://testserver",
                 "displayName": "Test User 3",
                 "url": "http://testserver/authors/" + str(new_author_uuid),
@@ -330,13 +330,13 @@ class InboxViewTestCase(APITestCase):
                 "id": str(self.author2.id),
                 "host": "http://testserver",
                 "displayName": "Test User 2",
-                "url": "http://testserver/authors/" + str(self.author2.id),
+                "url": "http://testserver/authors/" + str(self.author2.author_id),
                 "github": "github/test2.com",
                 "profileImage": "profile/test2.com"
             }
         }
-        request = self.factory.post('/inbox/' + str(self.author2.id), data, format='json')
-        response = InboxView.as_view()(request, author_id=str(self.author2.id))
+        request = self.factory.post('/inbox/' + str(self.author2.author_id), data, format='json')
+        response = InboxView.as_view()(request, author_id=str(self.author2.author_id))
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data["type"], "follow")
@@ -344,8 +344,8 @@ class InboxViewTestCase(APITestCase):
 
         # Check that the friend request is in the inbox
         self.assertEqual(self.inbox2.friend_requests.count(), 1)
-        added_friend_request = self.inbox2.friend_requests.filter(actor__id=new_author_uuid).first()
-        self.assertEqual(str(added_friend_request.actor.id), str(new_author_uuid))
+        added_friend_request = self.inbox2.friend_requests.filter(actor__author_id=new_author_uuid).first()
+        self.assertEqual(str(added_friend_request.actor.author_id), str(new_author_uuid))
         self.assertEqual(added_friend_request.actor.displayName, "Test User 3")
         self.assertEqual(str(added_friend_request.object.id), str(self.author2.id))
         self.assertEqual(added_friend_request.object.displayName, "Test User 2")
@@ -353,7 +353,7 @@ class InboxViewTestCase(APITestCase):
         # Check that the new remote author is created
         self.assertEqual(Author.objects.count(), 3)
         new_author = Author.objects.filter(displayName="Test User 3").first()
-        self.assertEqual(str(new_author.id), str(new_author_uuid))
+        self.assertEqual(str(new_author.author_id), str(new_author_uuid))
 
     def test_inbox_POST_follow_request_with_existing_authors_and_existing_friend_request(self):
         """Create a friend request from author 1 to author 2, but the friend request already exists."""
@@ -367,7 +367,7 @@ class InboxViewTestCase(APITestCase):
                 "id": str(self.author.id),
                 "host": "http://testserver",
                 "displayName": "Test User 1",
-                "url": "http://testserver/authors/" + str(self.author.id),
+                "url": "http://testserver/authors/" + str(self.author.author_id),
                 "github": "github/test1.com",
                 "profileImage": "profile/test1.com"
             },
@@ -375,13 +375,13 @@ class InboxViewTestCase(APITestCase):
                 "id": str(self.author2.id),
                 "host": "http://testserver",
                 "displayName": "Test User 2",
-                "url": "http://testserver/authors/" + str(self.author2.id),
+                "url": "http://testserver/authors/" + str(self.author2.author_id),
                 "github": "github/test2.com",
                 "profileImage": "profile/test2.com"
             }
         }
-        request = self.factory.post('/inbox/' + str(self.author2.id), data, format='json')
-        response = InboxView.as_view()(request, author_id=str(self.author2.id))
+        request = self.factory.post('/inbox/' + str(self.author2.author_id), data, format='json')
+        response = InboxView.as_view()(request, author_id=str(self.author2.author_id))
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["type"], "follow")
@@ -395,7 +395,6 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(str(added_friend_request.object.id), str(self.author2.id))
         self.assertEqual(added_friend_request.object.displayName, "Test User 2")
 
-    @skip("Not implemented yet")
     def test_inbox_POST_like_request_with_existing_authors(self):
         """Send a like object of author 1 liking a post from author 2 to author 2's inbox."""
         # Create a post from author 2
@@ -410,7 +409,7 @@ class InboxViewTestCase(APITestCase):
             visibility="PUBLIC",
             unlisted=False
         )
-        post.url = f"http://testserver/authors/{self.author2.id}/{post.id}"
+        post.url = f"http://testserver/authors/{self.author2.author_id}/{post.post_id}"
         post.save()
 
         data = {
@@ -420,18 +419,18 @@ class InboxViewTestCase(APITestCase):
                 "id": str(self.author.id),
                 "host": "http://testserver",
                 "displayName": "Test User 1",
-                "url": "http://testserver/authors/" + str(self.author.id),
+                "url": "http://testserver/authors/" + str(self.author.author_id),
                 "github": "github/test1.com",
                 "profileImage": "profile/test1.com"
             },
             "object": post.url
         }
-        request = self.factory.post('/inbox/' + str(self.author2.id), data, format='json')
-        response = InboxView.as_view()(request, author_id=str(self.author2.id))
+        request = self.factory.post('/inbox/' + str(self.author2.author_id), data, format='json')
+        response = InboxView.as_view()(request, author_id=str(self.author2.author_id))
 
         self.assertEqual(response.status_code, 201)
         self.assertEqual(response.data["type"], "like")
-        self.assertEqual(response.data["detail"], f"Successfully created a new like request and sent to {self.author2.displayName}'s inbox")
+        self.assertEqual(response.data["detail"], f"Successfully created a new like and sent to {self.author2.displayName}'s inbox")
 
         # Check that the like request is in the inbox
         self.assertEqual(self.inbox2.likes.count(), 1)
@@ -440,14 +439,13 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(added_like_request.object, post.url)
         self.assertEqual(added_like_request.summary, "Test User 1 likes Test Post 1")
     
-    @skip("Not implemented yet")
     def test_inbox_POST_like_request_with_existing_authors_and_existing_like_request(self):
         """Send a like object of author 1 liking a post from author 2 to author 2's inbox, but the like request already exists."""
         # Create a post from author 2
         post = Post.objects.create(
             title="Test Post 1",
-            source="http://testserver/posts/" + str(self.post.id),
-            origin="http://testserver/posts/" + str(self.post.id),
+            source="http://testserver/posts/" + str(self.post.post_id),
+            origin="http://testserver/posts/" + str(self.post.post_id),
             description="Test Post 1 Description",
             contentType="text/plain",
             content="Test Post 1 Content",
@@ -455,11 +453,11 @@ class InboxViewTestCase(APITestCase):
             visibility="PUBLIC",
             unlisted=False
         )
-        post.url = f"http://testserver/authors/{self.author2.id}/{post.id}"
+        post.url = f"http://testserver/authors/{self.author2.author_id}/{post.post_id}"
         post.save()
 
         # Create a like request from author 1 to author 2's post
-        self.inbox2.likes.create(author=self.author, object=post.url)
+        self.inbox2.likes.create(author=self.author, object=post.url, summary="Test User 1 likes Test Post 1")
 
         data = {
             "type": "like",
@@ -474,12 +472,12 @@ class InboxViewTestCase(APITestCase):
             },
             "object": post.url
         }
-        request = self.factory.post('/inbox/' + str(self.author2.id), data, format='json')
-        response = InboxView.as_view()(request, author_id=str(self.author2.id))
+        request = self.factory.post('/inbox/' + str(self.author2.author_id), data, format='json')
+        response = InboxView.as_view()(request, author_id=str(self.author2.author_id))
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["type"], "like")
-        self.assertEqual(response.data["detail"], f"Successfully sent the like request to {self.author2.displayName}'s inbox")
+        self.assertEqual(response.data["detail"], f"Successfully sent the like to {self.author2.displayName}'s inbox")
 
         # Check that the like request is in the inbox
         self.assertEqual(self.inbox2.likes.count(), 1)
@@ -493,8 +491,8 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(self.inbox.posts.count(), 1)
         self.assertEqual(self.inbox.friend_requests.count(), 1)
 
-        request = self.factory.delete('/inbox/' + str(self.author.id))
-        response = InboxView.as_view()(request, author_id=str(self.author.id))
+        request = self.factory.delete('/inbox/' + str(self.author.author_id))
+        response = InboxView.as_view()(request, author_id=str(self.author.author_id))
 
         self.assertEqual(response.status_code, 204)
         self.assertEqual(self.inbox.posts.count(), 0)

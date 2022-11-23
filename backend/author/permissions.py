@@ -15,7 +15,7 @@ class IsAuthorOrReadOnly(permissions.BasePermission):
         # if request.method == "POST":
         #     return request.user.is_authenticated and request.user.author.id == view.kwargs["pk"]
         
-        return request.user.is_authenticated and request.user.author.id == view.kwargs["pk"]
+        return request.user.is_authenticated and request.user.author.author_id == view.kwargs["pk"]
 
 class IsAuthenticated(permissions.BasePermission):
 
@@ -28,8 +28,8 @@ class IsAuthenticated(permissions.BasePermission):
 
             post_id = view.kwargs["post_id"]
             post = None
-            if Post.objects.filter(id=post_id).exists():
-                post = Post.objects.get(id=post_id)
+            if Post.objects.filter(post_id=post_id).exists():
+                post = Post.objects.get(post_id=post_id)
                 return request.user.is_authenticated and request.user.author.id == post.author.id
 
             if post is None:

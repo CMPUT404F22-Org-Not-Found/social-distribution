@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 import uuid
 
-DEFAULT_HOST = "http://127.0.0.1:8000"
+DEFAULT_HOST = "http://127.0.0.1:8000/"
 
 class Author(models.Model):
     # The user can be null for remote authors
@@ -12,8 +12,12 @@ class Author(models.Model):
     # The type of the author, is always "author"
     type = models.CharField(max_length=6, default="author", editable=False)
 
-    # The id of the author, is a UUID
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    # The unique id of the author is a UUID
+    author_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+
+    # The id of the author, is host + uuid
+    id = models.URLField(max_length=200, blank=True, null=True, editable=False)
+    # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     # The url to the author's profile
     url = models.URLField(blank=True, null=True, editable=False)
@@ -33,12 +37,13 @@ class Author(models.Model):
     followers = models.ManyToManyField("self", related_name="following", symmetrical=False, blank=True)
 
     def compute_url(self):
-        return f"{self.host}/authors/{self.id}"
+        return f"{self.host}authors/{self.author_id}"
 
     def save(self, *args, **kwargs):
         self.url = self.compute_url()
+        self.id = self.url
         super().save(*args, **kwargs)
 
     def __str__(self) -> str:
-        return f"{self.displayName} - {self.id}"
+        return f"{self.displayName} - {self.author_id}"
 

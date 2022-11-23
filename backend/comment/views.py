@@ -21,7 +21,7 @@ class CommentDetail(APIView):
 
     def get_post(self,author,post_id):
         try:
-            return author.post_author.get(id=post_id)
+            return author.post_author.get(post_id=post_id)
         except Post.DoesNotExist:
             return None
     
@@ -93,7 +93,7 @@ class CommentDetail(APIView):
         if author_data is None:
             request["author"] = author
         else:
-            author = self.get_author(pk = author_data["id"])
+            author = self.get_author(pk = author_data["id"].split("/")[-1])
             request["author"] = author 
 
         comment, created = Comment.objects.update_or_create(id=request["id"], defaults=request)
