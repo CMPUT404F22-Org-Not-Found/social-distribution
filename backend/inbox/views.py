@@ -77,9 +77,11 @@ class InboxView(APIView):
         
         elif request_dict["type"].lower() == "like":
             return self._handle_POST_like(request_dict, author, inbox)
-            
+        
+        return Response({"type": "error",
+                        "detail": "The type of the request is not supported"},
+                        status=status.HTTP_400_BAD_REQUEST)
 
-        return Response(status=status.HTTP_200_OK)
     
     def _handle_POST_post(self, post_request_dict: Dict, author: Author, inbox: Inbox) -> Response:
         """When we POST a post to the inbox, if the post is already present, add the post to the inbox,
