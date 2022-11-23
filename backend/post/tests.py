@@ -5,7 +5,7 @@ from post.models import Post
 from django.contrib.auth.models import User
 from author.models import Author
 from .views import PostDetail, PostList, PublicView
-
+from rest_framework.test import force_authenticate
 # Create your tests here.
 
 class PostModelTest(TestCase):
@@ -102,55 +102,52 @@ class PostDetailTest(APITestCase):
         self.assertEqual(0, len(self.author.post_author.all()))
 
 
-# class PublicViewTest(APITestCase):
+class PublicViewTest(APITestCase):
 
-#     def setUp(self):
+    def setUp(self):
         
-#         self.user1 = User.objects.create_user(username = "test", password = "test")
-#         self.user2 = User.objects.create_user(username = "test1", password = "test")
-#         self.author1 = Author.objects.create(user = self.user1, displayName = "Test", host = "http://127.0.0.1:8000/")
-#         self.author2 = Author.objects.create(user = self.user2, displayName = "Test1", host = "http://127.0.0.1:8000/") 
-#         self.client = APIClient()
-#         self.factory = APIRequestFactory()
+        self.user1 = User.objects.create_user(username = "test", password = "test")
+        self.user2 = User.objects.create_user(username = "test1", password = "test")
+        self.author1 = Author.objects.create(user = self.user1, displayName = "Test", host = "http://127.0.0.1:8000/")
+        self.author2 = Author.objects.create(user = self.user2, displayName = "Test1", host = "http://127.0.0.1:8000/") 
+        self.client = APIClient()
+        self.factory = APIRequestFactory()
         
 
-#         self.post1 = Post.objects.create(
+        self.post1 = Post.objects.create(
            
-#             title="Test Title",
-#             source = "http://127.0.0.1:8000/",
-#             origin = "http://127.0.0.1:8000/",
-#             description = "Test Post",
-#             contentType = "text/plain",
-#             content = "test content",
-#             author = self.author1,
-#         )
+            title="Test Title",
+            source = "http://127.0.0.1:8000/",
+            origin = "http://127.0.0.1:8000/",
+            description = "Test Post",
+            contentType = "text/plain",
+            content = "test content",
+            author = self.author1,
+        )
 
-#         self.post2 = Post.objects.create(
+        self.post2 = Post.objects.create(
            
-#             title="Test Title2",
-#             source = "http://127.0.0.1:8000/",
-#             origin = "http://127.0.0.1:8000/",
-#             description = "Test Post2",
-#             contentType = "text/plain",
-#             content = "test content",
-#             author = self.author2,
-#         )
+            title="Test Title2",
+            source = "http://127.0.0.1:8000/",
+            origin = "http://127.0.0.1:8000/",
+            description = "Test Post2",
+            contentType = "text/plain",
+            content = "test content",
+            author = self.author2,
+        )
 
-#     def test_public_get(self):
-#         req = self.factory.get('/public', format='json')        
-#         res = PublicView.as_view()(req)
-#         self.assertEqual(res.status_code,200)
-#         self.assertEqual(2,len(res.data["items"]))
+    def test_public_get(self):
+        req = self.factory.get('/public', format='json')        
+        res = PublicView.as_view()(req)
+        self.assertEqual(res.status_code,200)
+        self.assertEqual(2,len(res.data["items"]))
 
 class PostListViewTest(APITestCase):
 
     def setUp(self):
         self.user = User.objects.create_user(username = "test", password = "test")
         self.author = Author.objects.create(user = self.user, displayName = "Test", host = "http://127.0.0.1:8000/") 
-        self.client = APIClient()
         self.factory = APIRequestFactory()
-        self.client.force_authenticate(user=self.user)
-
         self.post1 = Post.objects.create(
     
             title="Test Title",
@@ -189,12 +186,13 @@ class PostListViewTest(APITestCase):
             "contentType": "text/plain",
             "content": "This is the first post content", 
             "categories": ["web", "tutorial"], 
-            "visibility":"PUBLIC"
+            "visibility":"PUBLIC",
         }
-
-        res = self.client.post('/authors/{}/posts/'.format(self.author.author_id), data = data)
+        req = self.factory.post('/authors/{}/posts/'.format(self.author.author_id), data, format='json')
+        force_authenticate(req,user=self.user)
+        res = PostList.as_view()(req,pk = self.author.author_id)
         self.assertEqual(res.status_code,201)
         self.assertEqual(3, len(self.author.post_author.all()))
         created_post = Post.objects.get(id = res.data["id"])
-        self.assertEqual(created_post.title, "['First post']")
-        self.assertEqual(created_post.description, "['This is the first post']")
+        self.assertEqual(created_post.title, "First post")
+        self.assertEqual(created_post.description, "This is the first post")

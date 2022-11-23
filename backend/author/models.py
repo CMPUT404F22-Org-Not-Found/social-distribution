@@ -16,7 +16,7 @@ class Author(models.Model):
     author_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     # The id of the author, is host + uuid
-    id = models.URLField(max_length=200, blank=True, null=True, editable=False)
+    id = models.URLField(max_length=2048, blank=True, null=True, editable=False)
     # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     # The url to the author's profile
