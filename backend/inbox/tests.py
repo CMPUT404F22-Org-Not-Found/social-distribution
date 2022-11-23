@@ -18,7 +18,7 @@ from like.models import Like
 class InboxModelTestCase(TestCase):
     def setUp(self):
         u1 = User.objects.create_user(username='testuser1', password='12345')
-        author = Author.objects.create(user=u1, host="http://testserver", displayName="Test User 1",
+        author = Author.objects.create(user=u1, host="http://testserver/", displayName="Test User 1",
                               github="github/test1.com", profileImage="profile/test1.com")
         Inbox.objects.create(author=author)
 
@@ -28,7 +28,7 @@ class InboxModelTestCase(TestCase):
         self.assertEqual(inbox.author.displayName, "Test User 1")
         self.assertEqual(inbox.author.github, "github/test1.com")
         self.assertEqual(inbox.author.profileImage, "profile/test1.com")
-        self.assertEqual(inbox.author.host, "http://testserver")
+        self.assertEqual(inbox.author.host, "http://testserver/")
         self.assertEqual(inbox.author.url, "http://testserver/authors/" + str(inbox.author.author_id))
 
     def test_inbox_model_str(self):
@@ -62,11 +62,11 @@ class InboxViewTestCase(APITestCase):
         self.factory = APIRequestFactory()
         self.client = APIClient()
         self.u1 = User.objects.create_user(username='testuser1', password='12345')
-        self.author = Author.objects.create(user=self.u1, host="http://testserver", displayName="Test User 1",
+        self.author = Author.objects.create(user=self.u1, host="http://testserver/", displayName="Test User 1",
                               github="github/test1.com", profileImage="profile/test1.com")
         self.inbox = Inbox.objects.create(author=self.author)
         self.u2 = User.objects.create_user(username='testuser2', password='12345')
-        self.author2 = Author.objects.create(user=self.u2, host="http://testserver", displayName="Test User 2",
+        self.author2 = Author.objects.create(user=self.u2, host="http://testserver/", displayName="Test User 2",
                               github="github/test2.com", profileImage="profile/test2.com")
         self.inbox2 = Inbox.objects.create(author=self.author2)
         self.friend_request = FriendRequest.objects.create(actor=self.author2, object=self.author)
@@ -93,7 +93,7 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(response.data["items"][0]["contentType"], "text/plain")
         self.assertEqual(response.data["items"][0]["content"], "Test Post 1 Content")
         self.assertEqual(response.data["items"][0]["author"]["id"], str(self.author.id))
-        self.assertEqual(response.data["items"][0]["author"]["host"], "http://testserver")
+        self.assertEqual(response.data["items"][0]["author"]["host"], "http://testserver/")
         self.assertEqual(response.data["items"][0]["author"]["displayName"], "Test User 1")
         self.assertEqual(response.data["items"][0]["author"]["url"], "http://testserver/authors/" + str(self.author.author_id))
         self.assertEqual(response.data["items"][0]["author"]["github"], "github/test1.com")
@@ -102,13 +102,13 @@ class InboxViewTestCase(APITestCase):
         # Confirm that the friend request is in the inbox
         self.assertEqual(response.data["items"][1]["type"], "Follow")
         self.assertEqual(response.data["items"][1]["actor"]["id"], str(self.author2.id))
-        self.assertEqual(response.data["items"][1]["actor"]["host"], "http://testserver")
+        self.assertEqual(response.data["items"][1]["actor"]["host"], "http://testserver/")
         self.assertEqual(response.data["items"][1]["actor"]["displayName"], "Test User 2")
         self.assertEqual(response.data["items"][1]["actor"]["url"], "http://testserver/authors/" + str(self.author2.author_id))
         self.assertEqual(response.data["items"][1]["actor"]["github"], "github/test2.com")
         self.assertEqual(response.data["items"][1]["actor"]["profileImage"], "profile/test2.com")
         self.assertEqual(response.data["items"][1]["object"]["id"], str(self.author.id))
-        self.assertEqual(response.data["items"][1]["object"]["host"], "http://testserver")
+        self.assertEqual(response.data["items"][1]["object"]["host"], "http://testserver/")
         self.assertEqual(response.data["items"][1]["object"]["displayName"], "Test User 1")
         self.assertEqual(response.data["items"][1]["object"]["url"], "http://testserver/authors/" + str(self.author.author_id))
         self.assertEqual(response.data["items"][1]["object"]["github"], "github/test1.com")
@@ -175,7 +175,7 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(self.inbox.posts.first().contentType, "text/plain")
         self.assertEqual(self.inbox.posts.first().content, "Test Post 1 Content")
         self.assertEqual(str(self.inbox.posts.first().author.id), str(self.author.id))
-        self.assertEqual(self.inbox.posts.first().author.host, "http://testserver")
+        self.assertEqual(self.inbox.posts.first().author.host, "http://testserver/")
         self.assertEqual(self.inbox.posts.first().author.displayName, "Test User 1")
         self.assertEqual(self.inbox.posts.first().author.url, "http://testserver/authors/" + str(self.author.author_id))
         self.assertEqual(self.inbox.posts.first().author.github, "github/test1.com")
@@ -219,7 +219,7 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(added_post.contentType, "text/plain")
         self.assertEqual(added_post.content, "Test Post 2 Content")
         self.assertEqual(str(added_post.author.id), str(self.author.id))
-        self.assertEqual(added_post.author.host, "http://testserver")
+        self.assertEqual(added_post.author.host, "http://testserver/")
         self.assertEqual(added_post.author.displayName, "Test User 1")
         self.assertEqual(added_post.author.url, "http://testserver/authors/" + str(self.author.author_id))
         self.assertEqual(added_post.author.github, "github/test1.com")
@@ -240,7 +240,7 @@ class InboxViewTestCase(APITestCase):
             "content": "Test Post 3 Content",
             "author": {
                 "id": f"http://testserver/authors/{new_author_uuid}",
-                "host": "http://testserver",
+                "host": "http://testserver/",
                 "displayName": "Test User 3",
                 "url": "http://testserver/authors/999",
                 "github": "github/test3.com",
@@ -264,7 +264,7 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(added_post.contentType, "text/plain")
         self.assertEqual(added_post.content, "Test Post 3 Content")
         self.assertEqual(str(added_post.author.author_id), str(new_author_uuid))
-        self.assertEqual(added_post.author.host, "http://testserver")
+        self.assertEqual(added_post.author.host, "http://testserver/")
         self.assertEqual(added_post.author.displayName, "Test User 3")
         self.assertEqual(added_post.author.url, "http://testserver/authors/" + str(new_author_uuid))
         self.assertEqual(added_post.author.github, "github/test3.com")

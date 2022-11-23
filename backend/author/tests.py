@@ -11,7 +11,7 @@ from .views import AuthorDetail, AuthorList
 class AuthorModelTestCase(TestCase):
     def setUp(self):
         u1 = User.objects.create_user(username='testuser1', password='12345')
-        Author.objects.create(user=u1, host="http://testserver", displayName="Test User 1",
+        Author.objects.create(user=u1, host="http://testserver/", displayName="Test User 1",
                               github="github/test1.com", profileImage="profile/test1.com")
 
     def test_author_model(self):
@@ -19,7 +19,7 @@ class AuthorModelTestCase(TestCase):
         self.assertEqual(author.displayName, "Test User 1")
         self.assertEqual(author.github, "github/test1.com")
         self.assertEqual(author.profileImage, "profile/test1.com")
-        self.assertEqual(author.host, "http://testserver")
+        self.assertEqual(author.host, "http://testserver/")
         self.assertEqual(author.url, "http://testserver/authors/" + str(author.author_id))
 
     def test_author_model_str(self):
@@ -53,12 +53,12 @@ class AuthorListViewTest(APITestCase):
         self.factory = APIRequestFactory()
         self.client = APIClient()
         self.user = User.objects.create_user(username='testuser1', password='12345')
-        self.author = Author.objects.create(user=self.user, host="http://testserver", displayName="Test User 1",
+        self.author = Author.objects.create(user=self.user, host="http://testserver/", displayName="Test User 1",
                               github="github/test1.com", profileImage="profile/test1.com")
         self.client.force_authenticate(user=self.user)
 
         self.user2 = User.objects.create_user(username='testuser2', password='12345')
-        self.author2 = Author.objects.create(user=self.user2, host="http://testserver", displayName="Test User 2",
+        self.author2 = Author.objects.create(user=self.user2, host="http://testserver/", displayName="Test User 2",
                                 github="github/test2.com", profileImage="profile/test2.com")
 
     def test_author_list_view(self):
@@ -68,7 +68,7 @@ class AuthorListViewTest(APITestCase):
         self.assertEqual(response.data[0]["type"], "author")
         # self.assertEqual(response.data[0]["author_id"], str(self.author.author_id))
         self.assertEqual(response.data[0]["id"], "http://testserver/authors/" + str(self.author.author_id))
-        self.assertEqual(response.data[0]["host"], "http://testserver")
+        self.assertEqual(response.data[0]["host"], "http://testserver/")
         self.assertEqual(response.data[0]["url"], "http://testserver/authors/" + str(self.author.author_id))
         self.assertEqual(response.data[0]["displayName"], "Test User 1")
         self.assertEqual(response.data[0]["github"], "github/test1.com")
@@ -78,7 +78,7 @@ class AuthorListViewTest(APITestCase):
         self.assertEqual(response.data[1]["type"], "author")
         # self.assertEqual(response.data[1]["author_id"], str(self.author2.author_id))
         self.assertEqual(response.data[1]["id"], "http://testserver/authors/" + str(self.author2.author_id))
-        self.assertEqual(response.data[1]["host"], "http://testserver")
+        self.assertEqual(response.data[1]["host"], "http://testserver/")
         self.assertEqual(response.data[1]["url"], "http://testserver/authors/" + str(self.author2.author_id))
         self.assertEqual(response.data[1]["displayName"], "Test User 2")
         self.assertEqual(response.data[1]["github"], "github/test2.com")
@@ -94,7 +94,7 @@ class AuthorListViewTest(APITestCase):
         # Confirm author 2
         self.assertEqual(response.data[0]["type"], "author")
         # self.assertEqual(response.data[0]["author_id"], str(self.author2.author_id))
-        self.assertEqual(response.data[0]["host"], "http://testserver")
+        self.assertEqual(response.data[0]["host"], "http://testserver/")
         self.assertEqual(response.data[0]["url"], "http://testserver/authors/" + str(self.author2.author_id))
         self.assertEqual(response.data[0]["displayName"], "Test User 2")
         self.assertEqual(response.data[0]["github"], "github/test2.com")
@@ -106,7 +106,7 @@ class AuthorDetailViewTest(APITestCase):
         self.factory = APIRequestFactory()
         self.client = APIClient()
         self.user = User.objects.create_user(username='testuser1', password='12345')
-        self.author = Author.objects.create(user=self.user, host="http://testserver", displayName="Test User 1",
+        self.author = Author.objects.create(user=self.user, host="http://testserver/", displayName="Test User 1",
                               github="github/test1.com", profileImage="profile/test1.com")
         self.client.force_authenticate(user=self.user)
 
@@ -116,7 +116,7 @@ class AuthorDetailViewTest(APITestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["type"], "author")
         # self.assertEqual(response.data["author_id"], str(self.author.author_id))
-        self.assertEqual(response.data["host"], "http://testserver")
+        self.assertEqual(response.data["host"], "http://testserver/")
         self.assertEqual(response.data["url"], "http://testserver/authors/" + str(self.author.author_id))
         self.assertEqual(response.data["displayName"], "Test User 1")
         self.assertEqual(response.data["github"], "github/test1.com")
@@ -138,7 +138,7 @@ class AuthorDetailViewTest(APITestCase):
         # Confirm author
         self.assertEqual(response.data["type"], "author")
         # self.assertEqual(response.data["author_id"], str(self.author.author_id))
-        self.assertEqual(response.data["host"], "http://testserver")
+        self.assertEqual(response.data["host"], "http://testserver/")
         self.assertEqual(response.data["url"], "http://testserver/authors/" + str(self.author.author_id))
         self.assertEqual(response.data["displayName"], "Test User 11")
         self.assertEqual(response.data["github"], "github/test1.com")
