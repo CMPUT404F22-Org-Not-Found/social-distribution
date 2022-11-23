@@ -37,6 +37,8 @@ class Author(models.Model):
     followers = models.ManyToManyField("self", related_name="following", symmetrical=False, blank=True)
 
     def compute_url(self):
+        if not self.host.endswith("/"):
+            self.host += "/"
         return f"{self.host}authors/{self.author_id}"
 
     def save(self, *args, **kwargs):
