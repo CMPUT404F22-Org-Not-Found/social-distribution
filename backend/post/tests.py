@@ -5,7 +5,7 @@ from post.models import Post
 from django.contrib.auth.models import User
 from author.models import Author
 from .views import PostDetail, PostList, PublicView
-
+from rest_framework.test import force_authenticate
 # Create your tests here.
 
 class PostModelTest(TestCase):
@@ -147,10 +147,7 @@ class PostListViewTest(APITestCase):
     def setUp(self):
         self.user = User.objects.create_user(username = "test", password = "test")
         self.author = Author.objects.create(user = self.user, displayName = "Test", host = "http://127.0.0.1:8000/") 
-        self.client = APIClient()
         self.factory = APIRequestFactory()
-        self.client.force_authenticate(user=self.user)
-
         self.post1 = Post.objects.create(
     
             title="Test Title",
@@ -189,12 +186,13 @@ class PostListViewTest(APITestCase):
             "contentType": "text/plain",
             "content": "This is the first post content", 
             "categories": ["web", "tutorial"], 
-            "visibility":"PUBLIC"
+            "visibility":"PUBLIC",
         }
-
-        res = self.client.post('/authors/{}/posts/'.format(self.author.author_id), data = data)
+        req = self.factory.post('/authors/{}/posts/'.format(self.author.author_id), data, format='json')
+        force_authenticate(req,user=self.user)
+        res = PostList.as_view()(req,pk = self.author.author_id)
         self.assertEqual(res.status_code,201)
         self.assertEqual(3, len(self.author.post_author.all()))
         created_post = Post.objects.get(id = res.data["id"])
-        self.assertEqual(created_post.title, "['First post']")
-        self.assertEqual(created_post.description, "['This is the first post']")
+        self.assertEqual(created_post.title, "First post")
+        self.assertEqual(created_post.description, "This is the first post")

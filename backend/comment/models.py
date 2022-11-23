@@ -18,7 +18,7 @@ class Comment(models.Model):
     ]
 
     comment_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    id = models.URLField(max_length=200, blank=True, null=True, editable=False)
+    id = models.URLField(max_length=2048, blank=True, null=True, editable=False)
     type = models.CharField(default="comment",max_length=7, editable=False)
     comment = models.TextField()
     contentType = models.CharField(max_length=30, choices=CONTENT_CHOICE, default='text/plain')
