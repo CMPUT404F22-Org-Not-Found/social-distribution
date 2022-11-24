@@ -1,11 +1,14 @@
 """Contains test cases for the author app."""
 
+import uuid
+
 from django.test import TestCase
 from django.contrib.auth.models import User
 from rest_framework.test import APIClient, APITestCase, APIRequestFactory
 
 from .models import Author
 from .views import AuthorDetail, AuthorList
+from .serializers import AuthorSerializer
 
 
 class AuthorModelTestCase(TestCase):
@@ -46,6 +49,48 @@ class AuthorModelTestCase(TestCase):
         self.assertEqual(author.followers.first(), author2)
         self.assertEqual(author2.following.count(), 1)
         self.assertEqual(author2.following.first(), author)
+
+
+class AuthorSerializerTestCase(TestCase):
+    def setUp(self):
+        u1 = User.objects.create_user(username='testuser1', password='12345')
+        Author.objects.create(user=u1, host="http://testserver/", displayName="Test User 1",
+                              github="github/test1.com", profileImage="profile/test1.com")
+
+    def test_author_serializer(self):
+        author = Author.objects.get(user__username='testuser1')
+        serializer = AuthorSerializer(author)
+        self.assertEqual(serializer.data['type'], "author")
+        self.assertEqual(serializer.data['id'], "http://testserver/authors/" + str(author.author_id))
+        self.assertEqual(serializer.data['url'], "http://testserver/authors/" + str(author.author_id))
+        self.assertEqual(serializer.data['host'], "http://testserver/")
+        self.assertEqual(serializer.data['displayName'], "Test User 1")
+        self.assertEqual(serializer.data['github'], "github/test1.com")
+        self.assertEqual(serializer.data['profileImage'], "profile/test1.com")
+
+    def test_author_serializer_create(self):
+        author_id = uuid.uuid4()
+        data = {
+            "type": "author",
+            "id": f"http://testserver.com/authors/{author_id}",
+            "url": f"http://testserver.com/authors/{author_id}",
+            "host": "http://testserver.com/",
+            "displayName": "Test User 3",
+            "github": "http://github.com/1234",
+            "profileImage": ""
+        }
+        serializer = AuthorSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        author = serializer.save()
+
+        self.assertEqual(author.author_id, str(author_id))
+        self.assertEqual(author.id, f"http://testserver.com/authors/{author_id}")
+        self.assertEqual(author.github, "http://github.com/1234")
+        self.assertEqual(author.displayName, "Test User 3")
+        self.assertEqual(author.host, "http://testserver.com/")
+        self.assertEqual(author.profileImage, "")
+        self.assertEqual(author.user, None)
+        self.assertEqual(author.url, f"http://testserver.com/authors/{author_id}")
 
 
 class AuthorListViewTest(APITestCase):
@@ -129,7 +174,7 @@ class AuthorDetailViewTest(APITestCase):
         self.assertEqual(response.data["detail"], "Not found.")
     
     def test_author_detail_view_post(self):
-        data = {"type": "author", "author_id": str(self.author.author_id), "host": "http://testserver",
+        data = {"type": "author", "author_id": str(self.author.author_id), "host": "http://testserver.com/",
                 "url": "http://testserver/authors/" + str(self.author.author_id), "displayName": "Test User 11",}
         response = self.client.post('/authors/' + str(self.author.author_id) + "/", data=data)
 
@@ -138,8 +183,8 @@ class AuthorDetailViewTest(APITestCase):
         # Confirm author
         self.assertEqual(response.data["type"], "author")
         # self.assertEqual(response.data["author_id"], str(self.author.author_id))
-        self.assertEqual(response.data["host"], "http://testserver/")
-        self.assertEqual(response.data["url"], "http://testserver/authors/" + str(self.author.author_id))
+        self.assertEqual(response.data["host"], "http://testserver.com/")
+        self.assertEqual(response.data["url"], "http://testserver.com/authors/" + str(self.author.author_id))
         self.assertEqual(response.data["displayName"], "Test User 11")
         self.assertEqual(response.data["github"], "github/test1.com")
         self.assertEqual(response.data["profileImage"], "profile/test1.com")

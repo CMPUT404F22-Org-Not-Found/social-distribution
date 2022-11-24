@@ -16,14 +16,14 @@ class Author(models.Model):
     author_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     # The id of the author, is host + uuid
-    id = models.URLField(max_length=2048, blank=True, null=True, editable=False)
+    id = models.URLField(max_length=2048, blank=True, null=True)
     # id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
 
     # The url to the author's profile
     url = models.URLField(blank=True, null=True, editable=False)
 
     # The host home of the author
-    host = models.URLField(blank=True, default=DEFAULT_HOST, null=True, editable=False)
+    host = models.URLField(blank=True, default=DEFAULT_HOST, null=True)
 
     displayName = models.CharField(max_length=100, blank=True, null=True)
 
