@@ -6,12 +6,37 @@ import {
   Paper,
   Button
 } from '@mui/material';
+import axiosInstance from '../axiosInstance';
+import { useState } from 'react';
 
 
 function Login() {
-
     const navigate = useNavigate();
-    
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
+
+    const handleUsernameChange = (event) => {
+      setUsername(event.target.value)
+    }
+
+    const handlePasswordChange = (event) => {
+      setPassword(event.target.value)
+    }
+
+    const onClickLogin = () => {
+      const params = {
+        username,
+        password,
+      }
+      const url = "/api-token-auth/"
+
+      axiosInstance.post(url, params).then((response) => {
+        console.log(response.data.token);
+        window.localStorage.setItem("auth-token", response.data.token);
+        navigate('/');
+      })
+    }
+
     const onClickRegister = () => {
         navigate('/register');
     }
@@ -27,15 +52,15 @@ function Login() {
           alignItems={'center'}
         >
           <Grid item xs={12}>
-            <TextField label="Username"></TextField>
+            <TextField label="Username" onChange={handleUsernameChange}></TextField>
           </Grid>
           <Grid item xs={12}>
-            <TextField label="Password" type={'password'}></TextField>
+            <TextField label="Password" type={'password'} onChange={handlePasswordChange}></TextField>
           </Grid>
           <Grid item xs={12}>
           </Grid>
           <Grid item xs={6}>
-            <Button fullWidth> Login </Button>
+            <Button fullWidth onClick={onClickLogin}> Login </Button>
           </Grid>
           <Grid item xs={6}>
             <Button fullWidth onClick={onClickRegister}> Register </Button >
