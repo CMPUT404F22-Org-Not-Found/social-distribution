@@ -56,7 +56,7 @@ class AuthorList(APIView):
                 authors_url = f"{node.host}authors/"
                 response = requests.get(authors_url)
                 if response.status_code == 200:
-                    authors = AuthorSerializer(data=[response.json()], many=True)
+                    authors = AuthorSerializer(data=response.json()["items"], many=True)
                     if authors.is_valid():
                         authors.save()
                     else:
