@@ -9,7 +9,11 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
-
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
+from rest_framework import exceptions
+from django.contrib.auth import authenticate
+import datetime
 from inbox.models import Inbox
 from .models import Author
 from .serializers import AuthorSerializer
@@ -119,3 +123,24 @@ class Register(APIView):
         form = RegisterForm()
         return render(request, 'register.html', {'form': form})
 
+class AuthorObject(APIView):
+    def post(self,request: Request, format: str = None,*args,**kwargs):
+
+        username = request.data["username"]
+        password = request.data["password"]
+        user = authenticate(None, username = username, password = password, **kwargs)
+        if user is not None:
+            token, created =  Token.objects.get_or_create(user=user)
+
+            if not created:
+                # update the created time of the token to keep it valid
+                token.created = datetime.datetime.utcnow()
+                token.save()
+        else:
+            raise exceptions.AuthenticationFailed('No such user')
+        author = Author.objects.get(user = user)
+        serializer = AuthorSerializer(author)
+        serialized_author = serializer.data
+
+        response = {"token" : token.key, "author": serialized_author}
+        return Response(response,status=status.HTTP_200_OK)
