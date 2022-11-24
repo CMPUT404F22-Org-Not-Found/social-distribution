@@ -22,7 +22,7 @@ class Post(models.Model):
 
     VISIBILITY = [
         ("PUBLIC", "PUBLIC"),
-        ("PRIVATE","PRIVATE")
+        ("FRIENDS","FRIENDS")
     ]
 
     post_id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
