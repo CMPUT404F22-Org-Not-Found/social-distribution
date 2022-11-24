@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.contrib.auth import views as auth_views
 from django.conf.urls import include
 from django.urls import path
-from author.views import Register
+from author.views import Register, AuthorObject 
 from post.views import PublicView
 from rest_framework.authtoken import views as rest_framework_views
 
@@ -30,5 +30,6 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(template_name='logout.html'), name='logout'),
     path('public/', PublicView.as_view(), name='public'),
     path('api-token-auth/', rest_framework_views.obtain_auth_token),
+    path('author-object/',AuthorObject.as_view()),
     path('nodes/', include('node.urls')),
 ]
