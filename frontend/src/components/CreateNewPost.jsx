@@ -10,28 +10,37 @@ function CreateNewPost() {
   const [title, setTitle] = useState('');
   const [desc, setDesc] = useState('');
   const [content, setContent] = useState('');
+  const [ctype, setCtype] = useState('');
   const [categories, setCategories] = useState([]);
   const [visibility, setVisibility] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    addPost(title, desc, content, categories);
+    addPost(title, desc, content, ctype, categories, visibility);
   }
 
-  const addPost = (title, desc, content, categories) => {
+  const addPost = (title, desc, content, ctype, categories, visibility) => {
     const postData = {
       type: "post",
       title: title,
       description: desc,
-      contentType: "text/plain",
+      contentType: ctype,
       content: content,
-      categories: categories
+      categories: categories,
+      visibility: visibility
     };
+
+    setTitle('');
+    setDesc('');
+    setCtype('');
+    setContent('');
+    setCategories([]);
+    setVisibility('');
 
     axios.post(post + "/", postData)
     console.log(postData);
     console.log(content)
-  }
+  };
 
   return (
     <div className="CreateNewPost">
@@ -41,17 +50,19 @@ function CreateNewPost() {
         <TextField className="TextInput" id="outlined-basic" label="Description"/>
         <TextField className="TextInput" id="outline-multiline-flexible" label="Post Text" multiline rows={10} />
         <TextField className="TextInput" id="outlined-basic" label="Categories"/>
+        <FormControl fullWidth>
         <InputLabel id="visibility-select">Visibility</InputLabel>
-        <Select
-          labelId="visibility-select"
-          id="visibility-select"
-          value={visibility}
-          label="Visibility"
-          onChange={handleChange}
-        >
-          <MenuItem value={"Public"}>Public</MenuItem>
-          <MenuItem value={"Friends"}>Friends</MenuItem>
-        </Select>
+          <Select
+            labelId="visibility-select"
+            id="visibility-select"
+            value={visibility}
+            label="Visibility"
+            onChange={handleChange}
+          >
+            <MenuItem value={"Public"}>Public</MenuItem>
+            <MenuItem value={"Friends"}>Friends</MenuItem>
+          </Select>
+        </FormControl>
         <div className="UploadImage">
           <Button variant="contained" component="label">
             Upload Image
@@ -60,7 +71,7 @@ function CreateNewPost() {
         </div>
         <div className="ActionButtons">
           <Button variant="outlined">Cancel</Button>
-          <Button variant="contained">Post</Button>
+          <Button variant="contained" onClick={handleSubmit}>Post</Button>
         </div>
       </div>
     </div>
