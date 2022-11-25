@@ -253,7 +253,7 @@ CreateNewPost.propTypes = {
   description: PropTypes.string.isRequired,
   contentType: PropTypes.string.isRequired,
   content: PropTypes.string.isRequired,
-  img: PropTypes.string.isRequired,
+  img: PropTypes.string,
   visibility: PropTypes.string.isRequired,
   newPost: PropTypes.bool.isRequired,
   closeDialog: PropTypes.func.isRequired,

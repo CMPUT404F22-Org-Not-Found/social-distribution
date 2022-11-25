@@ -52,7 +52,7 @@ function Profile() {
   ]
 
   function getFollowers() {
-    const url = "authors/"+authorId+"/followers/"
+    const url = "authors/" + authorId + "/followers/"
     // axios.get(baseURL).then((response) => {
     //   setAllFollowers(response.data.items);
     //   getFriends();
@@ -100,7 +100,7 @@ function Profile() {
     //   setAllPosts(response.data.data);
     //   console.log(allPosts);
     // });
-    const url = "authors/"+ authorId +"/posts/"
+    const url = "authors/" + authorId + "/posts/"
     // axios.get(baseURL).then((response) => {
     //   setAllPosts(response.data.items);
     // });
@@ -160,6 +160,7 @@ function Profile() {
           <h3>My Posts</h3>
           {allPosts.map((val) => (
             <Post
+              key={val.id}
               id={val.id}
               name={val.author.displayName}
               user={val.author.id}
@@ -189,7 +190,7 @@ function Profile() {
                   <ListItemText primary={"No followers."} />
                 </ListItem>
                 {allFollowers.map((value) => (
-                  <div>
+                  <div key={value.id}>
                     <ListItem key={value.id} disableGutters >
                       <ListItemText primary={value.displayName} />
                     </ListItem>
@@ -204,7 +205,7 @@ function Profile() {
                   <ListItemText primary={"No friends."} />
                 </ListItem>
                 {allFriends.map((value) => (
-                  <div>
+                  <div key={value.id}>
                     <ListItem key={value.id} disableGutters >
                       <ListItemText primary={value.displayName} />
                     </ListItem>

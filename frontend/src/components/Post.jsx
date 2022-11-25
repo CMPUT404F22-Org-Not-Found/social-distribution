@@ -166,17 +166,17 @@ function Post(props) {
     const likeData = {
       author: authorObject,
       type: "like",
-      summary: authorObject.displayName + " likes your "+type,
+      summary: authorObject.displayName + " likes your " + type,
       object: id,
     }
 
     const objectAuthorID = id.split("/")[4];
-    const url = "/authors/"+objectAuthorID+"/inbox/";
+    const url = "/authors/" + objectAuthorID + "/inbox/";
 
     axiosInstance.post(url, likeData)
-    .then((response) =>{
-      console.log(response);
-    });
+      .then((response) => {
+        console.log(response);
+      });
     window.location.reload();
 
   };
@@ -236,7 +236,7 @@ function Post(props) {
 
         <CardActions className="CardActions">
           {/* <IconButton aria-label="like" onClick={handleLike}> */}
-            {displayLike(id, "post.")}
+          {displayLike(id, "post.")}
           {/* </IconButton> */}
           <IconButton aria-label="comment" onClick={handleClickOpenCommentDialog}>
             <ChatBubbleOutlineIcon />
@@ -259,7 +259,7 @@ function Post(props) {
         <DialogContent>
           <DialogContentText>
             {commentsForPost && commentsForPost.length > 0 && commentsForPost.map((val) => (
-              <div>
+              <div key={val.id}>
                 <ListItem
                   key={val.id}
                   disableGutters
@@ -347,7 +347,7 @@ Post.propTypes = {
   description: PropTypes.string.isRequired,
   contentType: PropTypes.string.isRequired,
   content: PropTypes.string.isRequired,
-  img: PropTypes.string.isRequired,
+  img: PropTypes.string,
   fromProfile: PropTypes.bool.isRequired,
   commentsURL: PropTypes.string.isRequired,
   visibility: PropTypes.string.isRequired,

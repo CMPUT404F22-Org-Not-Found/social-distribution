@@ -128,7 +128,7 @@ function Topbar() {
                 id=""
                 name=""
                 user=""
-                author={""}
+                author={{}}
                 title=""
                 description=""
                 contentType=""
