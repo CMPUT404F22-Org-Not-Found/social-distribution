@@ -1,6 +1,7 @@
 """Contains the views for the inbox app."""
 
 import uuid
+import logging
 
 from typing import Dict
 from django.http import Http404
@@ -20,6 +21,7 @@ from like.serializers import LikeSerializer
 from .models import Inbox
 from .request_verifier import verify_author_request, verify_post_request, verify_friend_request, verify_like_request
 
+logger = logging.getLogger(__name__)
 
 class InboxView(APIView):
     """The inbox view."""
@@ -69,15 +71,22 @@ class InboxView(APIView):
         except Inbox.DoesNotExist:
             raise Http404("Inbox does not exist")
 
-        request_dict = request.data
-        if request_dict["type"].lower() == "post":
-            return self._handle_POST_post(request_dict, author, inbox)
+        try:
+            request_dict = request.data
+            if request_dict["type"].lower() == "post":
+                return self._handle_POST_post(request_dict, author, inbox)
 
-        elif request_dict["type"].lower() == "follow":
-            return self._handle_POST_follow(request_dict, author, inbox)
-        
-        elif request_dict["type"].lower() == "like":
-            return self._handle_POST_like(request_dict, author, inbox)
+            elif request_dict["type"].lower() == "follow":
+                return self._handle_POST_follow(request_dict, author, inbox)
+            
+            elif request_dict["type"].lower() == "like":
+                return self._handle_POST_like(request_dict, author, inbox)
+        except Exception as e:
+            logger.error(e)
+            return Response({"type": "error",
+                            "detail": "Error while sending the request to the inbox",
+                            "exception": str(e),},
+                            status=status.HTTP_400_BAD_REQUEST)
         
         return Response({"type": "error",
                         "detail": "The type of the request is not supported"},

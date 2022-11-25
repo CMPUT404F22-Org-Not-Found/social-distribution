@@ -1,6 +1,7 @@
 """Contains the functions that connect to other nodes."""
 
 import requests
+import logging
 
 from .models import Node
 from author.models import Author
@@ -9,7 +10,6 @@ from post.models import Post
 from post.serializers import PostSerializer
 from inbox.models import Inbox
 
-import logging
 logger = logging.getLogger(__name__)
 
 LOCAL_HOST_NAMES = ["http://127.0.0.1/", "https://cmput404-t04.herokuapp.com/"]
