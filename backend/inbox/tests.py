@@ -553,7 +553,6 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(Author.objects.count(), 3)
         new_author = Author.objects.filter(displayName="Test User 3").first()
         self.assertEqual(str(new_author.author_id), str(new_author_uuid))
-                
 
     def test_inbox_delete(self):
         """Clear an inbox."""
