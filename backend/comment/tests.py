@@ -51,6 +51,7 @@ class CommentDetailTest(APITestCase):
         self.author2 = Author.objects.create(user = self.user2, displayName = "Test1", host = "http://127.0.0.1:8000/")
         self.client = APIClient()
         self.factory = APIRequestFactory()
+        self.client.force_authenticate(user = self.user1)
         
         self.post = Post.objects.create(
             title="Test Title",
