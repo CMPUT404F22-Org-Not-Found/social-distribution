@@ -25,6 +25,7 @@ def update_db_with_global_authors():
                 authors = AuthorSerializer(data=response.json()["items"], many=True)
                 if authors.is_valid():
                     authors.save()
+                    logger.error(f"Successfully updated authors from node {node.host}")
                 else:
                     logger.error(f"Could not save authors from {node.host}, {authors.errors}")
             else:
