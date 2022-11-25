@@ -8,7 +8,6 @@ import './PublicStream.css';
 
 function Inbox() {
   const [allInboxItems, setAllInboxItems] = useState([]);
-  // const authorObject = JSON.parse(localStorage.getItem("author"));
   const authorId = localStorage.getItem("authorId");
 
   function getInboxItems() {

@@ -43,7 +43,7 @@ function FriendRequests() {
         <div className="FriendList">
           <List>
             {allFriendRequests.map((value) => (
-              <div>
+              <div key={value.id}>
                 <ListItem
                   key={value.actor.displayName}
                   disableGutters

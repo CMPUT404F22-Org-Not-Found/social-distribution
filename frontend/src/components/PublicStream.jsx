@@ -83,6 +83,7 @@ function PublicStream() {
       <h1>Public Posts</h1>
       {allPosts.map((val) => (
         <Post
+          key={val.id}
           id={val.id}
           name={val.author.displayName}
           user={val.author.id}
