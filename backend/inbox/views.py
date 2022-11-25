@@ -18,6 +18,7 @@ from followers.serializers import FriendRequestSerializer
 from like.models import Like
 from like.serializers import LikeSerializer
 from .models import Inbox
+from .request_verifier import verify_author_request, verify_post_request, verify_friend_request, verify_like_request
 
 
 class InboxView(APIView):
@@ -87,6 +88,7 @@ class InboxView(APIView):
         """When we POST a post to the inbox, if the post is already present, add the post to the inbox,
         if the post is not present, create a new post and add it to the inbox.
         """
+        verify_post_request(post_request_dict)
         post_author_dict = post_request_dict["author"]
         # The id given is a url, so we need to extract the id from the url
         author_id = get_author_id_from_url(post_author_dict["id"])
@@ -113,6 +115,7 @@ class InboxView(APIView):
         add the follow request to the inbox,
         if the follow request is not present, create a new follow request and add it to the inbox.
         """
+        verify_friend_request(follow_request_dict)
         # The object in friend requests is the recipient of the friend request and 
         # the recipient Author should thus already exist in the database.
         # The actor in friend requests is the sender of the friend request and
@@ -144,6 +147,7 @@ class InboxView(APIView):
         if it is not in the DB, create a new like object and add it to the inbox.
         If the author is a remote author, create a new author object for him.
         """
+        verify_like_request(like_request_dict)
         like_author, _ = Author.objects.get_or_create(
             author_id=get_author_id_from_url(like_request_dict["author"]["id"]),
             defaults=like_request_dict["author"])
