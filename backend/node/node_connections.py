@@ -16,9 +16,9 @@ LOCAL_HOST_NAMES = ["http://127.0.0.1/", "https://cmput404-t04.herokuapp.com/"]
 
 def update_db_with_global_authors():
     """Update the database with authors from other nodes."""
-    logger.error("Updating database with global authors")
     try:
         for node in Node.objects.filter(is_connected=True):
+            logger.error(f"Attempting to update authors from node {node.host}")
             authors_url = f"{node.host}authors/"
             response = requests.get(authors_url, auth=(node.username, node.password))
             if response.status_code == 200:
