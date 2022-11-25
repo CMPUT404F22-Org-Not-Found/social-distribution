@@ -1,6 +1,6 @@
 """Contains the views for the author app."""
 
-import requests
+import logging
 
 from django.shortcuts import render, redirect
 from django.core.paginator import Paginator
@@ -21,6 +21,9 @@ from .permissions import IsAuthorOrReadOnly
 from .forms import RegisterForm
 
 from node.models import Node
+from node.node_connections import update_db_with_global_authors
+
+logger = logging.getLogger(__name__)
 
 
 class AuthorList(APIView):
@@ -47,27 +50,13 @@ class AuthorList(APIView):
         """Return a paginated list of authors."""
         get_global_authors = request.query_params.get("global", False)
         if get_global_authors:
-            self._update_db_with_global_authors()
+            update_db_with_global_authors()
         authors = Author.objects.all()
         page_size = request.query_params.get("size", self._DEFUALT_PAGE_SIZE)
         page_num = request.query_params.get("page", self._DEFAULT_PAGE_NUM)
         paginator = Paginator(authors, page_size)
         return paginator.get_page(page_num)
-    
-    def _update_db_with_global_authors(self):
-        """Update the database with authors from other nodes."""
-        try:
-            for node in Node.objects.filter(is_connected=True):
-                authors_url = f"{node.host}authors/"
-                response = requests.get(authors_url)
-                if response.status_code == 200:
-                    authors = AuthorSerializer(data=response.json()["items"], many=True)
-                    if authors.is_valid():
-                        authors.save()
-                    else:
-                        print(authors.errors)
-        except Exception as e:
-            print(e)
+
 
 class AuthorDetail(APIView):
     """Retrieve, update or delete an author instance."""
