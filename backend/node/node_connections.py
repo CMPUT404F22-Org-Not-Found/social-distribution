@@ -26,9 +26,9 @@ def update_db_with_global_authors():
                 if authors.is_valid():
                     authors.save()
                 else:
-                    logger.error(authors.errors)
+                    logger.error(f"Could not save authors from {node.host}, {authors.errors}")
             else:
-                logger.error(response.json())
+                logger.error(f"Could not get authors from {node.host}, {response.status_code} - {response.reason}")
     except Exception as e:
         logger.error(e)
 
