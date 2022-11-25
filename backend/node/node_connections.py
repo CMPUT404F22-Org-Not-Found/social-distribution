@@ -16,19 +16,20 @@ LOCAL_HOST_NAMES = ["http://127.0.0.1/", "https://cmput404-t04.herokuapp.com/"]
 
 def update_db_with_global_authors():
     """Update the database with authors from other nodes."""
-    logger.error("Updating database with global authors")
     try:
         for node in Node.objects.filter(is_connected=True):
+            logger.error(f"Attempting to update authors from node {node.host}")
             authors_url = f"{node.host}authors/"
             response = requests.get(authors_url, auth=(node.username, node.password))
             if response.status_code == 200:
                 authors = AuthorSerializer(data=response.json()["items"], many=True)
                 if authors.is_valid():
                     authors.save()
+                    logger.error(f"Successfully updated authors from node {node.host}")
                 else:
-                    logger.error(authors.errors)
+                    logger.error(f"Could not save authors from {node.host}, {authors.errors}")
             else:
-                logger.error(response.json())
+                logger.error(f"Could not get authors from {node.host}, {response.status_code} - {response.reason}")
     except Exception as e:
         logger.error(e)
 
