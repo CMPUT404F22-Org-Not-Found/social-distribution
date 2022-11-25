@@ -12,7 +12,7 @@ class Node(models.Model):
     is_connected = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.host
+        return f"Node is connected: {self.is_connected} at {self.host}"
 
     def save(self, *args, **kwargs):
         # We want to make sure that the host ends with a backslash
