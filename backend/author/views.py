@@ -9,6 +9,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.request import Request
 from rest_framework.views import APIView
+from rest_framework.permissions import AllowAny
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
 from rest_framework import exceptions
@@ -93,6 +94,7 @@ class AuthorDetail(APIView):
 
 class Register(APIView):
     """Register a new author."""
+    permission_classes = [AllowAny]
     def post(self, request: Request, format: str = None) -> Response:
         """Creates a new author."""
         form = RegisterForm(request.data)
