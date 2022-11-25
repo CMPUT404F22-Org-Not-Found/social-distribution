@@ -2,17 +2,26 @@ import { Card, CardContent, CardHeader, Typography } from "@mui/material";
 import axios from "axios";
 import React, { useState } from "react";
 import { useEffect } from "react";
+import axiosInstance from "../axiosInstance";
 import Post from "./Post";
 import './PublicStream.css';
 
 function Inbox() {
   const [allInboxItems, setAllInboxItems] = useState([]);
+  // const authorObject = JSON.parse(localStorage.getItem("author"));
+  const authorId = localStorage.getItem("authorId");
 
   function getInboxItems() {
-    const baseURL = "http://localhost:8000/authors/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/inbox/"
+    const url = "authors/"+ authorId +"/inbox/"
 
-    axios.get(baseURL).then((response) => {
-      console.log("REsponse Data");
+    // axios.get(baseURL).then((response) => {
+    //   console.log("REsponse Data");
+    //   console.log(response.data);
+    //   setAllInboxItems(response.data.items);
+    // });
+    // console.log(allInboxItems);
+    axiosInstance.get(url).then((response) => {
+      console.log("Response Data");
       console.log(response.data);
       setAllInboxItems(response.data.items);
     });
@@ -48,7 +57,7 @@ function Inbox() {
           content={val.content}
           img={checkImageExists(val)}
           fromProfile={false}
-          comments={val.comments}
+          commentsURL={val.comments}
           visibility={val.visibility}
           />
         );

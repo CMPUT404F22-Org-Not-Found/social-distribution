@@ -10,16 +10,21 @@ import PropTypes from 'prop-types';
 import React, { useState, useEffect } from "react"; import './Post.css';
 import axios from "axios";
 import CreateNewPost from "./CreateNewPost";
+import axiosInstance from "../axiosInstance";
 
 function Post(props) {
   const {
-    id, name, user, author, title, description, contentType, content, img, fromProfile, comments, visibility,
+    id, name, user, author, title, description, contentType, content, img, fromProfile, commentsURL, visibility,
   } = props
 
   const [openCommentDialog, setOpenCommentDialog] = useState(false);
   const [commentsForPost, setCommentsForPost] = useState([]);
   const [newComment, setNewComment] = useState("");
   const [openEditDialog, setOpenEditDialog] = useState(false);
+  const [allLikedObjects, setAllLikedObjects] = useState([]);
+  const authorObject = JSON.parse(localStorage.getItem("author"));
+  const authorId = localStorage.getItem("authorId");
+
 
   const [stateSnackBar, setStateSnackBar] = useState({
     openSnackBar: false,
@@ -55,6 +60,47 @@ function Post(props) {
     setNewComment(event.target.value);
   }
 
+  const getCommentsForPost = () => {
+    console.log("CommentsURL:", commentsURL);
+    axios.get(commentsURL + "/").then((response) => {
+      console.log(response.data.comments);
+      setCommentsForPost(response.data.comments);
+    });
+  }
+
+  const handleSubmitComments = () => {
+    const url = "authors/" + authorId;
+    axiosInstance.get(url).then((response) => {
+      console.log(response);
+    })
+
+    const commentDate = new Date();
+    const postData = {
+      type: "comment",
+      author: authorObject,
+      comment: newComment,
+      contentType: "text/plain",
+      published: commentDate.toISOString(),
+    };
+
+    axios.post(commentsURL + "/", postData)
+      .then((response) => {
+        console.log(response);
+        handleCloseCommentDialog();
+        handleOpenSnackBar({
+          vertical: 'top',
+          horizontal: 'center',
+        });
+      });
+    console.log(postData);
+    console.log(commentsURL);
+    handleCloseCommentDialog();
+    handleOpenSnackBar();
+
+    console.log(newComment);
+    window.location.reload();
+  };
+
   // HANDLE EDIT DIALOG
   const handleOpenEditDialog = () => {
     setOpenEditDialog(true);
@@ -71,42 +117,17 @@ function Post(props) {
     }
   };
 
-  const handleSubmitComments = () => {
-    const commentDate = new Date();
-    const postData = {
-      type: "comment",
-      author: author,
-      comment: newComment,
-      contentType: "text/plain",
-      published: commentDate.toISOString(),
-    };
-
-    axios.post(comments + "/", postData)
-      .then((response) => {
-        handleCloseCommentDialog();
-        handleOpenSnackBar({
-          vertical: 'top',
-          horizontal: 'center',
-        });
-      });
-    console.log(postData);
-    console.log(comments);
-    handleCloseCommentDialog();
-    handleOpenSnackBar();
-
-    console.log(newComment);
-    window.location.reload();
-  };
-
-  function checkImageExists(image) {
+  const checkImageExists = (image) => {
+    // check if image needs to be displayed
     let style = '';
     if (image === 'null') {
       style = 'none'
     }
-    return style
+    return style;
   }
 
   const checkFromProfile = () => {
+    // check if componenet is being displayed in Profile
     if (fromProfile) {
       return (
         <IconButton aria-label="edit" onClick={handleOpenEditDialog}>
@@ -117,36 +138,75 @@ function Post(props) {
   };
 
   useEffect(() => {
-    getCommentsForPost(comments);
-    console.log(commentsForPost);
+    getCommentsForPost();
+    console.log("Comments:", commentsForPost);
+    getAllLikedObjects();
+    console.log()
+    console.log("Liked Objects", allLikedObjects);
   }, []);
 
+  // HANDLE LIKING OBJECTS
+  const getAllLikedObjects = () => {
+    const url = "/authors/" + authorId + "/liked/"
+    axiosInstance.get(url)
+      .then((response) => {
+        const allLikes = response.data.items;
 
-
-  function getCommentsForPost(commentsUrl) {
-    console.log(commentsUrl);
-    axios.get(commentsUrl + "/").then((response) => {
-      console.log(response.data.comments);
-      setCommentsForPost(response.data.comments);
-    });
-    console.log(commentsForPost);
-    return commentsForPost;
+        const objectIds = []
+        for (let i = 0; i < allLikes.length; i++) {
+          objectIds.push(allLikes[i].object);
+        }
+        setAllLikedObjects(objectIds);
+      });
   }
 
-  const handleLike = () => {
-    // check if the post had been liked by the current user
-    // if yes, delete like
-    // if no, post new like
+  const handleLike = (id, type) => {
+    // post a new like to the liked object's author's inbox
+
+    const likeData = {
+      author: authorObject,
+      type: "like",
+      summary: authorObject.displayName + " likes your "+type,
+      object: id,
+    }
+
+    const objectAuthorID = id.split("/")[4];
+    const url = "/authors/"+objectAuthorID+"/inbox/";
+
+    axiosInstance.post(url, likeData)
+    .then((response) =>{
+      console.log(response);
+    });
+    window.location.reload();
+
   };
 
-  const displayLike = () => {
-    return (
-      <FavoriteIcon />
-    );
-    // return(
-    // <FavoriteBorderIcon />
-    // );
+  const displayLike = (id, type) => {
+    // check if object has been liked by user, display corresponding icon
+    if (allLikedObjects.includes(id)) {
+      return (
+        <IconButton aria-label="like" style={{ display: checkIfLoggedIn() }}>
+          <FavoriteIcon />
+        </IconButton>
+      );
+    } else {
+      return (
+        <IconButton aria-label="like" onClick={() => handleLike(id, type)} style={{ display: checkIfLoggedIn() }}>
+          <FavoriteBorderIcon />
+        </IconButton>
+      );
+    }
   };
+
+  const checkIfLoggedIn = () => {
+    // check if token exists, if yes, user is logged in
+    const authToken = window.localStorage.getItem("auth-token");
+    let style = '';
+    if (!authToken) {
+      style = 'none'
+    }
+    return style;
+  }
 
   return (
     <div className="Post">
@@ -175,9 +235,9 @@ function Post(props) {
         </CardContent>
 
         <CardActions className="CardActions">
-          <IconButton aria-label="like" onClick={handleLike}>
-            {displayLike()}
-          </IconButton>
+          {/* <IconButton aria-label="like" onClick={handleLike}> */}
+            {displayLike(id, "post.")}
+          {/* </IconButton> */}
           <IconButton aria-label="comment" onClick={handleClickOpenCommentDialog}>
             <ChatBubbleOutlineIcon />
           </IconButton>
@@ -205,6 +265,10 @@ function Post(props) {
                   disableGutters
                 >
                   <ListItemText primary={val.comment} secondary={val.author.displayName} />
+                  {/* <IconButton aria-label="like" onClick={handleLike}>
+                    {displayLike(val.id)}
+                  </IconButton> */}
+                  {displayLike(val.id, "comment.")}
                 </ListItem>
                 <Divider />
               </div>
@@ -219,11 +283,12 @@ function Post(props) {
             fullWidth
             variant="standard"
             onChange={handleChangeComment}
+            style={{ display: checkIfLoggedIn() }}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseCommentDialog}>Cancel</Button>
-          <Button onClick={handleSubmitComments}>Comment</Button>
+          <Button onClick={handleSubmitComments} style={{ display: checkIfLoggedIn() }}>Comment</Button>
         </DialogActions>
       </Dialog>
 
@@ -248,11 +313,12 @@ function Post(props) {
             img={img}
             visibility={visibility}
             newPost={false}
+            closeDialog={handleCloseEditDialog}
           />
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseEditDialog}>Cancel</Button>
-          <Button onClick={handleSubmitEdit}>Save</Button>
+          {/* <Button onClick={handleCloseEditDialog}>Cancel</Button>
+          <Button onClick={handleSubmitEdit}>Save</Button> */}
         </DialogActions>
       </Dialog>
 
@@ -283,6 +349,6 @@ Post.propTypes = {
   content: PropTypes.string.isRequired,
   img: PropTypes.string.isRequired,
   fromProfile: PropTypes.bool.isRequired,
-  comments: PropTypes.string.isRequired,
+  commentsURL: PropTypes.string.isRequired,
   visibility: PropTypes.string.isRequired,
 }

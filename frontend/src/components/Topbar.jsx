@@ -43,7 +43,7 @@ function Topbar() {
   }
 
   const checkLoggedIn = () => {
-    if (window.localStorage.getItem("auth-token") === null) {
+    if (localStorage.getItem("auth-token") === null) {
       return (
         <div>
           <Button className="IconButton" variant="contained" onClick={onClickLogin}>
@@ -83,8 +83,8 @@ function Topbar() {
   }
 
   const onClickLogout = () => {
-    window.localStorage.removeItem("auth-token");
-    console.log(window.localStorage.getItem("auth-token"));
+    localStorage.removeItem("auth-token");
+    console.log(localStorage.getItem("auth-token"));
     navigate('/');
   }
 
@@ -136,11 +136,12 @@ function Topbar() {
                 img=""
                 visibility=""
                 newPost={true}
+                closeDialog={handleCloseCreateDialog}
               />
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleCloseCreateDialog}>Cancel</Button>
-              <Button onClick={handleCloseCreateDialog}>Save</Button>
+              {/* <Button onClick={handleCloseCreateDialog}>Cancel</Button>
+              <Button onClick={handleCloseCreateDialog}>Save</Button> */}
             </DialogActions>
           </Dialog>
         </AppBar>

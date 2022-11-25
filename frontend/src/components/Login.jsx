@@ -8,6 +8,7 @@ import {
 } from '@mui/material';
 import axiosInstance from '../axiosInstance';
 import { useState } from 'react';
+import axios from 'axios';
 
 
 function Login() {
@@ -28,14 +29,31 @@ function Login() {
         username,
         password,
       }
-      const url = "/api-token-auth/"
+      // const url = "/api-token-auth/"
+      const url = "http://localhost:8000/author-object/"
 
-      axiosInstance.post(url, params).then((response) => {
-        console.log(response.data.token);
-        window.localStorage.setItem("auth-token", response.data.token);
+      axios.post(url, params).then((response) => {
+        console.log(response.data);
+        localStorage.setItem("auth-token", response.data.token);
         navigate('/');
+        console.log("Token from storage:", localStorage.getItem("auth-token"))
+
+        // setAuthor(response.data.author);
+        // console.log("Author:", Author);
+        const id = response.data.author.id.split("/").pop()
+        const author = response.data.author
+        localStorage.setItem("author", JSON.stringify(author));
+        localStorage.setItem("authorId", id);
+        console.log("AuthorID from storage: ", localStorage.getItem("authorId"));
+        console.log("Author from storage: ", JSON.parse(localStorage.getItem("author")));
+
       })
     }
+
+    // const setAuthor = (input) => {
+    //   Author.authorObject = input;
+    //   Author.authorId = input.id.split("/").pop();
+    // }
 
     const onClickRegister = () => {
         navigate('/register');
