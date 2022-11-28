@@ -9,6 +9,8 @@ to create objects, and if the request body contains
 fields that are not in the model, it will throw an error.
 """
 
+import uuid
+
 from author.models import Author
 from post.models import Post
 from followers.models import FriendRequest
@@ -67,3 +69,7 @@ def verify_like_request(request_body: dict) -> dict:
         del request_body[key]
     request_body["author"] = verify_author_request(request_body["author"])
     return request_body
+
+def get_author_id_from_url(url: str) -> uuid:
+    """Returns the author id from the url."""
+    return uuid.UUID(url.split("/")[-1])
