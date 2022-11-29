@@ -8,24 +8,38 @@ from rest_framework.views import APIView
 
 from author.models import Author
 from post.models import Post
+from comment.models import Comment
 from .models import Like
 from .serializers import LikeSerializer
 
 
 class LikeView(APIView):
     
-    def get(self, request: Request, pk: str, post_id: str) -> Response:
+    def get(self, request: Request, pk: str, post_id: str, comment_id:str = None) -> Response:
         """Return the likes of the post."""
-        try:
-            post = Post.objects.get(pk=post_id)
-        except Post.DoesNotExist:
-            raise Http404("Post does not exist")
+        if comment_id is None:
+            try:
+                post = Post.objects.get(pk=post_id)
+            except Post.DoesNotExist:
+                raise Http404("Post does not exist")
 
 
-        likes = list(Like.objects.filter(object=post.url))
-        likes = LikeSerializer(likes, many=True)
-        likes_dict = {"type": "likes", "items": likes.data}
-        return Response(likes_dict, status=status.HTTP_200_OK)
+            likes = list(Like.objects.filter(object=post.url))
+            likes = LikeSerializer(likes, many=True)
+            likes_dict = {"type": "likes", "items": likes.data}
+            return Response(likes_dict, status=status.HTTP_200_OK)
+
+        else:
+            try:
+                comment = Comment.objects.get(pk=comment_id)
+            except Comment.DoesNotExist:
+                raise Http404("Comment does not exist")
+
+
+            likes = list(Like.objects.filter(object=comment.url))
+            likes = LikeSerializer(likes, many=True)
+            likes_dict = {"type": "likes", "items": likes.data}
+            return Response(likes_dict, status=status.HTTP_200_OK)
 
     def post(self, request: Request, pk: str, post_id: str) -> Response:
         """Add a like to the post."""
