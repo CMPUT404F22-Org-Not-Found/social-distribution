@@ -12,6 +12,7 @@ import axios from "axios";
 import CreateNewPost from "./CreateNewPost";
 import axiosInstance from "../axiosInstance";
 
+var ReactCommonmark = require('react-commonmark');
 function Post(props) {
   const {
     id, name, user, author, title, description, contentType, content, img, fromProfile, commentsURL, visibility,
@@ -225,6 +226,15 @@ function Post(props) {
     }
   }
 
+  const checkContent = () => {
+    if (contentType === "text/markdown") {
+      return (<ReactCommonmark source={content}/>);
+    }
+    else if (contentType === "text/plain") {
+      return (content);
+    }
+  }
+
 
   return (
     <div className="Post">
@@ -246,7 +256,7 @@ function Post(props) {
 
         <CardContent>
           <Typography variant="body2" color="text.primary">
-            {content}
+            {checkContent()}
           </Typography>
         </CardContent>
 
