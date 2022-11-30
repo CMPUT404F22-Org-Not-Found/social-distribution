@@ -1,4 +1,4 @@
-import { Divider, List, ListItem, ListItemText } from "@mui/material";
+import { Divider, List, ListItem, ListItemText, Tab, Tabs } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import Post from "./Post";
 import "./Profile.css"
@@ -8,13 +8,19 @@ import axios from "axios";
 function Profile() {
   const [allPosts, setAllPosts] = useState([]);
   const [allFollowers, setAllFollowers] = useState([]);
+  const [tabIndex, setTabIndex] = useState(0);
+  const [allFriends, setAllFriends] = useState([]);
+  // const authorObject = JSON.parse(localStorage.getItem("author"));
+  const authorId = localStorage.getItem("authorId");
 
   const sampleFriendList = [
     {
-      name: 'Marzookh',
+      id: '1',
+      displayName: 'Marzookh',
     },
     {
-      name: 'Adit',
+      id: '2',
+      displayName: 'Adit',
     }
   ]
 
@@ -46,10 +52,42 @@ function Profile() {
   ]
 
   function getFollowers() {
-    const baseURL = "http://localhost:8000/authors/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/followers/"
-    axios.get(baseURL).then((response) => {
+    const url = "authors/" + authorId + "/followers/"
+    // axios.get(baseURL).then((response) => {
+    //   setAllFollowers(response.data.items);
+    //   getFriends();
+    // });
+    axiosInstance.get(url).then((response) => {
       setAllFollowers(response.data.items);
+      getFriends();
     });
+  }
+
+  const getFriends = () => {
+    console.log("GetFriends");
+    const friends = [];
+    const promises = [];
+
+    for (let i = 0; i < allFollowers.length; i++) {
+      const url = "authors/" + allFollowers[i].id + "/followers/c01ade2f-49ec-4889-8ecf-a461cd8d5e31";
+
+      promises.push(new Promise((resolve) => {
+        axiosInstance.get(url)
+          .then((response) => {
+            if (!response.data.detail) {
+              friends.push(allFollowers[i]);
+            }
+            console.log(friends);
+            resolve();
+          })
+      }));
+    }
+
+    Promise.all(promises).then((response) => {
+      setAllFriends(friends);
+      console.log(allFriends)
+    })
+
   }
 
   function getPosts() {
@@ -62,8 +100,12 @@ function Profile() {
     //   setAllPosts(response.data.data);
     //   console.log(allPosts);
     // });
-    const baseURL = "http://localhost:8000/authors/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/posts/"
-    axios.get(baseURL).then((response) => {
+    const url = "authors/" + authorId + "/posts/"
+    // axios.get(baseURL).then((response) => {
+    //   setAllPosts(response.data.items);
+    // });
+    // console.log(allPosts);
+    axiosInstance.get(url).then((response) => {
       setAllPosts(response.data.items);
     });
     console.log(allPosts);
@@ -89,7 +131,7 @@ function Profile() {
   ]
 
   function checkImageExists(val) {
-    if (val.contentType == "image/png;base64" || val.contentType == "image/jpeg;base64") {
+    if (val.contentType === "image/png;base64" || val.contentType === "image/jpeg;base64") {
       return val.content
     }
     else {
@@ -105,6 +147,11 @@ function Profile() {
     return style;
   }
 
+  // https://codingbeautydev.com/blog/material-ui-tabs/
+  const handleTabChange = (event, newTabIndex) => {
+    setTabIndex(newTabIndex);
+  }
+
   return (
     <div className="Profile">
       <h1>My Profile</h1>
@@ -113,23 +160,64 @@ function Profile() {
           <h3>My Posts</h3>
           {allPosts.map((val) => (
             <Post
-            id={val.id}
-            name={val.author.displayName}
-            user={val.author.id}
-            author={val.author}
-            title={val.title}
-            description={val.description}
-            contentType={val.contentType}
-            content={val.content}
-            img={checkImageExists(val)}
-            fromProfile={true}
-            comments={val.comments}
-            visibility={val.visibility}
+              key={val.id}
+              id={val.id}
+              name={val.author.displayName}
+              user={val.author.id}
+              author={val.author}
+              title={val.title}
+              description={val.description}
+              contentType={val.contentType}
+              content={val.content}
+              img={checkImageExists(val)}
+              fromProfile={true}
+              commentsURL={val.comments}
+              visibility={val.visibility}
             />
           ))}
         </div>
+        <div>
+          <div>
+            <Tabs value={tabIndex} onChange={handleTabChange}>
+              <Tab label="Followers" />
+              <Tab label="Friends" />
+            </Tabs>
+          </div>
+          <div>
+            {tabIndex === 0 && (
+              <List>
+                <ListItem style={{ display: checkNoFollowers() }} key={"none"} disableGutters >
+                  <ListItemText primary={"No followers."} />
+                </ListItem>
+                {allFollowers.map((value) => (
+                  <div key={value.id}>
+                    <ListItem key={value.id} disableGutters >
+                      <ListItemText primary={value.displayName} />
+                    </ListItem>
+                    <Divider />
+                  </div>
+                ))}
+              </List>
+            )}
+            {tabIndex === 1 && (
+              <List>
+                <ListItem style={{ display: checkNoFollowers() }} key={"none"} disableGutters >
+                  <ListItemText primary={"No friends."} />
+                </ListItem>
+                {allFriends.map((value) => (
+                  <div key={value.id}>
+                    <ListItem key={value.id} disableGutters >
+                      <ListItemText primary={value.displayName} />
+                    </ListItem>
+                    <Divider />
+                  </div>
+                ))}
+              </List>
+            )}
+          </div>
+        </div>
         <div className="MyFriends">
-          <h3>My Friends</h3>
+          {/* <h3>Followers</h3>
           <div className="List">
             <List>
               <ListItem style={{ display: checkNoFollowers() }} key={"none"} disableGutters >
@@ -144,7 +232,7 @@ function Profile() {
                 </div>
               ))}
             </List>
-          </div>
+          </div> */}
         </div>
       </div>
 
