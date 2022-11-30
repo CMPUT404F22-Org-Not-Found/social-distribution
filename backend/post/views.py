@@ -1,7 +1,10 @@
 import uuid
 import json
-from django.http import Http404
+import requests, base64
+from django.http import Http404, HttpResponse
 from django.core.paginator import Paginator
+from django.core.validators import URLValidator
+from django.core.files.base import ContentFile
 from .models import Post
 from author.models import Author
 from rest_framework import status
@@ -9,7 +12,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import PostSerializer
 from author.permissions import IsAuthenticated, IsAuthorOrReadOnly
-
+from rest_framework.renderers import BaseRenderer
 from node.node_connections import send_post_to_inboxes
 
 class PublicView(APIView):
@@ -89,7 +92,8 @@ class PostList(APIView):
         
         request = dict(request.data)
 
-        post_id = str(uuid.uuid4())
+        pid = uuid.uuid4()
+        post_id = str(pid)
         post_id_url = author.url + "/posts/" + post_id
         request["id"] = post_id_url
         request["author"] = author
@@ -104,6 +108,20 @@ class PostList(APIView):
 
         serializer = PostSerializer(post)
 
+        # check if content type is image
+        if serializer.validated_data.get("contentType").startswith("image"):
+            image =  + pid.hex + "/image" # do we need request.build_absolute_uri()?
+            serializer.validated_data["content"] = image # would probably need a image field if this doesn't work
+            serializer = serializer.update(serializer,serializer.validated_data) # is this correct? if not use the code below
+            '''
+            serializer.save(
+                id = post_id,
+                title = 'Image Post',
+                content = serializer.validated_data.get("content"),
+                author = author,
+                url = post_id_url,
+            )
+            '''
         return Response(serializer.data, status = status.HTTP_201_CREATED)
 
 class PostDetail(APIView):
@@ -194,4 +212,49 @@ class PostDetail(APIView):
         serializer = PostSerializer(post)
 
         return Response(serializer.data, status = status.HTTP_201_CREATED)
-        
+
+class ImagePostView(APIView):
+    #renderer_classes = [ImageRenderer]
+
+    #permission_classes = [IsAuthorOrReadOnly]
+
+    def get(self, request, pk, post_id):
+
+        try:
+            author = self.get_author(pk)
+            if author is None:
+                raise Http404
+
+            # need to check if authorized
+
+            # get post obj
+            post_obj = Post.objects.get(id=post_id, contentType__contains="image", visibility = "PUBLIC")
+
+            if "base64" not in post_obj.content:
+                validate = URLValidator()
+                try:
+                    validate(post_obj.content)
+                    response = requests.get(post_obj.content)
+                    if response.status_code == 200:
+                        content_type = response.headers.get("content-type")
+                        extension = content_type.split('/')[-1]
+                        data = ContentFile(response.content, name='temp.'+extension)
+                        return HttpResponse(data, content_type=content_type)
+                except:
+                    return Response("Content of this post is not a base64 encoded string", status=status.HTTP_400_BAD_REQUEST)
+
+            # if 'base64' in post_obj.content, then decode the base64 into binary
+            format, image_string = post_obj.content.split(';base64,')
+            extension = format.split('/')[-1]
+            data = ContentFile(base64.b64decode(image_string), name='temp.' + extension)
+
+            return HttpResponse(data, content_type=f'image/{extension}')
+        except Exception as e:
+            return Response(f"Error: {e}", status=status.HTTP_400_BAD_REQUEST)
+
+    def get_author(self,pk):
+        try:
+            author = Author.objects.get(pk=pk)
+        except Author.DoesNotExist:
+            return None
+        return author    
