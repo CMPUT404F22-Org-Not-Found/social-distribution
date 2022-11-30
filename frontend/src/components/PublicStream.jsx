@@ -4,6 +4,7 @@ import Post from "./Post";
 // import Topbar from "./Topbar";
 // import FriendRequests from "./FriendRequests";
 import axiosInstance from "../axiosInstance";
+import axios from "axios";
 
 function PublicStream() {
   // const [counter, setCounter] = useState(0);
@@ -43,8 +44,9 @@ function PublicStream() {
     //   setAllPosts(response.data.data);
     //   console.log(allPosts);
     // });
-    const baseURL = "public/"
-    axiosInstance.get(baseURL).then((response) => {
+    
+    const baseURL = "http://localhost:8000/public/"
+    axios.get(baseURL).then((response) => {
       // console.log(response.data.items)
       setAllPosts(response.data.items);
     });
@@ -81,6 +83,7 @@ function PublicStream() {
       <h1>Public Posts</h1>
       {allPosts.map((val) => (
         <Post
+          key={val.id}
           id={val.id}
           name={val.author.displayName}
           user={val.author.id}
@@ -91,7 +94,7 @@ function PublicStream() {
           content={val.content}
           img={checkImageExists(val)}
           fromProfile={false}
-          comments={val.comments}
+          commentsURL={val.comments}
           visibility={val.visibility}
         />
       ))}

@@ -67,6 +67,7 @@ function Register() {
     axiosInstance.post('register/', registerData)
     .then((response) => {
       console.log(response)
+      navigate('/login');
       });
   }
 
