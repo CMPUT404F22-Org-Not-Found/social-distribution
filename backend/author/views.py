@@ -117,6 +117,7 @@ class Register(APIView):
 
 
 class AuthorObject(APIView):
+    permission_classes = [AllowAny]
     def post(self,request: Request, format: str=None, *args, **kwargs):
 
         username = request.data["username"]
