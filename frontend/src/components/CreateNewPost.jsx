@@ -88,7 +88,7 @@ function CreateNewPost(props) {
         content: contentText,
         categories: [],
         visibility: visibilityType,
-        unlisted: "false"
+        unlisted: false,
       };
 
       console.log("Make axios call for creating a new post.");
@@ -118,15 +118,21 @@ function CreateNewPost(props) {
         visibility: visibilityType,
       };
 
-      const url = "authors/" + authorId + "/posts/" + id + "/";
-      console.log("edit existing post");
-      console.log("Data to post:", postData);
-      console.log(axiosInstance.baseURL + url)
-      // axiosInstance.post(url, postData)
-      //   .then((response) => {
-      //     console.log("successfully edited post");
-      //     console.log(response);
-      //   });
+
+      // console.log("id:", id);
+      const postID = id.split("/")[6];
+      // console.log("postid:", postID);
+      const url = "authors/" + authorId + "/posts/" + postID + "/";
+      // console.log("edit existing post");
+      // console.log("Data to post:", postData);
+      // console.log(axiosInstance.baseURL + url)
+      // console.log("url:", url);
+      axiosInstance.post(url, postData)
+        .then((response) => {
+          console.log("successfully edited post");
+          console.log(response);
+          window.location.reload();
+        });
     } else {
       console.log("All fields have not been filled. Cannot make post.")
     }
@@ -164,11 +170,14 @@ function CreateNewPost(props) {
 
   const handleDeletePost = () => {
     // delete the post
-    const url = authorId + "/posts/" + id + "/";
+    const postID = id.split("/")[6];
+    const url = "authors/"+ authorId + "/posts/" + postID + "/";
 
     axiosInstance.delete(url)
       .then((response) => {
+        console.log(response);
         console.log("Deleted post");
+        window.location.reload();
       });
   }
 
@@ -229,7 +238,7 @@ function CreateNewPost(props) {
               onChange={handleVisibilityChange}
             >
               <FormControlLabel value="PUBLIC" control={<Radio />} label="PUBLIC" />
-              <FormControlLabel value="PRIVATE" control={<Radio />} label="PRIVATE" />
+              <FormControlLabel value="FRIENDS" control={<Radio />} label="FRIENDS" />
             </RadioGroup>
           </FormControl>
         </div>
