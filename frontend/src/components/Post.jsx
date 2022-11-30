@@ -208,8 +208,8 @@ function Post(props) {
   }
 
   const checkProfileImage = () => {
-    const url = authorObject.profileImage
-    const name = authorObject.displayName
+    const url = author.profileImage
+    const name = author.displayName
     if(url.match(/\.(jpeg|jpg|gif|png)$/) != null) {
       return (
         <Avatar alt={name} src={url} />
