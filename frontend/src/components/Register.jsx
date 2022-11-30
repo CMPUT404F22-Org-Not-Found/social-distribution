@@ -7,6 +7,7 @@ import {
   Button
 } from '@mui/material';
 import axiosInstance from '../axiosInstance.js';
+import axios from 'axios';
 
 function Register() {
   const navigate = useNavigate();
@@ -63,8 +64,9 @@ function Register() {
     }
 
     console.log(registerData);
+    const url = "http://localhost:8000/register/"
 
-    axiosInstance.post('register/', registerData)
+    axios.post(url, registerData)
     .then((response) => {
       console.log(response)
       navigate('/login');
