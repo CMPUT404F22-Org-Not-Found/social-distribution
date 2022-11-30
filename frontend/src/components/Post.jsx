@@ -25,7 +25,6 @@ function Post(props) {
   const authorObject = JSON.parse(localStorage.getItem("author"));
   const authorId = localStorage.getItem("authorId");
 
-
   const [stateSnackBar, setStateSnackBar] = useState({
     openSnackBar: false,
     vertical: 'top',
@@ -208,14 +207,31 @@ function Post(props) {
     return style;
   }
 
+  const checkProfileImage = () => {
+    const url = authorObject.profileImage
+    const name = authorObject.displayName
+    if(url.match(/\.(jpeg|jpg|gif|png)$/) != null) {
+      return (
+        <Avatar alt={name} src={url} />
+      );      
+    }
+
+    else {
+      return (
+        <Avatar sx={{ bgcolor: red[500] }}>
+          {name[0]}
+        </Avatar>
+      );
+    }
+  }
+
+
   return (
     <div className="Post">
       <Card className="Card" variant="outlined">
         <CardHeader
           avatar={
-            <Avatar sx={{ bgcolor: red[500] }}>
-              {name[0]}
-            </Avatar>
+            checkProfileImage()
           }
           title={title}
           subheader={name}
