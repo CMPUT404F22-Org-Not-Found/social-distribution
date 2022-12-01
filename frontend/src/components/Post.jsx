@@ -14,7 +14,7 @@ import axiosInstance from "../axiosInstance";
 
 function Post(props) {
   const {
-    id, name, user, author, title, description, contentType, content, img, fromProfile, commentsURL, visibility,
+    id, name, user, author, title, description, contentType, content, img, from, commentsURL, visibility,
   } = props
 
   const [openCommentDialog, setOpenCommentDialog] = useState(false);
@@ -128,7 +128,7 @@ function Post(props) {
 
   const checkFromProfile = () => {
     // check if componenet is being displayed in Profile
-    if (fromProfile) {
+    if (from === "profile") {
       return (
         <IconButton aria-label="edit" onClick={handleOpenEditDialog}>
           <EditIcon />
@@ -140,9 +140,11 @@ function Post(props) {
   useEffect(() => {
     getCommentsForPost();
     console.log("Comments:", commentsForPost);
-    getAllLikedObjects();
-    console.log()
-    console.log("Liked Objects", allLikedObjects);
+    if (from !== "public") {
+      getAllLikedObjects();
+      console.log()
+      console.log("Liked Objects", allLikedObjects);
+    }
   }, []);
 
   // HANDLE LIKING OBJECTS
@@ -348,7 +350,7 @@ Post.propTypes = {
   contentType: PropTypes.string.isRequired,
   content: PropTypes.string.isRequired,
   img: PropTypes.string,
-  fromProfile: PropTypes.bool.isRequired,
+  from: PropTypes.string.isRequired,
   commentsURL: PropTypes.string.isRequired,
   visibility: PropTypes.string.isRequired,
 }

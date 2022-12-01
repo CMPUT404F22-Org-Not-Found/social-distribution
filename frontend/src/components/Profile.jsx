@@ -170,7 +170,7 @@ function Profile() {
               contentType={val.contentType}
               content={val.content}
               img={checkImageExists(val)}
-              fromProfile={true}
+              from={"profile"}
               commentsURL={val.comments}
               visibility={val.visibility}
             />
