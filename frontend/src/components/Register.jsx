@@ -30,7 +30,7 @@ function Register() {
   }
 
   const handleGithubChange = (event) => {
-    setDisplayName(event.target.value);
+    setGithub(event.target.value);
     console.log(github);
 
   }
