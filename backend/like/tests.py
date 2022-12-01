@@ -53,6 +53,7 @@ class LikeViewTestCase(APITestCase):
                                         description="Test post", contentType="text/plain",
                                         content="Test post", author=self.author,
                                         url=f"http://test.com/authors/{self.author.id}/1", visibility="PUBLIC")
+        self.client.force_authenticate(user=self.user)
 
         self.like = Like.objects.create(author=self.author, object=self.post.url, summary="Test likes test post.")
 

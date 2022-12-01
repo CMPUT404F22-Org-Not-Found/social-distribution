@@ -5,7 +5,7 @@ import uuid
 
 from django.test import TestCase
 from django.contrib.auth.models import User
-from rest_framework.test import APIClient, APITestCase, APIRequestFactory
+from rest_framework.test import APIClient, APITestCase, APIRequestFactory, force_authenticate
 
 from author.models import Author
 from post.models import Post
@@ -65,6 +65,7 @@ class InboxViewTestCase(APITestCase):
         self.author = Author.objects.create(user=self.u1, host="http://testserver/", displayName="Test User 1",
                               github="github/test1.com", profileImage="profile/test1.com")
         self.inbox = Inbox.objects.create(author=self.author)
+        self.client.force_authenticate(user=self.u1)
         self.u2 = User.objects.create_user(username='testuser2', password='12345')
         self.author2 = Author.objects.create(user=self.u2, host="http://testserver/", displayName="Test User 2",
                               github="github/test2.com", profileImage="profile/test2.com")
@@ -78,6 +79,7 @@ class InboxViewTestCase(APITestCase):
 
     def test_inbox_view(self):
         request = self.factory.get('/inbox/' + str(self.author.author_id))
+        force_authenticate(request, user=self.u1)
         response = InboxView.as_view()(request, author_id=str(self.author.author_id))
 
         self.assertEqual(response.status_code, 200)
@@ -116,6 +118,7 @@ class InboxViewTestCase(APITestCase):
         
     def test_inbox_view_no_inbox(self):
         request = self.factory.get('/inbox/999')
+        force_authenticate(request, user=self.u1)
         response = InboxView.as_view()(request, author_id=999)
 
         self.assertEqual(response.status_code, 404)
@@ -124,6 +127,7 @@ class InboxViewTestCase(APITestCase):
         self.inbox.posts.clear()
         self.inbox.friend_requests.clear()
         request = self.factory.get('/inbox/' + str(self.author.author_id))
+        force_authenticate(request, user=self.u1)
         response = InboxView.as_view()(request, author_id=str(self.author.author_id))
 
         self.assertEqual(response.status_code, 200)
@@ -133,6 +137,7 @@ class InboxViewTestCase(APITestCase):
     
     def test_inbox_view_no_author(self):
         request = self.factory.get('/inbox/999')
+        force_authenticate(request, user=self.u1)
         response = InboxView.as_view()(request, author_id=999)
 
         self.assertEqual(response.status_code, 404)
@@ -160,6 +165,7 @@ class InboxViewTestCase(APITestCase):
             }
         }
         request = self.factory.post('/inbox/' + str(self.author.author_id), data, format='json')
+        force_authenticate(request, user=self.u1)
         response = InboxView.as_view()(request, author_id=str(self.author.author_id))
 
         self.assertEqual(response.status_code, 200)
@@ -193,6 +199,7 @@ class InboxViewTestCase(APITestCase):
             "description": "Test Post 2 Description",
             "contentType": "text/plain",
             "content": "Test Post 2 Content",
+            "commentsSrc": "needs to be deleted",   # we add this extra field that should be deleted by verify_post
             "author": {
                 "id": str(self.author.id),
                 "host": "http://testserver",
@@ -203,6 +210,7 @@ class InboxViewTestCase(APITestCase):
             }
         }
         request = self.factory.post('/inbox/' + str(self.author.author_id), data, format='json')
+        force_authenticate(request, user=self.u1)
         response = InboxView.as_view()(request, author_id=str(self.author.author_id))
 
         self.assertEqual(response.status_code, 201)
@@ -244,10 +252,12 @@ class InboxViewTestCase(APITestCase):
                 "displayName": "Test User 3",
                 "url": "http://testserver/authors/999",
                 "github": "github/test3.com",
-                "profileImage": "profile/test3.com"
+                "profileImage": "profile/test3.com",
+                "uuid": str(new_author_uuid)    # we add this extra field that should be deleted by verify_author
             }
         }
         request = self.factory.post('/inbox/' + str(self.author.author_id), data, format='json')
+        force_authenticate(request, user=self.u1)
         response = InboxView.as_view()(request, author_id=str(self.author.author_id))
 
         self.assertEqual(response.status_code, 201)
@@ -298,6 +308,7 @@ class InboxViewTestCase(APITestCase):
             }
         }
         request = self.factory.post('/inbox/' + str(self.author2.author_id), data, format='json')
+        force_authenticate(request, user=self.u2)
         response = InboxView.as_view()(request, author_id=str(self.author2.author_id))
 
         self.assertEqual(response.status_code, 201)
@@ -336,6 +347,7 @@ class InboxViewTestCase(APITestCase):
             }
         }
         request = self.factory.post('/inbox/' + str(self.author2.author_id), data, format='json')
+        force_authenticate(request, user=self.u2)
         response = InboxView.as_view()(request, author_id=str(self.author2.author_id))
 
         self.assertEqual(response.status_code, 201)
@@ -381,6 +393,7 @@ class InboxViewTestCase(APITestCase):
             }
         }
         request = self.factory.post('/inbox/' + str(self.author2.author_id), data, format='json')
+        force_authenticate(request, user=self.u2)
         response = InboxView.as_view()(request, author_id=str(self.author2.author_id))
 
         self.assertEqual(response.status_code, 200)
@@ -426,6 +439,7 @@ class InboxViewTestCase(APITestCase):
             "object": post.url
         }
         request = self.factory.post('/inbox/' + str(self.author2.author_id), data, format='json')
+        force_authenticate(request, user=self.u2)
         response = InboxView.as_view()(request, author_id=str(self.author2.author_id))
 
         self.assertEqual(response.status_code, 201)
@@ -473,6 +487,7 @@ class InboxViewTestCase(APITestCase):
             "object": post.url
         }
         request = self.factory.post('/inbox/' + str(self.author2.author_id), data, format='json')
+        force_authenticate(request, user=self.u2)
         response = InboxView.as_view()(request, author_id=str(self.author2.author_id))
 
         self.assertEqual(response.status_code, 200)
@@ -486,12 +501,66 @@ class InboxViewTestCase(APITestCase):
         self.assertEqual(added_like_request.object, post.url)
         self.assertEqual(added_like_request.summary, "Test User 1 likes Test Post 1")
 
+    def test_inbox_POST_like_request_with_new_author(self):
+        """Send a like object of a remote author liking a post from author 2 to author 2's inbox."""
+        # Create a post from author 2
+        post = Post.objects.create(
+            title="Test Post 1",
+            source="http://testserver/posts/" + str(self.post.post_id),
+            origin="http://testserver/posts/" + str(self.post.post_id),
+            description="Test Post 1 Description",
+            contentType="text/plain",
+            content="Test Post 1 Content",
+            author=self.author2,
+            visibility="PUBLIC",
+            unlisted=False
+        )
+        post.url = f"http://testserver/authors/{self.author2.author_id}/{post.post_id}"
+        post.save()
+
+        new_author_uuid = uuid.uuid4()
+        data = {
+            "type": "like",
+            "summary": "Remote author 1 likes Test Post 1",
+            "author": {
+                "id": f"http://testserver/authors/{new_author_uuid}",
+                "host": "http://testserver",
+                "displayName": "Test User 3",
+                "url": "http://testserver/authors/" + str(new_author_uuid),
+                "github": "github/test3.com",
+                "profileImage": "profile/test3.com",
+                "uuid": str(new_author_uuid),   # we add this extra field, which needs to be deleted by verify_author
+            },
+            "object": post.url
+        }
+
+        request = self.factory.post('/inbox/' + str(self.author2.author_id), data, format='json')
+        force_authenticate(request, user=self.u2)
+        response = InboxView.as_view()(request, author_id=str(self.author2.author_id))
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["type"], "like")
+        self.assertEqual(response.data["detail"], f"Successfully created a new like and sent to {self.author2.displayName}'s inbox")
+
+        # Check that the like request is in the inbox
+        self.assertEqual(self.inbox2.likes.count(), 1)
+        added_like_request = self.inbox2.likes.filter(author__author_id=new_author_uuid).first()
+        self.assertEqual(str(added_like_request.author.author_id), str(new_author_uuid))
+        self.assertEqual(added_like_request.object, post.url)
+        self.assertEqual(added_like_request.summary, "Remote author 1 likes Test Post 1")
+
+        # Check that the new remote author is created
+        self.assertEqual(Author.objects.count(), 3)
+        new_author = Author.objects.filter(displayName="Test User 3").first()
+        self.assertEqual(str(new_author.author_id), str(new_author_uuid))
+
     def test_inbox_delete(self):
         """Clear an inbox."""
         self.assertEqual(self.inbox.posts.count(), 1)
         self.assertEqual(self.inbox.friend_requests.count(), 1)
 
         request = self.factory.delete('/inbox/' + str(self.author.author_id))
+        force_authenticate(request, user=self.u1)
         response = InboxView.as_view()(request, author_id=str(self.author.author_id))
 
         self.assertEqual(response.status_code, 204)

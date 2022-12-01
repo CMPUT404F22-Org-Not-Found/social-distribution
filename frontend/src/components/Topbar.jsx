@@ -42,9 +42,52 @@ function Topbar() {
     navigate('/profile');
   }
 
+  const checkLoggedIn = () => {
+    if (localStorage.getItem("auth-token") === null) {
+      return (
+        <div>
+          <Button className="IconButton" variant="contained" onClick={onClickLogin}>
+            Login
+          </Button>
+        </div>
+      );
+    } else {
+      return (
+        <div>
+        <IconButton className="IconButton" onClick={onClickFriendRequests}>
+          <PersonAddAltIcon htmlColor="white" />
+        </IconButton>
+
+        <IconButton className="IconButton" onClick={handleOpenCreateDialog}>
+          <AddIcon htmlColor="white" />
+        </IconButton>
+
+        <IconButton className="IconButton" onClick={onClickNotifications}>
+          <InboxIcon htmlColor="white" />
+        </IconButton>
+
+        <IconButton className="IconButton" onClick={onClickProfile}>
+          <AccountCircleIcon htmlColor="white" />
+        </IconButton>
+
+        <Button className="IconButton" variant="contained" onClick={onClickLogout}>
+          Logout
+        </Button>
+      </div>
+      );
+    };
+  }
+
   const onClickLogin = () => {
     navigate('/login');
   }
+
+  const onClickLogout = () => {
+    localStorage.removeItem("auth-token");
+    console.log(localStorage.getItem("auth-token"));
+    navigate('/');
+  }
+
 
   // HANDLE EDIT DIALOG
   const handleOpenCreateDialog = () => {
@@ -68,28 +111,7 @@ function Topbar() {
                 </Typography>
               </IconButton>
             </div>
-
-            <div>
-              <Button className="IconButton" onClick={onClickLogin}>
-                Login
-              </Button>
-
-              <IconButton className="IconButton" onClick={onClickFriendRequests}>
-                <PersonAddAltIcon htmlColor="white" />
-              </IconButton>
-
-              <IconButton className="IconButton" onClick={handleOpenCreateDialog}>
-                <AddIcon htmlColor="white" />
-              </IconButton>
-
-              <IconButton className="IconButton" onClick={onClickNotifications}>
-                <InboxIcon htmlColor="white" />
-              </IconButton>
-
-              <IconButton className="IconButton" onClick={onClickProfile}>
-                <AccountCircleIcon htmlColor="white" />
-              </IconButton>
-            </div>
+            {checkLoggedIn()}
           </Toolbar>
 
 
@@ -106,7 +128,7 @@ function Topbar() {
                 id=""
                 name=""
                 user=""
-                author={""}
+                author={{}}
                 title=""
                 description=""
                 contentType=""
@@ -114,11 +136,12 @@ function Topbar() {
                 img=""
                 visibility=""
                 newPost={true}
+                closeDialog={handleCloseCreateDialog}
               />
             </DialogContent>
             <DialogActions>
-              <Button onClick={handleCloseCreateDialog}>Cancel</Button>
-              <Button onClick={handleCloseCreateDialog}>Save</Button>
+              {/* <Button onClick={handleCloseCreateDialog}>Cancel</Button>
+              <Button onClick={handleCloseCreateDialog}>Save</Button> */}
             </DialogActions>
           </Dialog>
         </AppBar>

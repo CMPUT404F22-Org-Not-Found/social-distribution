@@ -4,19 +4,24 @@ import { useState } from "react";
 import "./CreateNewPost.css"
 import PropTypes from 'prop-types';
 import axios from "axios";
+import axiosInstance from "../axiosInstance";
 
 function CreateNewPost(props) {
 
   const {
-    id, name, user, author, title, description, contentType, content, img, visibility, newPost
+    id, name, user, author, title, description, contentType, content, img, visibility, newPost, closeDialog
   } = props
 
+  // const authorObject = JSON.parse(localStorage.getItem("author"));
+  const authorId = localStorage.getItem("authorId");
 
   const [titleText, setTitle] = useState(title);
   const [descriptionText, setDescription] = useState(description);
   const [inputType, setInputType] = useState(contentType);
   const [contentText, setContent] = useState(content);
   const [visibilityType, setVisibility] = useState(visibility);
+
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   const handleTitleChange = (event) => {
     setTitle(event.target.value);
@@ -42,6 +47,7 @@ function CreateNewPost(props) {
   };
 
   const allFilled = () => {
+    // check if all the fields are filled in
     if (titleText != "" && descriptionText != "" && inputType != "" && contentText != "" && visibilityType != "") {
       return true;
     }
@@ -49,48 +55,129 @@ function CreateNewPost(props) {
   };
 
   const ifEditPost = () => {
+    // if not a new post, show delete button
     if (!newPost) {
       return (
-        <Button className="DeleteButton" variant="contained" onClick={handleDeletePost}>DELETE</Button>
+        <Button className="DeleteButton" variant="contained" onClick={confirmDelete}>DELETE</Button>
       );
     }
   }
 
-  const handlePost = () => {
+  const typeOfPost = () => {
+    // check if new post or post already exists
+    if (newPost) {
+      return (
+        <Button variant="contained" onClick={handleNewPost}>Create Post</Button>
+      )
+    } else {
+      return (
+        <Button variant="contained" onClick={handleUpdatePost}>Update Post</Button>
+      )
+    }
+  }
+
+  const handleNewPost = () => {
+    //create a new post
     if (allFilled()) {
-      console.log("All feilds have been filled, make post")
+      console.log("All fields have been filled, make new post")
+      const postData = {
+        type: "post",
+        title: titleText,
+        description: descriptionText,
+        contentType: inputType,
+        content: contentText,
+        categories: [],
+        visibility: visibilityType,
+        unlisted: false,
+      };
+
+      console.log("Make axios call for creating a new post.");
+      const url = "authors/" + authorId + "/posts/"
+      console.log(postData)
+      axiosInstance.post(url, postData)
+        .then((response) => {
+          console.log("created new post")
+          console.log(response);
+        })
+
     } else {
       console.log("All fields have not been filled. Cannot make post.")
     }
+  }
 
-    const url = author.url + "/posts/" + id + "/";
-    const postData = {
-      title: titleText,
-      description: descriptionText,
-      contentType: inputType,
-      content: contentText,
-      visibility: visibilityType,
-    };
+  const handleUpdatePost = () => {
+    // update an existing post
+    if (allFilled()) {
+      console.log("All fields have been filled, update post")
 
-    if (newPost) {
-      console.log("Make axios call for creating a new post.");
+      const postData = {
+        title: titleText,
+        description: descriptionText,
+        contentType: inputType,
+        content: contentText,
+        visibility: visibilityType,
+      };
 
-    } else {
-      console.log("edit existing post");
-      console.log("Data to post:", postData);
-      axios.post(url, postData)
+
+      // console.log("id:", id);
+      const postID = id.split("/")[6];
+      // console.log("postid:", postID);
+      const url = "authors/" + authorId + "/posts/" + postID + "/";
+      // console.log("edit existing post");
+      // console.log("Data to post:", postData);
+      // console.log(axiosInstance.baseURL + url)
+      // console.log("url:", url);
+      axiosInstance.post(url, postData)
         .then((response) => {
           console.log("successfully edited post");
+          console.log(response);
+          window.location.reload();
         });
+    } else {
+      console.log("All fields have not been filled. Cannot make post.")
     }
   };
 
-  const handleDeletePost = () => {
-    const url = author.url + "/posts/" + id + "/";
+  const toggleButtons = () => {
+    // toggle buttons if user clicks on delete
+    if (showDeleteConfirmation) {
+      return (
+        <div>
+          <h3>Are you sure you would like to delete this post?</h3>
+          <Button variant="contained" color="error" onClick={confirmDelete}>No</Button>
+          <Button variant="contained" color="success" onClick={handleDeletePost}>Yes</Button>
+        </div>
+      )
+    } else {
+      return (
+        <div className="ActionButtons">
+          <Button variant="outlined" onClick={closeDialog}>Cancel</Button>
+          {ifEditPost()}
+          {typeOfPost()}
+        </div>
+      )
+    }
+  }
 
-    axios.delete(url)
+  const confirmDelete = () => {
+    // show delete confirmation buttons
+    if (showDeleteConfirmation) {
+      setShowDeleteConfirmation(false);
+    } else {
+      setShowDeleteConfirmation(true);
+    }
+  }
+
+  const handleDeletePost = () => {
+    // delete the post
+    const postID = id.split("/")[6];
+    const url = "authors/"+ authorId + "/posts/" + postID + "/";
+
+    axiosInstance.delete(url)
       .then((response) => {
+        console.log(response);
         console.log("Deleted post");
+        window.location.reload();
       });
   }
 
@@ -150,17 +237,13 @@ function CreateNewPost(props) {
               defaultValue={visibilityType}
               onChange={handleVisibilityChange}
             >
-              <FormControlLabel value="PUBLIC" control={<Radio />} label="Public" />
-              <FormControlLabel value="PRIVATE" control={<Radio />} label="Private" />
+              <FormControlLabel value="PUBLIC" control={<Radio />} label="PUBLIC" />
+              <FormControlLabel value="FRIENDS" control={<Radio />} label="FRIENDS" />
             </RadioGroup>
           </FormControl>
         </div>
         <div className="formElement">
-          <div className="ActionButtons">
-            <Button variant="outlined">Cancel</Button>
-            {ifEditPost()}
-            <Button variant="contained" onClick={handlePost}>Post</Button>
-          </div>
+          {toggleButtons()}
         </div>
       </div>
     </div>
@@ -179,7 +262,8 @@ CreateNewPost.propTypes = {
   description: PropTypes.string.isRequired,
   contentType: PropTypes.string.isRequired,
   content: PropTypes.string.isRequired,
-  img: PropTypes.string.isRequired,
+  img: PropTypes.string,
   visibility: PropTypes.string.isRequired,
   newPost: PropTypes.bool.isRequired,
+  closeDialog: PropTypes.func.isRequired,
 }

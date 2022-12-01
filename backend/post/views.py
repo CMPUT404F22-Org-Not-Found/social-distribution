@@ -10,6 +10,8 @@ from rest_framework.response import Response
 from .serializers import PostSerializer
 from author.permissions import IsAuthenticated, IsAuthorOrReadOnly
 
+from node.node_connections import send_post_to_inboxes
+
 class PublicView(APIView):
     def retrieve(self):
         try:
@@ -96,6 +98,10 @@ class PostList(APIView):
             request["categories"] = json.dumps(request["categories"])
 
         post, created = Post.objects.update_or_create(post_id=post_id, defaults=request)
+
+        if created:
+            send_post_to_inboxes(post, author)
+
         serializer = PostSerializer(post)
 
         return Response(serializer.data, status = status.HTTP_201_CREATED)
@@ -145,6 +151,7 @@ class PostDetail(APIView):
 
         if serializer.is_valid():
             post = serializer.save()
+            send_post_to_inboxes(post, author)
 
             if "categories" in request:
                 post.categories = json.dumps(request["categories"])
@@ -182,6 +189,8 @@ class PostDetail(APIView):
                 request["categories"] = json.dumps(request["categories"])
 
         post, created = Post.objects.update_or_create(post_id=post_id, defaults=request)
+        if created:
+            send_post_to_inboxes(post, author)
         serializer = PostSerializer(post)
 
         return Response(serializer.data, status = status.HTTP_201_CREATED)

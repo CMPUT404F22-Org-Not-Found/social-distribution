@@ -23,6 +23,9 @@ class PostSerializer(serializers.ModelSerializer):
         fields = ("id","type","title","source","origin","description","contentType","content","author","categories","count","comments","commentsSrc","published","visibility","unlisted","url")
 
     def create(self, validated_data):
+        if "id" in validated_data:
+            post_id = validated_data["id"].split("/")[-1]
+            validated_data["post_id"] = post_id
         post = Post.objects.create(**validated_data)
         return post
     

@@ -12,7 +12,7 @@ class Node(models.Model):
     is_connected = models.BooleanField(default=True)
 
     def __str__(self):
-        return self.host
+        return f"Node is connected: {self.is_connected} at {self.host}"
 
     def save(self, *args, **kwargs):
         # We want to make sure that the host ends with a backslash
@@ -23,14 +23,14 @@ class Node(models.Model):
 
 """To be deleted:
 Team1:
-username: team4&team1
-password: team4&team1
+username: team1
+password: team4andteam1
 
 Team2:
-username: team4&team2
-password: team4&team2
+username: team2
+password: team4andteam2
 
 Team3:
-username: team4&team3
-password: team4&team3
+username: team3
+password: team4andteam3
 """

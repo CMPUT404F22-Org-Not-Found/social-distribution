@@ -1,6 +1,7 @@
 """Contains the views for the inbox app."""
 
 import uuid
+import logging
 
 from typing import Dict
 from django.http import Http404
@@ -18,7 +19,9 @@ from followers.serializers import FriendRequestSerializer
 from like.models import Like
 from like.serializers import LikeSerializer
 from .models import Inbox
+from .request_verifier import verify_author_request, verify_post_request, verify_friend_request, verify_like_request, get_author_id_from_url
 
+logger = logging.getLogger(__name__)
 
 class InboxView(APIView):
     """The inbox view."""
@@ -68,15 +71,22 @@ class InboxView(APIView):
         except Inbox.DoesNotExist:
             raise Http404("Inbox does not exist")
 
-        request_dict = request.data
-        if request_dict["type"].lower() == "post":
-            return self._handle_POST_post(request_dict, author, inbox)
+        try:
+            request_dict = request.data
+            if request_dict["type"].lower() == "post":
+                return self._handle_POST_post(request_dict, author, inbox)
 
-        elif request_dict["type"].lower() == "follow":
-            return self._handle_POST_follow(request_dict, author, inbox)
-        
-        elif request_dict["type"].lower() == "like":
-            return self._handle_POST_like(request_dict, author, inbox)
+            elif request_dict["type"].lower() == "follow":
+                return self._handle_POST_follow(request_dict, author, inbox)
+            
+            elif request_dict["type"].lower() == "like":
+                return self._handle_POST_like(request_dict, author, inbox)
+        except Exception as e:
+            logger.error(e)
+            return Response({"type": "error",
+                            "detail": "Error while sending the request to the inbox",
+                            "exception": str(e),},
+                            status=status.HTTP_400_BAD_REQUEST)
         
         return Response({"type": "error",
                         "detail": "The type of the request is not supported"},
@@ -87,6 +97,7 @@ class InboxView(APIView):
         """When we POST a post to the inbox, if the post is already present, add the post to the inbox,
         if the post is not present, create a new post and add it to the inbox.
         """
+        post_request_dict = verify_post_request(post_request_dict)
         post_author_dict = post_request_dict["author"]
         # The id given is a url, so we need to extract the id from the url
         author_id = get_author_id_from_url(post_author_dict["id"])
@@ -113,6 +124,7 @@ class InboxView(APIView):
         add the follow request to the inbox,
         if the follow request is not present, create a new follow request and add it to the inbox.
         """
+        follow_request_dict = verify_friend_request(follow_request_dict)
         # The object in friend requests is the recipient of the friend request and 
         # the recipient Author should thus already exist in the database.
         # The actor in friend requests is the sender of the friend request and
@@ -144,6 +156,7 @@ class InboxView(APIView):
         if it is not in the DB, create a new like object and add it to the inbox.
         If the author is a remote author, create a new author object for him.
         """
+        like_request_dict = verify_like_request(like_request_dict)
         like_author, _ = Author.objects.get_or_create(
             author_id=get_author_id_from_url(like_request_dict["author"]["id"]),
             defaults=like_request_dict["author"])
@@ -186,10 +199,6 @@ class InboxView(APIView):
             "detail": f"Successfully cleared {author.displayName}'s inbox",
         }
         return Response(response_dict, status=status.HTTP_204_NO_CONTENT)
-
-def get_author_id_from_url(url: str) -> uuid:
-    """Returns the author id from the url."""
-    return uuid.UUID(url.split("/")[-1])
 
 def get_post_id_from_url(url: str) -> uuid:
     """Returns the post id from the url."""
