@@ -12,6 +12,7 @@ import axios from "axios";
 import CreateNewPost from "./CreateNewPost";
 import axiosInstance from "../axiosInstance";
 
+var ReactCommonmark = require('react-commonmark');
 function Post(props) {
   const {
     id, name, user, author, title, description, contentType, content, img, from, commentsURL, visibility,
@@ -24,7 +25,6 @@ function Post(props) {
   const [allLikedObjects, setAllLikedObjects] = useState([]);
   const authorObject = JSON.parse(localStorage.getItem("author"));
   const authorId = localStorage.getItem("authorId");
-
 
   const [stateSnackBar, setStateSnackBar] = useState({
     openSnackBar: false,
@@ -210,14 +210,40 @@ function Post(props) {
     return style;
   }
 
+  const checkProfileImage = () => {
+    const url = author.profileImage
+    const name = author.displayName
+    if(url.match(/\.(jpeg|jpg|gif|png)$/) != null) {
+      return (
+        <Avatar alt={name} src={url} />
+      );      
+    }
+
+    else {
+      return (
+        <Avatar sx={{ bgcolor: red[500] }}>
+          {name[0]}
+        </Avatar>
+      );
+    }
+  }
+
+  const checkContent = () => {
+    if (contentType === "text/markdown") {
+      return (<ReactCommonmark source={content}/>);
+    }
+    else if (contentType === "text/plain") {
+      return (content);
+    }
+  }
+
+
   return (
     <div className="Post">
       <Card className="Card" variant="outlined">
         <CardHeader
           avatar={
-            <Avatar sx={{ bgcolor: red[500] }}>
-              {name[0]}
-            </Avatar>
+            checkProfileImage()
           }
           title={title}
           subheader={name}
@@ -232,7 +258,7 @@ function Post(props) {
 
         <CardContent>
           <Typography variant="body2" color="text.primary">
-            {content}
+            {checkContent()}
           </Typography>
         </CardContent>
 
