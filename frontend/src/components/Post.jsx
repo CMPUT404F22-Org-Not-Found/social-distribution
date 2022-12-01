@@ -83,7 +83,7 @@ function Post(props) {
       published: commentDate.toISOString(),
     };
 
-    axios.post(commentsURL + "/", postData)
+    axiosInstance.post(commentsURL + "/", postData)
       .then((response) => {
         console.log(response);
         handleCloseCommentDialog();
