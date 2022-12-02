@@ -7,6 +7,7 @@ import './AuthorList';
 
 function FriendRequests() {
   const [allFriendRequests, setAllFriendRequests] = useState([]);
+  const authorId = localStorage.getItem("authorId");
 
   const sampleFriendRequests = [
     {
@@ -18,7 +19,7 @@ function FriendRequests() {
   ]
 
   function getFriendRequests() {
-    const baseURL = "http://localhost:8000/authors/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/followers/friendrequest/"
+    const baseURL = "http://localhost:8000/authors/" + authorId +"/followers/friendrequest/"
     axios.get(baseURL).then((response) => {
       setAllFriendRequests(response.data.items);
     });
@@ -43,7 +44,10 @@ function FriendRequests() {
                   secondaryAction={
                     <div className="RequestButtons">
                       <div>
-                        <Button variant="contained">Accept</Button>
+                        <Button 
+                        variant="contained"
+                        
+                        >Accept</Button>
                       </div>
                       <div>
                         <Button variant="contained">Decline</Button>
