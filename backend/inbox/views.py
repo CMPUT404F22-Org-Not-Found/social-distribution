@@ -20,7 +20,7 @@ from like.models import Like
 from like.serializers import LikeSerializer
 from .models import Inbox
 from .request_verifier import verify_author_request, verify_post_request, verify_friend_request, verify_like_request, get_author_id_from_url
-from node.node_connections import is_local_author, send_friend_request_to_global_inbox
+from node.node_connections import is_local_author, send_friend_request_to_global_inbox, send_like_to_global_inbox
 
 logger = logging.getLogger(__name__)
 
@@ -171,6 +171,9 @@ class InboxView(APIView):
             author=like_author, object=like_request_dict["object"], defaults=like_request_dict)
         inbox.likes.add(like)
         inbox.save()
+
+        if not is_local_author(like_author):
+            send_like_to_global_inbox(like, like_author)
 
         if was_like_created:
             return Response({"type": "like",

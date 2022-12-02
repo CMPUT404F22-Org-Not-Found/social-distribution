@@ -17,7 +17,7 @@ from inbox.request_verifier import verify_author_request, get_author_id_from_url
 
 logger = logging.getLogger(__name__)
 
-LOCAL_HOST_NAMES = ["http://127.0.0.1/", "https://cmput04-t04.herokuapp.com/",
+LOCAL_HOST_NAMES = ["http://127.0.0.1/", "https://cmput404-t04.herokuapp.com/",
                     "http://127.0.0.1:8000/", "http://testserver/"]
 
 def update_db_with_global_authors():
@@ -108,6 +108,28 @@ def send_friend_request_to_global_inbox(friend_request: FriendRequest, author: A
         logger.error(f"Could not send friend request to {author.url}, {response.status_code} - {response.reason}")
     else:
         logger.error(f"Sent friend request to global inbox {node.host}")
+
+
+def send_like_to_global_inbox(like: Like, author: Author) -> None:
+    """Send a like to a global author's inbox."""
+    logger.error(f"Attempting to send like to global author {author.url, author.displayName}")
+    try:
+        node = Node.objects.get(host=author.host)
+    except:
+        logger.error(f"Could not find node for author {author.url, author.displayName}")
+        return
+
+    if not node.is_connected:
+        return
+
+    like_url = f"{author.url}/inbox/"
+    like_data = LikeSerializer(like).data
+    response = requests.post(like_url, json=like_data, auth=(node.username, node.password))
+
+    if response.status_code >= 400:
+        logger.error(f"Could not send like to {author.url}, {response.status_code} - {response.reason}")
+    else:
+        logger.error(f"Sent like to global inbox {node.host}")
 
 
 def is_local_author(author: Author) -> bool:
