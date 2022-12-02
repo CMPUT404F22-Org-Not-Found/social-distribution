@@ -57,13 +57,16 @@ def send_post_to_inboxes(post: Post, author: Author, only_to_followers: bool = F
         authors_to_send_to = list(Author.objects.all())
     
     for author_to_send_to in authors_to_send_to:
-        if is_local_author(author_to_send_to):
-            logger.error(f"Attempting to send post to local author {author_to_send_to.url, author_to_send_to.displayName}")
-            inbox, _ = Inbox.objects.get_or_create(author=author_to_send_to)
-            inbox.posts.add(post)
-        else:
-            logger.error(f"Attempting to send post to global author {author_to_send_to.url, author_to_send_to.displayName}")
-            send_post_to_global_inbox(post, author_to_send_to)
+        try:
+            if is_local_author(author_to_send_to):
+                logger.error(f"Attempting to send post to local author {author_to_send_to.url, author_to_send_to.displayName}")
+                inbox, _ = Inbox.objects.get_or_create(author=author_to_send_to)
+                inbox.posts.add(post)
+            else:
+                logger.error(f"Attempting to send post to global author {author_to_send_to.url, author_to_send_to.displayName}")
+                send_post_to_global_inbox(post, author_to_send_to)
+        except Exception as e:
+            logger.error(f"Exception while sending post to {author_to_send_to.url, author_to_send_to.displayName}, {e}")
 
 
 def send_post_to_global_inbox(post: Post, author: Author) -> None:
@@ -85,7 +88,7 @@ def send_post_to_global_inbox(post: Post, author: Author) -> None:
     if response.status_code >= 200:
         logger.error(f"Could not send post to {author.url}, {response.status_code} - {response.reason}")
     else:
-        logger.error(f"Sent post to global inbox {node.host}")
+        logger.error(f"Sent post to global inbox {node.host}, {author.url}")
 
 
 def send_friend_request_to_global_inbox(friend_request: FriendRequest, author: Author) -> None:

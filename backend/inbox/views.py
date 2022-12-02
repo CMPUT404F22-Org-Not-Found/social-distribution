@@ -20,7 +20,7 @@ from like.models import Like
 from like.serializers import LikeSerializer
 from .models import Inbox
 from .request_verifier import verify_author_request, verify_post_request, verify_friend_request, verify_like_request, get_author_id_from_url
-from node.node_connections import is_local_author, send_friend_request_to_global_inbox, send_like_to_global_inbox
+from node.node_connections import is_local_author, send_friend_request_to_global_inbox, send_like_to_global_inbox, send_post_to_global_inbox
 
 logger = logging.getLogger(__name__)
 
@@ -101,16 +101,20 @@ class InboxView(APIView):
         post_request_dict = verify_post_request(post_request_dict)
         post_author_dict = post_request_dict["author"]
         # The id given is a url, so we need to extract the id from the url
-        author_id = get_author_id_from_url(post_author_dict["id"])
+        post_author_id = get_author_id_from_url(post_author_dict["id"])
         # We may need to create a new author for remote author posts
         post_author, _ = Author.objects.get_or_create(
-            author_id=author_id, defaults=post_author_dict
+            author_id=post_author_id, defaults=post_author_dict
         )
         post_request_dict["author"] = post_author # we replace the json author with the author object
         post_id = get_post_id_from_url(post_request_dict.get("id", f"a/{uuid.uuid4()}"))
         post, was_post_created = Post.objects.get_or_create(post_id=post_id, defaults=post_request_dict)
         inbox.posts.add(post)
         inbox.save()
+
+        if not is_local_author(author):
+            send_post_to_global_inbox(post, author)
+
         if was_post_created:
             return Response({"type": "post",
                                 "detail": f"Successfully created a new post and sent to {author.displayName}'s inbox"},
