@@ -211,26 +211,26 @@ function Post(props) {
   }
 
   const checkProfileImage = () => {
-    const url = author.profileImage
-    const name = author.displayName
-    if(url.match(/\.(jpeg|jpg|gif|png)$/) != null) {
-      return (
-        <Avatar alt={name} src={url} />
-      );      
-    }
+    // const url = author.profileImage
+    // const name = author.displayName
+    // if(url.match(/\.(jpeg|jpg|gif|png)$/) != null) {
+    //   return (
+    //     <Avatar alt={name} src={url} />
+    //   );      
+    // }
 
-    else {
-      return (
-        <Avatar sx={{ bgcolor: red[500] }}>
-          {name[0]}
-        </Avatar>
-      );
-    }
+    // else {
+    return (
+      <Avatar sx={{ bgcolor: red[500] }}>
+        {name[0]}
+      </Avatar>
+    );
+    // }
   }
 
   const checkContent = () => {
     if (contentType === "text/markdown") {
-      return (<ReactCommonmark source={content}/>);
+      return (<ReactCommonmark source={content} />);
     }
     else if (contentType === "text/plain") {
       return (content);
@@ -242,6 +242,7 @@ function Post(props) {
     <div className="Post">
       <Card className="Card" variant="outlined">
         <CardHeader
+          style={{ textAlign: 'left' }}
           avatar={
             checkProfileImage()
           }
@@ -255,9 +256,13 @@ function Post(props) {
           style={{ display: checkImageExists(img) }}
         />
         { }
-
         <CardContent>
           <Typography variant="body2" color="text.primary">
+            <h3 className="Subtitles">Description</h3>
+            {description}
+          </Typography>
+          <Typography variant="body2" color="text.primary">
+            <h3 className="Subtitles">Content</h3>
             {checkContent()}
           </Typography>
         </CardContent>
