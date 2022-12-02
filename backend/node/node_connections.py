@@ -59,7 +59,7 @@ def send_post_to_inboxes(post: Post, author: Author, only_to_followers: bool = F
     for author_to_send_to in authors_to_send_to:
         if is_local_author(author_to_send_to):
             logger.error(f"Attempting to send post to local author {author_to_send_to.url, author_to_send_to.displayName}")
-            inbox = Inbox.objects.get(author=author_to_send_to)
+            inbox, _ = Inbox.objects.get_or_create(author=author_to_send_to)
             inbox.posts.add(post)
         else:
             logger.error(f"Attempting to send post to global author {author_to_send_to.url, author_to_send_to.displayName}")
