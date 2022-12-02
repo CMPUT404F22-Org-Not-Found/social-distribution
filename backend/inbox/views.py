@@ -20,6 +20,7 @@ from like.models import Like
 from like.serializers import LikeSerializer
 from .models import Inbox
 from .request_verifier import verify_author_request, verify_post_request, verify_friend_request, verify_like_request, get_author_id_from_url
+from node.node_connections import is_local_author, send_friend_request_to_global_inbox
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +68,7 @@ class InboxView(APIView):
             raise Http404("Author does not exist")
 
         try:
-            inbox = Inbox.objects.get(author=author)
+            inbox, _ = Inbox.objects.get_or_create(author=author)
         except Inbox.DoesNotExist:
             raise Http404("Inbox does not exist")
 
@@ -131,17 +132,21 @@ class InboxView(APIView):
         # the sender Author may exist if he is a local author or may not exist if he is a remote author,
         # in which case we create him.
         recipient_dict = follow_request_dict["object"]
-        recipient_autor = Author.objects.get(author_id=get_author_id_from_url(recipient_dict["id"]))
-        follow_request_dict["object"] = recipient_autor
+        recipient_author = Author.objects.get(author_id=get_author_id_from_url(recipient_dict["id"]))
+        follow_request_dict["object"] = recipient_author
         sender_dict = follow_request_dict["actor"]
         sender_author, was_created = Author.objects.get_or_create(author_id=get_author_id_from_url(sender_dict["id"]), defaults=sender_dict)
         follow_request_dict["actor"] = sender_author
 
         follow_request, was_follow_request_created = FriendRequest.objects.get_or_create(
-            actor=sender_author, object=recipient_autor, defaults=follow_request_dict
+            actor=sender_author, object=recipient_author, defaults=follow_request_dict
         )
         inbox.friend_requests.add(follow_request)
         inbox.save()
+
+        if not is_local_author(recipient_author):
+            send_friend_request_to_global_inbox(follow_request, recipient_author)
+
         if was_follow_request_created:
             return Response({"type": "follow",
                                 "detail": f"Successfully created a new follow request and sent to {author.displayName}'s inbox"},

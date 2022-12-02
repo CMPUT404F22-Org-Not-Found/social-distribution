@@ -9,9 +9,11 @@ from author.models import Author
 from author.serializers import AuthorSerializer
 from post.models import Post
 from post.serializers import PostSerializer
+from followers.models import FriendRequest
+from followers.serializers import FriendRequestSerializer
 from inbox.models import Inbox
 from node.models import Node
-from node.node_connections import update_db_with_global_authors, send_post_to_inboxes, send_post_to_global_inbox
+from node.node_connections import send_post_to_inboxes, send_friend_request_to_global_inbox
 
 
 class NodeConnectionsTestCase(TestCase):
@@ -88,4 +90,26 @@ class NodeConnectionsTestCase(TestCase):
             mock_requests_post.assert_called_once_with(
                 f"{global_author.url}/inbox/",
                 json=post_data, auth=("test", "test")
+            )
+
+    def test_send_friend_request_to_global_inbox(self):
+        """Test sending a friend request to the global inbox."""
+        # Make a global author
+        node = Node.objects.create(host="http://testserver.com/", username="test", password="test")
+        global_author = Author.objects.create(host="http://testserver.com/", displayName="Test User 3",
+                                github="", profileImage="")
+        # We create a friend request from author 1 to the global author
+        friend_request = FriendRequest.objects.create(
+            actor=self.author1, object=global_author, summary="Author 1 wants to follow with Author 3"
+        )
+
+
+        with mock.patch('node.node_connections.requests.post') as mock_requests_post:
+            send_friend_request_to_global_inbox(friend_request, global_author)
+
+            # Check that the friend request was sent to the global inbox
+            friend_request_data = FriendRequestSerializer(friend_request).data
+            mock_requests_post.assert_called_once_with(
+                f"{global_author.url}/inbox/",
+                json=friend_request_data, auth=("test", "test")
             )
