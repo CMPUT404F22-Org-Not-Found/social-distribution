@@ -1,4 +1,4 @@
-import { Alert, Avatar, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, ListItem, ListItemText, Snackbar, TextField, Typography } from "@mui/material";
+import { Alert, Avatar, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, IconButton, InputLabel, ListItem, ListItemText, MenuItem, Select, Snackbar, TextField, Typography } from "@mui/material";
 import { red } from "@mui/material/colors";
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -13,13 +13,15 @@ import CreateNewPost from "./CreateNewPost";
 import axiosInstance from "../axiosInstance";
 
 var ReactCommonmark = require('react-commonmark');
+
 function Post(props) {
   const {
-    id, name, user, author, title, description, contentType, content, img, fromProfile, commentsURL, visibility,
+    id, name, user, author, title, description, contentType, content, img, from, commentsURL, visibility,
   } = props
 
   const [openCommentDialog, setOpenCommentDialog] = useState(false);
   const [commentsForPost, setCommentsForPost] = useState([]);
+  const [inputType, setInputType] = useState("");
   const [newComment, setNewComment] = useState("");
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [allLikedObjects, setAllLikedObjects] = useState([]);
@@ -68,37 +70,55 @@ function Post(props) {
     });
   }
 
+  const handleInputTypeChange = (event) => {
+    setInputType(event.target.value);
+    // if (event.target.value === "image/png;base64" || event.target.value === "image/jpeg;base64") {
+    //   setContent("");
+    // }
+  };
+
   const handleSubmitComments = () => {
-    const url = "authors/" + authorId;
-    axiosInstance.get(url).then((response) => {
-      console.log(response);
-    })
+    // const url = "authors/" + authorId;
+    // axiosInstance.get(url).then((response) => {
+    //   console.log(response);
+    // })
+    if (allFilled()) {
+      const commentDate = new Date();
+      const postData = {
+        type: "comment",
+        author: authorObject,
+        comment: newComment,
+        contentType: "text/plain",
+        published: commentDate.toISOString(),
+      };
 
-    const commentDate = new Date();
-    const postData = {
-      type: "comment",
-      author: authorObject,
-      comment: newComment,
-      contentType: "text/plain",
-      published: commentDate.toISOString(),
-    };
-
-    axiosInstance.post(commentsURL + "/", postData)
-      .then((response) => {
-        console.log(response);
-        handleCloseCommentDialog();
-        handleOpenSnackBar({
-          vertical: 'top',
-          horizontal: 'center',
+      axiosInstance.post(commentsURL + "/", postData)
+        .then((response) => {
+          console.log(response);
+          handleCloseCommentDialog();
+          handleOpenSnackBar({
+            vertical: 'top',
+            horizontal: 'center',
+          });
         });
-      });
-    console.log(postData);
-    console.log(commentsURL);
-    handleCloseCommentDialog();
-    handleOpenSnackBar();
+      console.log(postData);
+      console.log(commentsURL);
+      handleCloseCommentDialog();
+      handleOpenSnackBar();
 
-    console.log(newComment);
-    window.location.reload();
+      console.log(newComment);
+      window.location.reload();
+    } else {
+      console.log("All fields have not been filled. Cannot make post.")
+    }
+  };
+
+  const allFilled = () => {
+    // check if all the fields are filled in
+    if (inputType != "" && newComment != "") {
+      return true;
+    }
+    return false;
   };
 
   // HANDLE EDIT DIALOG
@@ -128,7 +148,7 @@ function Post(props) {
 
   const checkFromProfile = () => {
     // check if componenet is being displayed in Profile
-    if (fromProfile) {
+    if (from === "profile") {
       return (
         <IconButton aria-label="edit" onClick={handleOpenEditDialog}>
           <EditIcon />
@@ -140,9 +160,11 @@ function Post(props) {
   useEffect(() => {
     getCommentsForPost();
     console.log("Comments:", commentsForPost);
-    getAllLikedObjects();
-    console.log()
-    console.log("Liked Objects", allLikedObjects);
+    if (from !== "public") {
+      getAllLikedObjects();
+      console.log()
+      console.log("Liked Objects", allLikedObjects);
+    }
   }, []);
 
   // HANDLE LIKING OBJECTS
@@ -170,14 +192,15 @@ function Post(props) {
       object: id,
     }
 
+    console.log("ID:", id);
     const objectAuthorID = id.split("/")[4];
     const url = "/authors/" + objectAuthorID + "/inbox/";
 
-    axiosInstance.post(url, likeData)
-      .then((response) => {
-        console.log(response);
-      });
-    window.location.reload();
+    // axiosInstance.post(url, likeData)
+    //   .then((response) => {
+    //     console.log(response);
+    //   });
+    // window.location.reload();
 
   };
 
@@ -214,7 +237,7 @@ function Post(props) {
     if (url !== null && (url.match(/\.(jpeg|jpg|gif|png)$/) !== null)) {
       return (
         <Avatar alt={name} src={url} />
-      );      
+      );
     }
 
     else {
@@ -228,7 +251,7 @@ function Post(props) {
 
   const checkContent = () => {
     if (contentType === "text/markdown") {
-      return (<ReactCommonmark source={content}/>);
+      return (<ReactCommonmark source={content} />);
     }
     else if (contentType === "text/plain") {
       return (content);
@@ -240,6 +263,7 @@ function Post(props) {
     <div className="Post">
       <Card className="Card" variant="outlined">
         <CardHeader
+          style={{ textAlign: 'left' }}
           avatar={
             checkProfileImage()
           }
@@ -253,9 +277,13 @@ function Post(props) {
           style={{ display: checkImageExists(img) }}
         />
         { }
-
         <CardContent>
           <Typography variant="body2" color="text.primary">
+            <h3 className="Subtitles">Description</h3>
+            {description}
+          </Typography>
+          <Typography variant="body2" color="text.primary">
+            <h3 className="Subtitles">Content</h3>
             {checkContent()}
           </Typography>
         </CardContent>
@@ -300,7 +328,26 @@ function Post(props) {
               </div>
             ))}
           </DialogContentText>
+          <div className="formElement">
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">Choose Comment Type</InputLabel>
+              <Select
+                labelId="demo-simple-select-lable"
+                value={inputType}
+                defaultValue={inputType}
+                label="Input Type"
+                onChange={handleInputTypeChange}
+              >
+                <MenuItem value={"text/markdown"}>text/markdown</MenuItem>
+                <MenuItem value={"text/plain"}>text/plain</MenuItem>
+                <MenuItem value={"application/base64"}>application/base64</MenuItem>
+                <MenuItem value={"image/png;base64"}>image/png;base64</MenuItem>
+                <MenuItem value={"image/jpeg;base64"}>image/jpeg;base64</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
           <TextField
+            multiline
             autoFocus
             margin="dense"
             id="name"
@@ -374,7 +421,7 @@ Post.propTypes = {
   contentType: PropTypes.string.isRequired,
   content: PropTypes.string.isRequired,
   img: PropTypes.string,
-  fromProfile: PropTypes.bool.isRequired,
+  from: PropTypes.string.isRequired,
   commentsURL: PropTypes.string.isRequired,
   visibility: PropTypes.string.isRequired,
 }

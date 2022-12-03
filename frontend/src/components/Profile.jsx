@@ -1,16 +1,17 @@
-import { Divider, List, ListItem, ListItemText, Tab, Tabs } from "@mui/material";
+import { Avatar, Divider, List, ListItem, ListItemText, Tab, Tabs } from "@mui/material";
 import React, { useState, useEffect } from "react";
 import Post from "./Post";
 import "./Profile.css"
 import axiosInstance from "../axiosInstance";
 import axios from "axios";
+import { red } from "@mui/material/colors";
 
 function Profile() {
   const [allPosts, setAllPosts] = useState([]);
   const [allFollowers, setAllFollowers] = useState([]);
   const [tabIndex, setTabIndex] = useState(0);
   const [allFriends, setAllFriends] = useState([]);
-  // const authorObject = JSON.parse(localStorage.getItem("author"));
+  const authorObject = JSON.parse(localStorage.getItem("author"));
   const authorId = localStorage.getItem("authorId");
 
   const sampleFriendList = [
@@ -152,9 +153,56 @@ function Profile() {
     setTabIndex(newTabIndex);
   }
 
+  const checkProfileImage = () => {
+    const url = author.profileImage
+    const name = author.displayName
+    if (url !== null && (url.match(/\.(jpeg|jpg|gif|png)$/) !== null)) {
+      return (
+        <Avatar alt={name} src={url} />
+      );      
+    }
+
+    else {
+      return (
+        <Avatar sx={{ bgcolor: red[500] }}>
+          {name[0]}
+        </Avatar>
+      );
+    }
+  }
+
+  const checkGithubExists = () => {
+    const github = authorObject.github;
+    if (github !== null) {
+      return (
+        <div className="ProfileData">
+          <h4>Github: </h4>
+          <p className="data">{github}</p>
+        </div>
+      )
+    } else {
+        return (
+          <div className="ProfileData">
+            <h4>Github: </h4>
+            <p className="data">NO GITHUB SPECIFIED</p>
+          </div>
+        )
+    }
+  }
+
   return (
     <div className="Profile">
       <h1>My Profile</h1>
+      <div className="PersonalInfo">
+        {checkProfileImage()}
+        <div>
+          <div className="ProfileData">
+            <h4>Display Name: </h4>
+            <p className="data">{authorObject.displayName}</p>
+          </div>
+          {checkGithubExists()}
+        </div>
+      </div>
       <div className="Content">
         <div className="MyPosts">
           <h3>My Posts</h3>
@@ -170,7 +218,7 @@ function Profile() {
               contentType={val.contentType}
               content={val.content}
               img={checkImageExists(val)}
-              fromProfile={true}
+              from={"profile"}
               commentsURL={val.comments}
               visibility={val.visibility}
             />
