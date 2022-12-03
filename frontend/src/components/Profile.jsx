@@ -154,8 +154,8 @@ function Profile() {
   }
 
   const checkProfileImage = () => {
-    const url = author.profileImage
-    const name = author.displayName
+    const url = authorObject.profileImage
+    const name = authorObject.displayName
     if (url !== null && (url.match(/\.(jpeg|jpg|gif|png)$/) !== null)) {
       return (
         <Avatar alt={name} src={url} />
