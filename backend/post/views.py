@@ -51,9 +51,12 @@ class PostList(APIView):
             return None
         return author
 
-    def list(self,pk):
+    def list(self,pk,flag):
         try:
+            if flag == True:
+                return Post.objects.filter(author__author_id = pk).order_by("-published")
             return Post.objects.filter(author__author_id = pk,visibility = "PUBLIC", unlisted = False).order_by("-published")
+
         except Post.DoesNotExist:
             return None
 
@@ -62,7 +65,12 @@ class PostList(APIView):
         if author is None:
             raise Http404
 
-        posts = list(self.list(pk))
+        if author.user == request.user:
+            flag = True
+        else:
+            flag = False
+
+        posts = list(self.list(pk,flag))
         size = request.query_params.get("size",5)
         page = request.query_params.get("page",1)
         

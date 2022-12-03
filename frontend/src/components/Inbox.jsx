@@ -1,27 +1,84 @@
-import { Card, CardContent, CardHeader, Typography } from "@mui/material";
+import { Card, CardContent, CardHeader, Typography, List, ListItem, ListItemText } from "@mui/material";
 import axios from "axios";
 import React, { useState } from "react";
 import { useEffect } from "react";
+import axiosInstance from "../axiosInstance";
 import Post from "./Post";
 import './PublicStream.css';
+var isGithubUrl = require('is-github-url');
 
 function Inbox() {
+  const [allGithubItems, setAllGithubItems] = useState([]);
   const [allInboxItems, setAllInboxItems] = useState([]);
+  const authorId = localStorage.getItem("authorId");
+  const authorObject = JSON.parse(localStorage.getItem("author"));
+
+  function checkGithub(url) {
+    
+    if (isGithubUrl(url)) {
+      
+      if (isGithubUrl(url,{repository: true})) {
+        
+        return false
+      }
+
+      if (isGithubUrl(url,{strict: true})) {
+        
+        return false
+      }
+
+      return true
+    }
+    else {
+      
+      return false
+    }
+  }
+  
+  function getGithubActivity() {
+    const gitflag = checkGithub(authorObject.github)
+    
+    if (gitflag === true) {
+      const gitURL = new URL(authorObject.github)
+      const username = gitURL.pathname.slice(1)
+      const apiURL = "https://api.github.com/users/"+ username + "/events/public?per_page=3"
+      axios.get(apiURL).then((response) => {
+        console.log("Response Github Data");
+        console.log(response.data)
+        const json = response.data;
+        const data = []
+        for(let i = 0; i < response.data.length; i++) {
+          let obj = json[i];
+          data.push({"user":obj.actor.display_login,"type":obj.type,"repo":obj.repo.name,"created_at":obj.created_at})
+        }
+        setAllGithubItems(data);
+      }); 
+      console.log(allGithubItems)  
+    }
+  }
 
   function getInboxItems() {
-    const baseURL = "http://localhost:8000/authors/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/inbox/"
-
-    axios.get(baseURL).then((response) => {
-      console.log("REsponse Data");
+    const url = "authors/"+ authorId +"/inbox/"
+    
+    // axios.get(baseURL).then((response) => {
+    //   console.log("REsponse Data");
+    //   console.log(response.data);
+    //   setAllInboxItems(response.data.items);
+    // });
+    // console.log(allInboxItems);
+    axiosInstance.get(url).then((response) => {
+      console.log("Response Data");
       console.log(response.data);
-      setAllInboxItems(response.data.items);
+      setAllInboxItems(response.data.items);   
     });
     console.log(allInboxItems);
   }
 
   useEffect(() => {
     getInboxItems();
+    getGithubActivity();
     console.log(allInboxItems)
+    console.log(allGithubItems)  
   }, []);
 
   function checkImageExists(val) {
@@ -48,7 +105,7 @@ function Inbox() {
           content={val.content}
           img={checkImageExists(val)}
           fromProfile={false}
-          comments={val.comments}
+          commentsURL={val.comments}
           visibility={val.visibility}
           />
         );
@@ -66,9 +123,36 @@ function Inbox() {
     };
 
 
+    const githubItemType = (val) => {
+      return (
+        <Card className="Card" variant="outlined">
+          <CardContent>
+            <List>
+              <ListItem disablePadding>
+                <ListItemText primary="Username" secondary={val.user}/>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemText primary="Repository" secondary={val.repo}/>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemText primary="Action" secondary={val.type}/>
+              </ListItem>
+              <ListItem disablePadding>
+                <ListItemText primary="Created At" secondary={val.created_at}/>
+              </ListItem>
+            </List>
+          </CardContent>
+        </Card>
+      );
+    }
+
+
   return (
     <div className="StreamOfPosts">
       <h1>Inbox</h1>
+      {allGithubItems.map((val) => (
+        githubItemType(val)
+      ))}
       {allInboxItems.map((val) => (
         inboxItemType(val)
       ))}

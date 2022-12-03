@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 
 class AuthorList(APIView):
     """List all authors, or create a new author."""
-    _DEFUALT_PAGE_SIZE = 10
+    _DEFUALT_PAGE_SIZE = 100
     _DEFAULT_PAGE_NUM = 1
 
     def get(self, request: Request, format: str = None) -> Response:
@@ -117,6 +117,7 @@ class Register(APIView):
 
 
 class AuthorObject(APIView):
+    permission_classes = [AllowAny]
     def post(self,request: Request, format: str=None, *args, **kwargs):
 
         username = request.data["username"]

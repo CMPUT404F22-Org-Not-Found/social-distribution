@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-u91le%0epn$o0o*7h%60@8at0k(qsmgupkmr9=h9q8r)5on_+5
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1','.herokuapp.com']
+ALLOWED_HOSTS = ['localhost','127.0.0.1','.herokuapp.com']
 
 
 # Application definition
@@ -94,12 +94,8 @@ WSGI_APPLICATION = 'socialdistribution.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'social',
-        'USER': 'admin',
-        'PASSWORD': 'password',
-        'HOST': 'localhost',
-        'PORT': '',
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
