@@ -154,21 +154,21 @@ function Profile() {
   }
 
   const checkProfileImage = () => {
-    // const url = authorObject.profileImage
-    // const name = authorObject.displayName
-    // if(url.match(/\.(jpeg|jpg|gif|png)$/) != null) {
-    //   return (
-    //     <Avatar alt={name} src={url} />
-    //   );      
-    // }
+     const url = authorObject.profileImage
+     const name = authorObject.displayName
+      if (url !== null && (url.match(/\.(jpeg|jpg|gif|png)$/) !== null)) {
+       return (
+         <Avatar alt={name} src={url} />
+       );      
+     }
 
-    // else {
-    return (
-      <Avatar sx={{ bgcolor: red[500] }}>
-        {authorObject.displayName[0]}
-      </Avatar>
-    );
-    // }
+    else {
+      return (
+        <Avatar sx={{ bgcolor: red[500] }}>
+          {authorObject.displayName[0]}
+        </Avatar>
+      );
+     }
   }
 
   const checkGithubExists = () => {
