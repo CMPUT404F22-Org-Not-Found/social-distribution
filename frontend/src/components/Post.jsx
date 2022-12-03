@@ -1,4 +1,4 @@
-import { Alert, Avatar, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, IconButton, InputLabel, ListItem, ListItemText, MenuItem, Select, Snackbar, TextField, Typography } from "@mui/material";
+import { Alert, Avatar, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, IconButton, InputLabel, ListItem, ListItemText, MenuItem, Paper, Select, Snackbar, TextField, Typography } from "@mui/material";
 import { red } from "@mui/material/colors";
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -11,6 +11,7 @@ import React, { useState, useEffect } from "react"; import './Post.css';
 import axios from "axios";
 import CreateNewPost from "./CreateNewPost";
 import axiosInstance from "../axiosInstance";
+import { isParameterPropertyDeclaration } from "typescript";
 
 var ReactCommonmark = require('react-commonmark');
 
@@ -88,7 +89,7 @@ function Post(props) {
         type: "comment",
         author: authorObject,
         comment: newComment,
-        contentType: "text/plain",
+        contentType: inputType,
         published: commentDate.toISOString(),
       };
 
@@ -258,6 +259,15 @@ function Post(props) {
     }
   }
 
+  const checkComment = (val) => {
+    if (val.contentType === "text/markdown") {
+      return (<ListItemText primary={<ReactCommonmark source={val.comment}/>} secondary={val.author.displayName} />);
+    }
+    else if (val.contentType === "text/plain") {
+      return (<ListItemText primary={val.comment} secondary={val.author.displayName} />);
+    }
+  }
+
 
   return (
     <div className="Post">
@@ -306,6 +316,7 @@ function Post(props) {
       <Dialog
         open={openCommentDialog}
         onClose={handleCloseCommentDialog}
+        scroll="paper"
         maxWidth='md'
         fullWidth={true}
       >
@@ -318,7 +329,7 @@ function Post(props) {
                   key={val.id}
                   disableGutters
                 >
-                  <ListItemText primary={val.comment} secondary={val.author.displayName} />
+                  {checkComment(val)}
                   {/* <IconButton aria-label="like" onClick={handleLike}>
                     {displayLike(val.id)}
                   </IconButton> */}
