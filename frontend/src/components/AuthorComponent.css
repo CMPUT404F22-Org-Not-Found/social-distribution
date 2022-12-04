@@ -1,0 +1,15 @@
+.CardActions {
+    justify-content: end;
+    margin-right: 5%;
+}
+
+.Author {
+width: 100%;
+}
+
+.Card {
+width: 100%;
+display: 'flex';
+justify-content: space-between;
+}
+

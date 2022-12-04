@@ -58,17 +58,6 @@ function PublicStream() {
     console.log(allPosts);
   }, []);
 
-  const sampleComments = [
-    {
-      user: 'aditr',
-      comment: 'Welcome to the app. Adding extra words to check width.',
-    },
-    {
-      user: 'skotha',
-      comment: 'I love twitter.',
-    }
-  ]
-
   function checkImageExists(val) {
     if (val.contentType === "image/png;base64" || val.contentType === "image/jpeg;base64") {
       return val.content

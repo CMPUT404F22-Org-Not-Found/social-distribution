@@ -1,60 +1,46 @@
-import { Button, Divider, List, ListItem, ListItemText, StyledEngineProvider } from "@mui/material";
 import axios from "axios";
 import React from "react";
 import { useEffect } from "react";
 import { useState } from "react";
+import AuthorComponent from "./AuthorComponent";
 import './AuthorList.css';
 
 function AuthorList() {
-  const [allAuthorList, setAllAuthorList] = useState([]);
+  const [allAuthors, setAllAuthors] = useState([]);
 
   function getAuthorList() {
+    // const baseURL = "http://localhost:8000/authors/"
+    // axios.get(baseURL).then((response) => {
+    //   setAllAuthorList(response.data.items);
+    // });
+
     const baseURL = "http://localhost:8000/authors/"
     axios.get(baseURL).then((response) => {
-      setAllAuthorList(response.data.items);
+      setAllAuthors(response.data.items);
     });
-  }
-
-  function onClickSendRequest() {
-    
+    console.log(allAuthors); 
   }
 
   useEffect(() => {
     getAuthorList();
-    console.log(allAuthorList);
+    console.log(allAuthors);
   }, []);
 
   return (
-    <StyledEngineProvider injectFirst>
-      <div className="AuthorList">
-        <h1>Phone Book</h1>
-        <div className="AuthorList">
-          <List>
-            {allAuthorList.map((value) => (
-              <div>
-                <ListItem
-                  key={value.displayName}
-                  disableGutters
-                  secondaryAction={
-                    <div className="RequestButtons">
-                      <div>
-                        <Button 
-                        variant="contained" 
-                        onClick={onClickSendRequest}>Send Request</Button>
-                      </div>
-                    </div>
-                  }
-                >
-                  <ListItemText primary={value.displayName} />
-                </ListItem>
-                <Divider />
-              </div>
-            ))}
-          </List>
-        </div>
-      </div >
-    </StyledEngineProvider>
-
+    <div className="StreamOfAuthors">
+      <h1>Author List</h1>
+      {allAuthors.map((val) => (
+        <AuthorComponent
+          key={val.id}
+          id={val.id}
+          host={val.host}
+          displayName={val.displayName}
+          url={val.url}
+          github={val.github}
+          profileImage={val.profileImage}
+        />
+      ))}
+    </div>
   );
 }
 
