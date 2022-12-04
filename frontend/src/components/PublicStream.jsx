@@ -82,7 +82,7 @@ function PublicStream() {
           contentType={val.contentType}
           content={val.content}
           img={checkImageExists(val)}
-          fromProfile={false}
+          from={"public"}
           commentsURL={val.comments}
           visibility={val.visibility}
         />

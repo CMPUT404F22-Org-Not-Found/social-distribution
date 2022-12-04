@@ -20,6 +20,7 @@ from like.models import Like
 from like.serializers import LikeSerializer
 from .models import Inbox
 from .request_verifier import verify_author_request, verify_post_request, verify_friend_request, verify_like_request, get_author_id_from_url
+from node.node_connections import is_local_author, send_friend_request_to_global_inbox, send_like_to_global_inbox, send_post_to_global_inbox
 
 logger = logging.getLogger(__name__)
 
@@ -67,7 +68,7 @@ class InboxView(APIView):
             raise Http404("Author does not exist")
 
         try:
-            inbox = Inbox.objects.get(author=author)
+            inbox, _ = Inbox.objects.get_or_create(author=author)
         except Inbox.DoesNotExist:
             raise Http404("Inbox does not exist")
 
@@ -100,16 +101,20 @@ class InboxView(APIView):
         post_request_dict = verify_post_request(post_request_dict)
         post_author_dict = post_request_dict["author"]
         # The id given is a url, so we need to extract the id from the url
-        author_id = get_author_id_from_url(post_author_dict["id"])
+        post_author_id = get_author_id_from_url(post_author_dict["id"])
         # We may need to create a new author for remote author posts
         post_author, _ = Author.objects.get_or_create(
-            author_id=author_id, defaults=post_author_dict
+            author_id=post_author_id, defaults=post_author_dict
         )
         post_request_dict["author"] = post_author # we replace the json author with the author object
         post_id = get_post_id_from_url(post_request_dict.get("id", f"a/{uuid.uuid4()}"))
         post, was_post_created = Post.objects.get_or_create(post_id=post_id, defaults=post_request_dict)
         inbox.posts.add(post)
         inbox.save()
+
+        if not is_local_author(author):
+            send_post_to_global_inbox(post, author)
+
         if was_post_created:
             return Response({"type": "post",
                                 "detail": f"Successfully created a new post and sent to {author.displayName}'s inbox"},
@@ -131,17 +136,21 @@ class InboxView(APIView):
         # the sender Author may exist if he is a local author or may not exist if he is a remote author,
         # in which case we create him.
         recipient_dict = follow_request_dict["object"]
-        recipient_autor = Author.objects.get(author_id=get_author_id_from_url(recipient_dict["id"]))
-        follow_request_dict["object"] = recipient_autor
+        recipient_author = Author.objects.get(author_id=get_author_id_from_url(recipient_dict["id"]))
+        follow_request_dict["object"] = recipient_author
         sender_dict = follow_request_dict["actor"]
         sender_author, was_created = Author.objects.get_or_create(author_id=get_author_id_from_url(sender_dict["id"]), defaults=sender_dict)
         follow_request_dict["actor"] = sender_author
 
         follow_request, was_follow_request_created = FriendRequest.objects.get_or_create(
-            actor=sender_author, object=recipient_autor, defaults=follow_request_dict
+            actor=sender_author, object=recipient_author, defaults=follow_request_dict
         )
         inbox.friend_requests.add(follow_request)
         inbox.save()
+
+        if not is_local_author(recipient_author):
+            send_friend_request_to_global_inbox(follow_request, recipient_author)
+
         if was_follow_request_created:
             return Response({"type": "follow",
                                 "detail": f"Successfully created a new follow request and sent to {author.displayName}'s inbox"},
@@ -166,6 +175,9 @@ class InboxView(APIView):
             author=like_author, object=like_request_dict["object"], defaults=like_request_dict)
         inbox.likes.add(like)
         inbox.save()
+
+        if not is_local_author(like_author):
+            send_like_to_global_inbox(like, like_author)
 
         if was_like_created:
             return Response({"type": "like",

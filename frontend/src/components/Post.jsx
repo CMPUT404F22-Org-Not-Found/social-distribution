@@ -1,4 +1,4 @@
-import { Alert, Avatar, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, IconButton, ListItem, ListItemText, Snackbar, TextField, Typography } from "@mui/material";
+import { Alert, Avatar, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, IconButton, ImageListItem, ImageListItemBar, InputLabel, ListItem, ListItemText, MenuItem, Paper, Select, Snackbar, TextField, Typography } from "@mui/material";
 import { red } from "@mui/material/colors";
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -6,25 +6,26 @@ import ShareIcon from '@mui/icons-material/Share';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import PropTypes from 'prop-types';
-
-import React, { useState, useEffect } from "react"; import './Post.css';
+import React, { useState, useEffect, Fragment } from "react"; import './Post.css';
 import axios from "axios";
 import CreateNewPost from "./CreateNewPost";
 import axiosInstance from "../axiosInstance";
 
+var ReactCommonmark = require('react-commonmark');
+
 function Post(props) {
   const {
-    id, name, user, author, title, description, contentType, content, img, fromProfile, commentsURL, visibility,
+    id, name, user, author, title, description, contentType, content, img, from, commentsURL, visibility,
   } = props
 
   const [openCommentDialog, setOpenCommentDialog] = useState(false);
   const [commentsForPost, setCommentsForPost] = useState([]);
+  const [inputType, setInputType] = useState("");
   const [newComment, setNewComment] = useState("");
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [allLikedObjects, setAllLikedObjects] = useState([]);
   const authorObject = JSON.parse(localStorage.getItem("author"));
   const authorId = localStorage.getItem("authorId");
-
 
   const [stateSnackBar, setStateSnackBar] = useState({
     openSnackBar: false,
@@ -68,37 +69,55 @@ function Post(props) {
     });
   }
 
+  const handleInputTypeChange = (event) => {
+    setInputType(event.target.value);
+    // if (event.target.value === "image/png;base64" || event.target.value === "image/jpeg;base64") {
+    //   setContent("");
+    // }
+  };
+
   const handleSubmitComments = () => {
-    const url = "authors/" + authorId;
-    axiosInstance.get(url).then((response) => {
-      console.log(response);
-    })
+    // const url = "authors/" + authorId;
+    // axiosInstance.get(url).then((response) => {
+    //   console.log(response);
+    // })
+    if (allFilled()) {
+      const commentDate = new Date();
+      const postData = {
+        type: "comment",
+        author: authorObject,
+        comment: newComment,
+        contentType: inputType,
+        published: commentDate.toISOString(),
+      };
 
-    const commentDate = new Date();
-    const postData = {
-      type: "comment",
-      author: authorObject,
-      comment: newComment,
-      contentType: "text/plain",
-      published: commentDate.toISOString(),
-    };
-
-    axios.post(commentsURL + "/", postData)
-      .then((response) => {
-        console.log(response);
-        handleCloseCommentDialog();
-        handleOpenSnackBar({
-          vertical: 'top',
-          horizontal: 'center',
+      axiosInstance.post(commentsURL + "/", postData)
+        .then((response) => {
+          console.log(response);
+          handleCloseCommentDialog();
+          handleOpenSnackBar({
+            vertical: 'top',
+            horizontal: 'center',
+          });
         });
-      });
-    console.log(postData);
-    console.log(commentsURL);
-    handleCloseCommentDialog();
-    handleOpenSnackBar();
+      console.log(postData);
+      console.log(commentsURL);
+      handleCloseCommentDialog();
+      handleOpenSnackBar();
 
-    console.log(newComment);
-    window.location.reload();
+      console.log(newComment);
+      window.location.reload();
+    } else {
+      console.log("All fields have not been filled. Cannot make post.")
+    }
+  };
+
+  const allFilled = () => {
+    // check if all the fields are filled in
+    if (inputType != "" && newComment != "") {
+      return true;
+    }
+    return false;
   };
 
   // HANDLE EDIT DIALOG
@@ -117,18 +136,9 @@ function Post(props) {
     }
   };
 
-  const checkImageExists = (image) => {
-    // check if image needs to be displayed
-    let style = '';
-    if (image === 'null') {
-      style = 'none'
-    }
-    return style;
-  }
-
   const checkFromProfile = () => {
     // check if componenet is being displayed in Profile
-    if (fromProfile) {
+    if (from === "profile") {
       return (
         <IconButton aria-label="edit" onClick={handleOpenEditDialog}>
           <EditIcon />
@@ -140,9 +150,11 @@ function Post(props) {
   useEffect(() => {
     getCommentsForPost();
     console.log("Comments:", commentsForPost);
-    getAllLikedObjects();
-    console.log()
-    console.log("Liked Objects", allLikedObjects);
+    if (from !== "public") {
+      getAllLikedObjects();
+      console.log()
+      console.log("Liked Objects", allLikedObjects);
+    }
   }, []);
 
   // HANDLE LIKING OBJECTS
@@ -170,14 +182,15 @@ function Post(props) {
       object: id,
     }
 
+    console.log("ID:", id);
     const objectAuthorID = id.split("/")[4];
     const url = "/authors/" + objectAuthorID + "/inbox/";
 
-    axiosInstance.post(url, likeData)
-      .then((response) => {
-        console.log(response);
-      });
-    window.location.reload();
+    // axiosInstance.post(url, likeData)
+    //   .then((response) => {
+    //     console.log(response);
+    //   });
+    // window.location.reload();
 
   };
 
@@ -208,29 +221,92 @@ function Post(props) {
     return style;
   }
 
+  const checkProfileImage = () => {
+    const url = author.profileImage
+    const name = author.displayName
+    if (url !== null && (url.match(/\.(jpeg|jpg|gif|png)$/) !== null)) {
+      return (
+        <Avatar alt={name} src={url} />
+      );
+    }
+
+    else {
+      return (
+        <Avatar sx={{ bgcolor: red[500] }}>
+          {name[0]}
+        </Avatar>
+      );
+    }
+  }
+
+  const checkContent = () => {
+    if (contentType === "text/markdown") {
+      return (<ReactCommonmark source={content} />);
+    }
+    else if (contentType === "text/plain") {
+      return (content);
+    }
+    else {
+      return (<img src={`data:${contentType},${content}`} />)
+    }
+  }
+
+  const checkComment = (val) => {
+    if (val.contentType === "text/markdown") {
+      return (<ListItemText primary={<ReactCommonmark source={val.comment}/>} secondary={val.author.displayName} />);
+    }
+    else if (val.contentType === "text/plain") {
+      return (<ListItemText primary={val.comment} secondary={val.author.displayName} />);
+    }
+    else {
+      return (
+        <Fragment>
+          <ImageListItem><img src={`data:${val.contentType},${val.comment}`} /></ImageListItem>
+          <ImageListItemBar position="below" title={val.author.displayName} />
+        </Fragment>
+      )
+    }
+  }
+
+  const hiddenFileInput = React.useRef(null);
+  
+  const handleFileClick = event => {
+    hiddenFileInput.current.click();
+  };  
+
+  const handleFileUpload = event => {
+    const fileUploaded = event.target.files[0];
+    var reader = new FileReader();
+    reader.readAsDataURL(fileUploaded);
+
+    reader.onload = () => {
+      var base64result = reader.result.split(',')[1];
+      setNewComment(base64result);
+    };
+
+  };
+
   return (
     <div className="Post">
       <Card className="Card" variant="outlined">
         <CardHeader
+          style={{ textAlign: 'left' }}
           avatar={
-            <Avatar sx={{ bgcolor: red[500] }}>
-              {name[0]}
-            </Avatar>
+            checkProfileImage()
           }
           title={title}
           subheader={name}
         />
-        <CardMedia
-          component="img"
-          width="5rem"
-          image={img}
-          style={{ display: checkImageExists(img) }}
-        />
+        
         { }
-
         <CardContent>
           <Typography variant="body2" color="text.primary">
-            {content}
+            <h3 className="Subtitles">Description</h3>
+            {description}
+          </Typography>
+          <Typography variant="body2" color="text.primary">
+            <h3 className="Subtitles">Content</h3>
+            {checkContent()}
           </Typography>
         </CardContent>
 
@@ -252,6 +328,7 @@ function Post(props) {
       <Dialog
         open={openCommentDialog}
         onClose={handleCloseCommentDialog}
+        scroll="paper"
         maxWidth='md'
         fullWidth={true}
       >
@@ -264,7 +341,7 @@ function Post(props) {
                   key={val.id}
                   disableGutters
                 >
-                  <ListItemText primary={val.comment} secondary={val.author.displayName} />
+                  {checkComment(val)}
                   {/* <IconButton aria-label="like" onClick={handleLike}>
                     {displayLike(val.id)}
                   </IconButton> */}
@@ -274,17 +351,53 @@ function Post(props) {
               </div>
             ))}
           </DialogContentText>
-          <TextField
-            autoFocus
-            margin="dense"
-            id="name"
-            label="Add Comment"
-            type="comment"
-            fullWidth
-            variant="standard"
-            onChange={handleChangeComment}
-            style={{ display: checkIfLoggedIn() }}
-          />
+          <div className="formElement">
+            <FormControl fullWidth>
+              <InputLabel id="demo-simple-select-label">Choose Comment Type</InputLabel>
+              <Select
+                labelId="demo-simple-select-lable"
+                value={inputType}
+                defaultValue={inputType}
+                label="Input Type"
+                onChange={handleInputTypeChange}
+              >
+                <MenuItem value={"text/markdown"}>text/markdown</MenuItem>
+                <MenuItem value={"text/plain"}>text/plain</MenuItem>
+                <MenuItem value={"application/base64"}>application/base64</MenuItem>
+                <MenuItem value={"image/png;base64"}>image/png;base64</MenuItem>
+                <MenuItem value={"image/jpeg;base64"}>image/jpeg;base64</MenuItem>
+              </Select>
+            </FormControl>
+          </div>
+          <div className="formElement">
+            {/* If input type is image, show upload image button*/}
+            {inputType === "image/png;base64" || inputType === "image/jpeg;base64" || inputType === "application/base64" ?
+              <div className="UploadImage">
+                <Button variant="contained" component="label" onClick={handleFileClick}>
+                  Upload Image
+                  <input type="file" ref={hiddenFileInput} onChange={handleFileUpload} hidden/>
+                </Button>
+              </div>
+              : ""
+            }
+          </div>
+          <div className="formElement">
+          {inputType === "text/plain" || inputType === "text/markdown" ?
+            <TextField
+              multiline
+              autoFocus
+              margin="dense"
+              id="name"
+              label="Add Comment"
+              type="comment"
+              fullWidth
+              variant="standard"
+              onChange={handleChangeComment}
+              style={{ display: checkIfLoggedIn() }}
+            />
+            : ""
+          }
+        </div>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseCommentDialog}>Cancel</Button>
@@ -348,7 +461,7 @@ Post.propTypes = {
   contentType: PropTypes.string.isRequired,
   content: PropTypes.string.isRequired,
   img: PropTypes.string,
-  fromProfile: PropTypes.bool.isRequired,
+  from: PropTypes.string.isRequired,
   commentsURL: PropTypes.string.isRequired,
   visibility: PropTypes.string.isRequired,
 }
