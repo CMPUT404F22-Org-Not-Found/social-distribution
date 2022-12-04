@@ -94,19 +94,13 @@ function Post(props) {
       axiosInstance.post(commentsURL + "/", postData)
         .then((response) => {
           console.log(response);
-          handleCloseCommentDialog();
-          handleOpenSnackBar({
-            vertical: 'top',
-            horizontal: 'center',
-          });
+          getCommentsForPost();
         });
       console.log(postData);
       console.log(commentsURL);
-      handleCloseCommentDialog();
-      handleOpenSnackBar();
-
+    
       console.log(newComment);
-      window.location.reload();
+      
     } else {
       console.log("All fields have not been filled. Cannot make post.")
     }
