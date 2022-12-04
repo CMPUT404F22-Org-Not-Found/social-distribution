@@ -104,7 +104,7 @@ function Inbox() {
           contentType={val.contentType}
           content={val.content}
           img={checkImageExists(val)}
-          fromProfile={false}
+          from={"inbox"}
           commentsURL={val.comments}
           visibility={val.visibility}
           reloadPosts={getInboxItems}

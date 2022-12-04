@@ -6,6 +6,7 @@ import PersonAddAltIcon from '@mui/icons-material/PersonAddAlt';
 import AddIcon from '@mui/icons-material/Add';
 import InboxIcon from '@mui/icons-material/Inbox';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import BookIcon from '@mui/icons-material/Book';
 
 import './Topbar.css';
 import { useState } from "react";
@@ -22,6 +23,11 @@ function Topbar() {
   const [openCreateDialog, setOpenCreateDialog] = useState(false);
 
   const navigate = useNavigate();
+
+  const onClickAuthorList = () => {
+    navigate('/author-list');
+  }
+
   const onClickFriendRequests = () => {
     navigate('/friend-requests');
   }
@@ -54,26 +60,30 @@ function Topbar() {
     } else {
       return (
         <div>
-        <IconButton className="IconButton" onClick={onClickFriendRequests}>
-          <PersonAddAltIcon htmlColor="white" />
-        </IconButton>
+          <IconButton className="IconButton" onClick={onClickAuthorList}>
+            <BookIcon htmlColor="white" />
+          </IconButton>
 
-        <IconButton className="IconButton" onClick={handleOpenCreateDialog}>
-          <AddIcon htmlColor="white" />
-        </IconButton>
+          <IconButton className="IconButton" onClick={onClickFriendRequests}>
+            <PersonAddAltIcon htmlColor="white" />
+          </IconButton>
 
-        <IconButton className="IconButton" onClick={onClickNotifications}>
-          <InboxIcon htmlColor="white" />
-        </IconButton>
+          <IconButton className="IconButton" onClick={handleOpenCreateDialog}>
+            <AddIcon htmlColor="white" />
+          </IconButton>
 
-        <IconButton className="IconButton" onClick={onClickProfile}>
-          <AccountCircleIcon htmlColor="white" />
-        </IconButton>
+          <IconButton className="IconButton" onClick={onClickNotifications}>
+            <InboxIcon htmlColor="white" />
+          </IconButton>
 
-        <Button className="IconButton" variant="contained" onClick={onClickLogout}>
-          Logout
-        </Button>
-      </div>
+          <IconButton className="IconButton" onClick={onClickProfile}>
+            <AccountCircleIcon htmlColor="white" />
+          </IconButton>
+
+          <Button className="IconButton" variant="contained" onClick={onClickLogout}>
+            Logout
+          </Button>
+        </div>
       );
     };
   }

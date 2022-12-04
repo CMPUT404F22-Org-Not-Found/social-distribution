@@ -10,13 +10,6 @@
     min-width: 100%;
 }
 
-.FriendRequest {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-}
-
 .RequestButtons {
     width: 12rem;
     justify-content: space-between;
