@@ -229,7 +229,7 @@ function CreateNewPost(props) {
         </div>
         <div className="formElement">
           {/* If input type is image, show upload image button*/}
-          {inputType === "image/png;base64" || inputType === "image/jpeg;base64" ?
+          {inputType === "image/png;base64" || inputType === "image/jpeg;base64" || inputType === "application/base64" ?
             <div className="UploadImage">
               <Button variant="contained" component="label" onClick={handleFileClick}>
                 Upload Image
