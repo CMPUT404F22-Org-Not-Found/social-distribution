@@ -57,7 +57,7 @@ function Inbox() {
     }
   }
 
-  function getInboxItems() {
+  const getInboxItems = () => {
     const url = "authors/"+ authorId +"/inbox/"
     
     // axios.get(baseURL).then((response) => {
@@ -107,6 +107,7 @@ function Inbox() {
           fromProfile={false}
           commentsURL={val.comments}
           visibility={val.visibility}
+          reloadPosts={getInboxItems}
           />
         );
       } else {

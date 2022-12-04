@@ -38,7 +38,7 @@ function PublicStream() {
     },
   ]
 
-  function getPosts() { 
+  const getPosts = () => { 
     // axiosInstance.get(`/authors/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/posts/`)
     // .then((response) => {
     //   setAllPosts(response.data.data);
@@ -96,6 +96,7 @@ function PublicStream() {
           fromProfile={false}
           commentsURL={val.comments}
           visibility={val.visibility}
+          reloadPosts={getPosts}
         />
       ))}
     </div >

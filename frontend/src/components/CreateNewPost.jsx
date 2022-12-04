@@ -98,6 +98,7 @@ function CreateNewPost(props) {
         .then((response) => {
           console.log("created new post")
           console.log(response);
+          closeDialog();
         })
 
     } else {
@@ -131,7 +132,8 @@ function CreateNewPost(props) {
         .then((response) => {
           console.log("successfully edited post");
           console.log(response);
-          window.location.reload();
+          // window.location.reload();
+          closeDialog();
         });
     } else {
       console.log("All fields have not been filled. Cannot make post.")

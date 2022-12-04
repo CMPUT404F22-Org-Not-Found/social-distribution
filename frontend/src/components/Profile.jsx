@@ -90,7 +90,7 @@ function Profile() {
 
   }
 
-  function getPosts() {
+  const getPosts = () => {
     const params = {
       id: '...',
     };
@@ -173,6 +173,7 @@ function Profile() {
               fromProfile={true}
               commentsURL={val.comments}
               visibility={val.visibility}
+              reloadPosts={getPosts}
             />
           ))}
         </div>
