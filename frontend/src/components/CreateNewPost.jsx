@@ -181,6 +181,24 @@ function CreateNewPost(props) {
       });
   }
 
+  const hiddenFileInput = React.useRef(null);
+  
+  const handleFileClick = event => {
+    hiddenFileInput.current.click();
+  };  
+
+  const handleFileUpload = event => {
+    const fileUploaded = event.target.files[0];
+    var reader = new FileReader();
+    reader.readAsDataURL(fileUploaded);
+
+    reader.onload = () => {
+      var base64result = reader.result.split(',')[1];
+      setContent(base64result);
+    };
+
+  };
+
   return (
     <div className="CreateNewPost">
       {/* <h1>Create a New Post</h1> */}
@@ -213,9 +231,9 @@ function CreateNewPost(props) {
           {/* If input type is image, show upload image button*/}
           {inputType === "image/png;base64" || inputType === "image/jpeg;base64" ?
             <div className="UploadImage">
-              <Button variant="contained" component="label">
+              <Button variant="contained" component="label" onClick={handleFileClick}>
                 Upload Image
-                <input type="file" hidden />
+                <input type="file" ref={hiddenFileInput} onChange={handleFileUpload} hidden/>
               </Button>
             </div>
             : ""
@@ -223,6 +241,7 @@ function CreateNewPost(props) {
         </div>
         <div className="formElement">
           {/* if input type is text or markdown, show inbox button */}
+          
           {inputType === "text/markdown" || inputType === "text/plain" ?
             <TextField className="TextInput" id="outline-multiline-flexible" label="Content" multiline rows={10} defaultValue={contentText} onChange={handleContentChange} />
             : ""

@@ -1,4 +1,4 @@
-import { Alert, Avatar, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, IconButton, InputLabel, ListItem, ListItemText, MenuItem, Paper, Select, Snackbar, TextField, Typography } from "@mui/material";
+import { Alert, Avatar, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, IconButton, imageListClasses, InputLabel, ListItem, ListItemText, MenuItem, Paper, Select, Snackbar, TextField, Typography } from "@mui/material";
 import { red } from "@mui/material/colors";
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -6,7 +6,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import PropTypes from 'prop-types';
-
+import ReactDOM from 'react-dom';
 import React, { useState, useEffect } from "react"; import './Post.css';
 import axios from "axios";
 import CreateNewPost from "./CreateNewPost";
@@ -257,6 +257,9 @@ function Post(props) {
     else if (contentType === "text/plain") {
       return (content);
     }
+    else {
+      return (<img src={`data:${contentType},${content}`} />)
+    }
   }
 
   const checkComment = (val) => {
@@ -280,12 +283,7 @@ function Post(props) {
           title={title}
           subheader={name}
         />
-        <CardMedia
-          component="img"
-          width="5rem"
-          image={img}
-          style={{ display: checkImageExists(img) }}
-        />
+        
         { }
         <CardContent>
           <Typography variant="body2" color="text.primary">
