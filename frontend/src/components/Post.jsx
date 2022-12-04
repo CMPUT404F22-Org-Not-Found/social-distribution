@@ -15,7 +15,7 @@ var ReactCommonmark = require('react-commonmark');
 
 function Post(props) {
   const {
-    id, name, user, author, title, description, contentType, content, img, from, commentsURL, visibility,
+    id, name, user, author, title, description, contentType, content, img, from, commentsURL, visibility, reloadPosts,
   } = props
 
   const [openCommentDialog, setOpenCommentDialog] = useState(false);
@@ -165,7 +165,7 @@ function Post(props) {
 
   const handleCloseEditDialog = () => {
     setOpenEditDialog(false);
-    reloadPage();
+    reloadPosts();
   };
 
   const handleSubmitEdit = () => {
@@ -174,10 +174,6 @@ function Post(props) {
 
     }
   };
-
-  const reloadPage = () => {
-    
-  }
 
   const checkImageExists = (image) => {
     // check if image needs to be displayed

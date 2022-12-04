@@ -179,7 +179,7 @@ function CreateNewPost(props) {
       .then((response) => {
         console.log(response);
         console.log("Deleted post");
-        window.location.reload();
+        closeDialog();
       });
   }
 
