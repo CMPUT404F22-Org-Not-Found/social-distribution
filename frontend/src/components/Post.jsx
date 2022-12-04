@@ -1,4 +1,4 @@
-import { Alert, Avatar, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, IconButton, InputLabel, ListItem, ListItemText, MenuItem, Select, Snackbar, TextField, Typography } from "@mui/material";
+import { Alert, Avatar, Button, Card, CardActions, CardContent, CardHeader, CardMedia, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Divider, FormControl, IconButton, ImageListItem, ImageListItemBar, InputLabel, ListItem, ListItemText, MenuItem, Paper, Select, Snackbar, TextField, Typography } from "@mui/material";
 import { red } from "@mui/material/colors";
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -6,8 +6,7 @@ import ShareIcon from '@mui/icons-material/Share';
 import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline';
 import EditIcon from '@mui/icons-material/Edit';
 import PropTypes from 'prop-types';
-
-import React, { useState, useEffect } from "react"; import './Post.css';
+import React, { useState, useEffect, Fragment } from "react"; import './Post.css';
 import axios from "axios";
 import CreateNewPost from "./CreateNewPost";
 import axiosInstance from "../axiosInstance";
@@ -88,7 +87,7 @@ function Post(props) {
         type: "comment",
         author: authorObject,
         comment: newComment,
-        contentType: "text/plain",
+        contentType: inputType,
         published: commentDate.toISOString(),
       };
 
@@ -136,15 +135,6 @@ function Post(props) {
 
     }
   };
-
-  const checkImageExists = (image) => {
-    // check if image needs to be displayed
-    let style = '';
-    if (image === 'null') {
-      style = 'none'
-    }
-    return style;
-  }
 
   const checkFromProfile = () => {
     // check if componenet is being displayed in Profile
@@ -256,8 +246,45 @@ function Post(props) {
     else if (contentType === "text/plain") {
       return (content);
     }
+    else {
+      return (<img src={`data:${contentType},${content}`} />)
+    }
   }
 
+  const checkComment = (val) => {
+    if (val.contentType === "text/markdown") {
+      return (<ListItemText primary={<ReactCommonmark source={val.comment}/>} secondary={val.author.displayName} />);
+    }
+    else if (val.contentType === "text/plain") {
+      return (<ListItemText primary={val.comment} secondary={val.author.displayName} />);
+    }
+    else {
+      return (
+        <Fragment>
+          <ImageListItem><img src={`data:${val.contentType},${val.comment}`} /></ImageListItem>
+          <ImageListItemBar position="below" title={val.author.displayName} />
+        </Fragment>
+      )
+    }
+  }
+
+  const hiddenFileInput = React.useRef(null);
+  
+  const handleFileClick = event => {
+    hiddenFileInput.current.click();
+  };  
+
+  const handleFileUpload = event => {
+    const fileUploaded = event.target.files[0];
+    var reader = new FileReader();
+    reader.readAsDataURL(fileUploaded);
+
+    reader.onload = () => {
+      var base64result = reader.result.split(',')[1];
+      setNewComment(base64result);
+    };
+
+  };
 
   return (
     <div className="Post">
@@ -270,12 +297,7 @@ function Post(props) {
           title={title}
           subheader={name}
         />
-        <CardMedia
-          component="img"
-          width="5rem"
-          image={img}
-          style={{ display: checkImageExists(img) }}
-        />
+        
         { }
         <CardContent>
           <Typography variant="body2" color="text.primary">
@@ -306,6 +328,7 @@ function Post(props) {
       <Dialog
         open={openCommentDialog}
         onClose={handleCloseCommentDialog}
+        scroll="paper"
         maxWidth='md'
         fullWidth={true}
       >
@@ -318,7 +341,7 @@ function Post(props) {
                   key={val.id}
                   disableGutters
                 >
-                  <ListItemText primary={val.comment} secondary={val.author.displayName} />
+                  {checkComment(val)}
                   {/* <IconButton aria-label="like" onClick={handleLike}>
                     {displayLike(val.id)}
                   </IconButton> */}
@@ -346,18 +369,35 @@ function Post(props) {
               </Select>
             </FormControl>
           </div>
-          <TextField
-            multiline
-            autoFocus
-            margin="dense"
-            id="name"
-            label="Add Comment"
-            type="comment"
-            fullWidth
-            variant="standard"
-            onChange={handleChangeComment}
-            style={{ display: checkIfLoggedIn() }}
-          />
+          <div className="formElement">
+            {/* If input type is image, show upload image button*/}
+            {inputType === "image/png;base64" || inputType === "image/jpeg;base64" || inputType === "application/base64" ?
+              <div className="UploadImage">
+                <Button variant="contained" component="label" onClick={handleFileClick}>
+                  Upload Image
+                  <input type="file" ref={hiddenFileInput} onChange={handleFileUpload} hidden/>
+                </Button>
+              </div>
+              : ""
+            }
+          </div>
+          <div className="formElement">
+          {inputType === "text/plain" || inputType === "text/markdown" ?
+            <TextField
+              multiline
+              autoFocus
+              margin="dense"
+              id="name"
+              label="Add Comment"
+              type="comment"
+              fullWidth
+              variant="standard"
+              onChange={handleChangeComment}
+              style={{ display: checkIfLoggedIn() }}
+            />
+            : ""
+          }
+        </div>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseCommentDialog}>Cancel</Button>
