@@ -11,6 +11,7 @@ import Login from './components/Login';
 import Register from './components/Register';
 import RedirectIfLoggedIn from './RedirectIfLoggedIn';
 import ProtectedRoute from './Protected';
+import AuthorList from './components/AuthorList';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/" element={<Navigate replace to="/public-stream" />} />
           <Route path="/public-stream" element={<PublicStream />} />
           <Route element={<ProtectedRoute />}>
+            <Route path="/author-list" element={<AuthorList />} />
             <Route path="/friend-requests" element={<FriendRequests />} />
             {/* <Route path="/new-post " element={<CreateNewPost />} /> */}
             <Route path="/inbox" element={<Inbox />} />
