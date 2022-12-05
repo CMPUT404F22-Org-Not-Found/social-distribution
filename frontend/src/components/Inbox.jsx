@@ -1,4 +1,4 @@
-import { Card, CardContent, CardHeader, Typography, List, ListItem, ListItemText } from "@mui/material";
+import { Card, CardContent, CardHeader, Typography, List, ListItem, ListItemText, Button, CardActions } from "@mui/material";
 import axios from "axios";
 import React, { useState } from "react";
 import { useEffect } from "react";
@@ -14,52 +14,52 @@ function Inbox() {
   const authorObject = JSON.parse(localStorage.getItem("author"));
 
   function checkGithub(url) {
-    
+
     if (isGithubUrl(url)) {
-      
-      if (isGithubUrl(url,{repository: true})) {
-        
+
+      if (isGithubUrl(url, { repository: true })) {
+
         return false
       }
 
-      if (isGithubUrl(url,{strict: true})) {
-        
+      if (isGithubUrl(url, { strict: true })) {
+
         return false
       }
 
       return true
     }
     else {
-      
+
       return false
     }
   }
-  
+
   function getGithubActivity() {
     const gitflag = checkGithub(authorObject.github)
-    
+
     if (gitflag === true) {
       const gitURL = new URL(authorObject.github)
       const username = gitURL.pathname.slice(1)
-      const apiURL = "https://api.github.com/users/"+ username + "/events/public?per_page=3"
+      const apiURL = "https://api.github.com/users/" + username + "/events/public?per_page=3"
       axios.get(apiURL).then((response) => {
         console.log("Response Github Data");
         console.log(response.data)
         const json = response.data;
         const data = []
-        for(let i = 0; i < response.data.length; i++) {
+        for (let i = 0; i < response.data.length; i++) {
           let obj = json[i];
-          data.push({"user":obj.actor.display_login,"type":obj.type,"repo":obj.repo.name,"created_at":obj.created_at})
+          data.push({ "user": obj.actor.display_login, "type": obj.type, "repo": obj.repo.name, "created_at": obj.created_at })
         }
         setAllGithubItems(data);
-      }); 
-      console.log(allGithubItems)  
+      });
+      console.log(allGithubItems)
     }
   }
 
   const getInboxItems = () => {
-    const url = "authors/"+ authorId +"/inbox/"
-    
+    const url = "authors/" + authorId + "/inbox/"
+
     // axios.get(baseURL).then((response) => {
     //   console.log("REsponse Data");
     //   console.log(response.data);
@@ -69,7 +69,7 @@ function Inbox() {
     axiosInstance.get(url).then((response) => {
       console.log("Response Data");
       console.log(response.data);
-      setAllInboxItems(response.data.items);   
+      setAllInboxItems(response.data.items);
     });
     console.log(allInboxItems);
   }
@@ -78,7 +78,7 @@ function Inbox() {
     getInboxItems();
     getGithubActivity();
     console.log(allInboxItems)
-    console.log(allGithubItems)  
+    console.log(allGithubItems)
   }, []);
 
   function checkImageExists(val) {
@@ -91,10 +91,67 @@ function Inbox() {
     }
   }
 
-    const inboxItemType = (val) => {
-      if (val.type == 'post') {
-        return (
-          <Post
+  const acceptFollowRequest = (followerURL) => {
+    const followerID = followerURL.split("/").pop();
+    const url = "authors/" + authorId + "/followers/" + followerID;
+    const data = {
+      author_id: authorId,
+      foreign_id: followerID,
+    }
+    axiosInstance.put(url, data)
+      .then((response) => {
+        console.log("Accept:", response)
+      });
+  }
+
+  const checkIfRequestAccepted = (followerURL) => {
+    // make axios call to check if friend request had already been accepted.
+    const followerID = followerURL.split("/").pop();
+    const url = "authors/" + authorId + "/followers/" + followerID;
+    let accepted = false;
+
+    // let promise = new Promise((result) => {
+    //   axiosInstance.get(url)
+    //     .then((response) => {
+    //       console.log("Request Check:", response)
+
+    //       console.log("ResponseDetail:", response.data.detail === undefined)
+    //       if (response.data.detail === undefined) {
+    //         accepted = true;
+    //         // return (
+    //         //   <Button onClick={() => { acceptFollowRequest(followerURL) }}>Accept</Button>
+    //         // )
+            
+    //       } else{
+    //         console.log("Returning button")
+    //         return (
+    //           <Button onClick={() => { acceptFollowRequest(followerURL) }}>Accept</Button>
+    //         )
+    //       }
+    //     });
+    // });
+
+    // promise.then( result => {
+    //   // let style = '';
+    //   // if (accepted) {
+    //   //   style = 'none'
+    //   // }
+    //   // return style;
+    //   console.log("Accepted?:",accepted)
+
+    //   if (!accepted) {
+    //     console.log("Returning Button")
+    //     return (
+    //       <Button onClick={() => { acceptFollowRequest(followerURL) }}>Accept</Button>
+    //     )
+    //   }
+    // })
+  }
+
+  const inboxItemType = (val) => {
+    if (val.type === 'post') {
+      return (
+        <Post
           id={val.id}
           name={val.author.displayName}
           user={val.author.id}
@@ -108,44 +165,58 @@ function Inbox() {
           commentsURL={val.comments}
           visibility={val.visibility}
           reloadPosts={getInboxItems}
-          />
-        );
-      } else {
-        return (
-          <Card className="Card" variant="outlined">
-            <CardContent>
-              <Typography variant="body2" color="text.primary">
-                {val.summary}
-              </Typography>
-            </CardContent>
-          </Card>
-        );
-      };
-    };
-
-
-    const githubItemType = (val) => {
+        />
+      );
+    } else if (val.type === "Follow") {
+      return (
+        <Card className="FollowCard" variant="outlined">
+          <CardContent>
+            <Typography variant="body2" color="text.primary">
+              {val.summary}
+            </Typography>
+          </CardContent>
+          <CardActions>
+            {checkIfRequestAccepted(val.actor.id)}
+            {/* <Button onClick={() => {acceptFollowRequest(val.actor.id)}} style={{ display: checkIfRequestAccepted(val.actor.id) }}>Accept</Button> */}
+          </CardActions>
+        </Card>
+      );
+    } else {
       return (
         <Card className="Card" variant="outlined">
           <CardContent>
-            <List>
-              <ListItem disablePadding>
-                <ListItemText primary="Username" secondary={val.user}/>
-              </ListItem>
-              <ListItem disablePadding>
-                <ListItemText primary="Repository" secondary={val.repo}/>
-              </ListItem>
-              <ListItem disablePadding>
-                <ListItemText primary="Action" secondary={val.type}/>
-              </ListItem>
-              <ListItem disablePadding>
-                <ListItemText primary="Created At" secondary={val.created_at}/>
-              </ListItem>
-            </List>
+            <Typography variant="body2" color="text.primary">
+              {val.summary}
+            </Typography>
           </CardContent>
         </Card>
       );
-    }
+    };
+  };
+
+
+  const githubItemType = (val) => {
+    return (
+      <Card className="Card" variant="outlined">
+        <CardContent>
+          <List>
+            <ListItem disablePadding>
+              <ListItemText primary="Username" secondary={val.user} />
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemText primary="Repository" secondary={val.repo} />
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemText primary="Action" secondary={val.type} />
+            </ListItem>
+            <ListItem disablePadding>
+              <ListItemText primary="Created At" secondary={val.created_at} />
+            </ListItem>
+          </List>
+        </CardContent>
+      </Card>
+    );
+  }
 
 
   return (

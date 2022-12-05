@@ -70,7 +70,8 @@ function Profile() {
     const promises = [];
 
     for (let i = 0; i < allFollowers.length; i++) {
-      const url = "authors/" + allFollowers[i].id + "/followers/c01ade2f-49ec-4889-8ecf-a461cd8d5e31";
+      const followerID = allFollowers[i].id.split("/").pop();
+      const url = "authors/" + followerID + "/followers/"+authorId;
 
       promises.push(new Promise((resolve) => {
         axiosInstance.get(url)
@@ -86,7 +87,7 @@ function Profile() {
 
     Promise.all(promises).then((response) => {
       setAllFriends(friends);
-      console.log(allFriends)
+      console.log("All Friends:",allFriends)
     })
 
   }
