@@ -32,6 +32,7 @@ function AuthorList() {
       {allAuthors.map((val) => (
         <AuthorComponent
           key={val.id}
+          type={val.type}
           id={val.id}
           host={val.host}
           displayName={val.displayName}
