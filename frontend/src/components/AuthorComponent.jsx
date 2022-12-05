@@ -13,6 +13,7 @@ function AuthorComponent(props) {
     const {type, id, host, displayName, url, github, profileImage} = props
 
     const authorId = localStorage.getItem("authorId");
+    const authorObject = JSON.parse(localStorage.getItem("author"));
 
     const showProfile = () => {
 
@@ -22,7 +23,7 @@ function AuthorComponent(props) {
         console.log("friend request sent to" + {displayName})
         const postData = {
             type: "Follow",
-            summary: "",
+            summary: authorObject.displayName+" sent you a friend request.",
             object: {
                 type: type,
                 id: id,
@@ -31,12 +32,16 @@ function AuthorComponent(props) {
                 url: url,
                 github: github,
                 profileImage: profileImage
-            }
+            },
+            actor: authorObject,
         };
         console.log("Make axios call to send a friend request.");
-        const url = "authors/" + authorId + "/followers/friendrequest/"
+
+        const postID = id.split("/")[4];
+        const postUrl = "authors/" + postID + "/inbox/"
         console.log(postData)
-        axiosInstance.post(url, postData)
+        console.log(postUrl)
+        axiosInstance.post(postUrl, postData)
             .then((response) => {
                 console.log("friend request sent")
                 console.log(response);
@@ -77,6 +82,7 @@ function AuthorComponent(props) {
 export default AuthorComponent;
 
 AuthorComponent.propTypes = {
+    type: PropTypes.string.isRequired,
     id: PropTypes.string.isRequired,
     host: PropTypes.string.isRequired,
     displayName: PropTypes.string.isRequired,
