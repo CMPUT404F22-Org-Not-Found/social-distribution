@@ -210,6 +210,7 @@ function Profile() {
               commentsURL={val.comments}
               visibility={val.visibility}
               reloadPosts={getPosts}
+              unlisted = {Boolean(val.unlisted)}
             />
           ))}
         </div>
@@ -314,6 +315,7 @@ function Profile() {
             visibility=""
             newPost={true}
             closeDialog={handleCloseCreateDialog}
+            unlisted={false}
           />
         </DialogContent>
         <DialogActions>
