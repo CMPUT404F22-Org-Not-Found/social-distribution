@@ -60,17 +60,17 @@ function Topbar() {
     } else {
       return (
         <div>
+          {/* <IconButton className="IconButton" onClick={handleOpenCreateDialog}>
+            <AddIcon htmlColor="white" />
+          </IconButton> */}
+
           <IconButton className="IconButton" onClick={onClickAuthorList}>
             <BookIcon htmlColor="white" />
           </IconButton>
 
-          <IconButton className="IconButton" onClick={onClickFriendRequests}>
+          {/* <IconButton className="IconButton" onClick={onClickFriendRequests}>
             <PersonAddAltIcon htmlColor="white" />
-          </IconButton>
-
-          <IconButton className="IconButton" onClick={handleOpenCreateDialog}>
-            <AddIcon htmlColor="white" />
-          </IconButton>
+          </IconButton> */}
 
           <IconButton className="IconButton" onClick={onClickNotifications}>
             <InboxIcon htmlColor="white" />
@@ -126,7 +126,7 @@ function Topbar() {
 
 
           {/* Dialog for editing post */}
-          <Dialog
+          {/* <Dialog
             open={openCreateDialog}
             onClose={handleCloseCreateDialog}
             maxWidth='md'
@@ -149,11 +149,7 @@ function Topbar() {
                 closeDialog={handleCloseCreateDialog}
               />
             </DialogContent>
-            <DialogActions>
-              {/* <Button onClick={handleCloseCreateDialog}>Cancel</Button>
-              <Button onClick={handleCloseCreateDialog}>Save</Button> */}
-            </DialogActions>
-          </Dialog>
+          </Dialog> */}
         </AppBar>
       </Box>
     </div >
