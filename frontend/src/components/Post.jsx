@@ -148,7 +148,8 @@ function Post(props) {
   useEffect(() => {
     getCommentsForPost();
     console.log("Comments:", commentsForPost);
-    if (from !== "public") {
+    const authToken = window.localStorage.getItem("auth-token");
+    if (authToken) {
       getAllLikedObjects();
       console.log()
       console.log("Liked Objects", allLikedObjects);
@@ -184,16 +185,17 @@ function Post(props) {
     const objectAuthorID = id.split("/")[4];
     const url = "/authors/" + objectAuthorID + "/inbox/";
 
-    // axiosInstance.post(url, likeData)
-    //   .then((response) => {
-    //     console.log(response);
-    //   });
-    // window.location.reload();
-
+    axiosInstance.post(url, likeData)
+      .then((response) => {
+        console.log(response);
+        getAllLikedObjects();
+      });
+    
   };
 
   const displayLike = (id, type) => {
     // check if object has been liked by user, display corresponding icon
+    
     if (allLikedObjects.includes(id)) {
       return (
         <IconButton aria-label="like" style={{ display: checkIfLoggedIn() }}>
