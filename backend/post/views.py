@@ -108,7 +108,11 @@ class PostList(APIView):
         post, created = Post.objects.update_or_create(post_id=post_id, defaults=request)
 
         if created:
-            send_post_to_inboxes(post, author)
+            if post.visibility == "FRIENDS":
+                only_to_followers = True
+            else:
+                only_to_followers = False
+            send_post_to_inboxes(post, author, only_to_followers)
 
         serializer = PostSerializer(post)
 
@@ -159,7 +163,13 @@ class PostDetail(APIView):
 
         if serializer.is_valid():
             post = serializer.save()
-            send_post_to_inboxes(post, author)
+
+            if post.visibility == "FRIENDS":
+                only_to_followers = True
+            else:
+                only_to_followers = False
+
+            send_post_to_inboxes(post, author, only_to_followers)
 
             if "categories" in request:
                 post.categories = json.dumps(request["categories"])
@@ -198,7 +208,11 @@ class PostDetail(APIView):
 
         post, created = Post.objects.update_or_create(post_id=post_id, defaults=request)
         if created:
-            send_post_to_inboxes(post, author)
+            if post.visibility == "FRIENDS":
+                only_to_followers = True
+            else:
+                only_to_followers = False
+            send_post_to_inboxes(post, author, only_to_followers)
         serializer = PostSerializer(post)
 
         return Response(serializer.data, status = status.HTTP_201_CREATED)
