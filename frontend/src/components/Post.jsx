@@ -65,6 +65,7 @@ function Post(props) {
   }
 
   const getCommentsForPost = () => {
+    
     console.log("CommentsURL:", commentsURL);
     axios.get(commentsURL + "/").then((response) => {
       console.log(response.data.comments);
@@ -93,23 +94,20 @@ function Post(props) {
         contentType: inputType,
         published: commentDate.toISOString(),
       };
-
+    
       axiosInstance.post(commentsURL + "/", postData)
         .then((response) => {
           console.log(response);
-          handleCloseCommentDialog();
-          handleOpenSnackBar({
-            vertical: 'top',
-            horizontal: 'center',
-          });
+          document.getElementById("name").value = "";
+          getCommentsForPost();
+          
         });
+      
       console.log(postData);
       console.log(commentsURL);
-      handleCloseCommentDialog();
-      handleOpenSnackBar();
-
+    
       console.log(newComment);
-      window.location.reload();
+      
     } else {
       console.log("All fields have not been filled. Cannot make post.")
     }
@@ -198,7 +196,8 @@ function Post(props) {
   useEffect(() => {
     getCommentsForPost();
     console.log("Comments:", commentsForPost);
-    if (from !== "public") {
+    const authToken = window.localStorage.getItem("auth-token");
+    if (authToken) {
       getAllLikedObjects();
       console.log()
       console.log("Liked Objects", allLikedObjects);
@@ -239,13 +238,13 @@ function Post(props) {
     axiosInstance.post(url, likeData)
       .then((response) => {
         console.log(response);
+        getAllLikedObjects();
       });
-    window.location.reload();
-
   };
 
   const displayLike = (id, type) => {
     // check if object has been liked by user, display corresponding icon
+    
     if (allLikedObjects.includes(id)) {
       return (
         <IconButton aria-label="like" style={{ display: checkIfLoggedIn() }}>
@@ -453,6 +452,7 @@ function Post(props) {
           <Button onClick={handleCloseCommentDialog}>Cancel</Button>
           <Button onClick={handleSubmitComments} style={{ display: checkIfLoggedIn() }}>Comment</Button>
         </DialogActions>
+        
       </Dialog>
 
       {/* Dialog for sharing post */}
