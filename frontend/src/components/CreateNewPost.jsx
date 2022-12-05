@@ -9,7 +9,7 @@ import axiosInstance from "../axiosInstance";
 function CreateNewPost(props) {
 
   const {
-    id, name, user, author, title, description, contentType, content, img, visibility, newPost, closeDialog, unlisted
+    id, name, user, author, title, description, contentType, content, img, visibility, newPost, closeDialog
   } = props
 
   // const authorObject = JSON.parse(localStorage.getItem("author"));
@@ -20,12 +20,9 @@ function CreateNewPost(props) {
   const [inputType, setInputType] = useState(contentType);
   const [contentText, setContent] = useState(content);
   const [visibilityType, setVisibility] = useState(visibility);
-  const [unlistedVal, setUnlisted] = useState(false);
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
-  const handleUnlistedChange = (event) => {
-    setUnlisted(event.target.value);
-  }
+ 
 
   const handleTitleChange = (event) => {
     setTitle(event.target.value);
@@ -52,7 +49,7 @@ function CreateNewPost(props) {
 
   const allFilled = () => {
     // check if all the fields are filled in
-    if (titleText != "" && descriptionText != "" && inputType != "" && contentText != "" && visibilityType != "" && unlistedVal != "") {
+    if (titleText != "" && descriptionText != "" && inputType != "" && contentText != "" && visibilityType != "") {
       return true;
     }
     return false;
@@ -92,7 +89,7 @@ function CreateNewPost(props) {
         content: contentText,
         categories: [],
         visibility: visibilityType,
-        unlisted: unlistedVal,
+        unlisted: false,
       };
 
       console.log("Make axios call for creating a new post.");
@@ -121,7 +118,6 @@ function CreateNewPost(props) {
         contentType: inputType,
         content: contentText,
         visibility: visibilityType,
-        unlisted: unlistedVal,
       };
 
 
@@ -269,20 +265,6 @@ function CreateNewPost(props) {
           </FormControl>
         </div>
         <div className="formElement">
-          <FormControl className="UnlistedSelection">
-            <FormLabel id="demo-radio-buttons-group-label-unlisted">Unlisted</FormLabel>
-            <RadioGroup
-              aria-labelledby="demo-radio-buttons-group-label-unlisted"
-              name="radio-buttons-group"
-              defaultValue={unlistedVal}
-              onChange={handleUnlistedChange}
-            >
-              <FormControlLabel value={true} control={<Radio />} label="True" />
-              <FormControlLabel value={false} control={<Radio />} label="False" />
-            </RadioGroup>
-          </FormControl>
-        </div>
-        <div className="formElement">
           {toggleButtons()}
         </div>
       </div>
@@ -306,5 +288,4 @@ CreateNewPost.propTypes = {
   visibility: PropTypes.string.isRequired,
   newPost: PropTypes.bool.isRequired,
   closeDialog: PropTypes.func.isRequired,
-  unlisted: PropTypes.bool.isRequired,
 }
