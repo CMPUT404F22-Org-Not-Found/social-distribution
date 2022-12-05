@@ -79,6 +79,10 @@ def send_post_to_global_inbox(post: Post, author: Author) -> None:
 
     if not node.is_connected:
         return
+    if author.host == "https://cmput-404-team-1.herokuapp.com/":
+        breaks = author.url.split('/')
+        breaks[-1] = breaks[-1].replace('-',"")
+        author.url = '/'.join(breaks)
 
     post_url = f"{author.url}/inbox/"
     post_data = PostSerializer(post).data
@@ -103,6 +107,11 @@ def send_friend_request_to_global_inbox(friend_request: FriendRequest, author: A
     if not node.is_connected:
         return
 
+    if author.host == "https://cmput-404-team-1.herokuapp.com/":
+        breaks = author.url.split('/')
+        breaks[-1] = breaks[-1].replace('-',"")
+        author.url = '/'.join(breaks)
+
     friend_request_url = f"{author.url}/inbox/"
     friend_request_data = FriendRequestSerializer(friend_request).data
     response = requests.post(friend_request_url, json=friend_request_data, auth=(node.username, node.password))
@@ -124,6 +133,11 @@ def send_like_to_global_inbox(like: Like, author: Author) -> None:
 
     if not node.is_connected:
         return
+
+    if author.host == "https://cmput-404-team-1.herokuapp.com/":
+        breaks = author.url.split('/')
+        breaks[-1] = breaks[-1].replace('-',"")
+        author.url = '/'.join(breaks)
 
     like_url = f"{author.url}/inbox/"
     like_data = LikeSerializer(like).data
