@@ -62,6 +62,7 @@ function Post(props) {
   }
 
   const getCommentsForPost = () => {
+    
     console.log("CommentsURL:", commentsURL);
     axios.get(commentsURL + "/").then((response) => {
       console.log(response.data.comments);
@@ -90,12 +91,15 @@ function Post(props) {
         contentType: inputType,
         published: commentDate.toISOString(),
       };
-
+    
       axiosInstance.post(commentsURL + "/", postData)
         .then((response) => {
           console.log(response);
+          document.getElementById("name").value = "";
           getCommentsForPost();
+          
         });
+      
       console.log(postData);
       console.log(commentsURL);
     
@@ -397,6 +401,7 @@ function Post(props) {
           <Button onClick={handleCloseCommentDialog}>Cancel</Button>
           <Button onClick={handleSubmitComments} style={{ display: checkIfLoggedIn() }}>Comment</Button>
         </DialogActions>
+        
       </Dialog>
 
       {/* Dialog for editing post */}
