@@ -2,7 +2,7 @@ import './App.css';
 import React, { useState } from 'react';
 import { Navigate, Route, Routes } from 'react-router-dom';
 import Inbox from './components/Inbox';
-import FriendRequests from './components/FriendRequests';
+import FriendRequest from './components/FriendRequest';
 import Dashboard from './components/Dashboard';
 import CreateNewPost from './components/CreateNewPost';
 import Profile from './components/Profile';
@@ -23,7 +23,7 @@ function App() {
           <Route path="/public-stream" element={<PublicStream />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/author-list" element={<AuthorList />} />
-            <Route path="/friend-requests" element={<FriendRequests />} />
+            {/* <Route path="/friend-requests" element={<FriendRequests />} /> */}
             {/* <Route path="/new-post " element={<CreateNewPost />} /> */}
             <Route path="/inbox" element={<Inbox />} />
             <Route path="/profile" element={<Profile />} />

@@ -12,10 +12,19 @@ from author.permissions import IsAuthenticated, IsAuthorOrReadOnly
 
 from node.node_connections import send_post_to_inboxes
 
+def convert_trueTrue_falseFalse(input):
+
+    if isinstance(input,bool):
+        return input
+    elif input.lower() == 'false':
+        return False
+    elif input.lower() == 'true':
+        return True
+    
 class PublicView(APIView):
     def retrieve(self):
         try:
-            return Post.objects.filter(visibility="PUBLIC").order_by('-published')
+            return Post.objects.filter(visibility="PUBLIC",unlisted=False).order_by('-published')
         except Post.DoesNotExist:
             return None
         
@@ -55,7 +64,7 @@ class PostList(APIView):
         try:
             if flag == True:
                 return Post.objects.filter(author__author_id = pk).order_by("-published")
-            return Post.objects.filter(author__author_id = pk,visibility = "PUBLIC", unlisted = False).order_by("-published")
+            return Post.objects.filter(author__author_id = pk,visibility = "PUBLIC").order_by("-published")
 
         except Post.DoesNotExist:
             return None
@@ -102,13 +111,20 @@ class PostList(APIView):
         request["id"] = post_id_url
         request["author"] = author
 
+        if "unlisted" in request:
+            request["unlisted"] = convert_trueTrue_falseFalse(request["unlisted"])
+
         if "categories" in request:
             request["categories"] = json.dumps(request["categories"])
 
         post, created = Post.objects.update_or_create(post_id=post_id, defaults=request)
 
         if created:
-            send_post_to_inboxes(post, author)
+            if post.visibility == "FRIENDS":
+                only_to_followers = True
+            else:
+                only_to_followers = False
+            send_post_to_inboxes(post, author, only_to_followers)
 
         serializer = PostSerializer(post)
 
@@ -155,11 +171,20 @@ class PostDetail(APIView):
         if post is None:
             raise Http404
 
+        if "unlisted" in request:
+            request["unlisted"] = convert_trueTrue_falseFalse(request["unlisted"])
+
         serializer = PostSerializer(post, data=request, partial=True)
 
         if serializer.is_valid():
             post = serializer.save()
-            send_post_to_inboxes(post, author)
+
+            if post.visibility == "FRIENDS":
+                only_to_followers = True
+            else:
+                only_to_followers = False
+
+            send_post_to_inboxes(post, author, only_to_followers)
 
             if "categories" in request:
                 post.categories = json.dumps(request["categories"])
@@ -193,12 +218,19 @@ class PostDetail(APIView):
         request["id"] = post_id_url
         request["author"] = author
 
+        if "unlisted" in request:
+            request["unlisted"] = convert_trueTrue_falseFalse(request["unlisted"])
+            
         if "categories" in request:
                 request["categories"] = json.dumps(request["categories"])
 
         post, created = Post.objects.update_or_create(post_id=post_id, defaults=request)
         if created:
-            send_post_to_inboxes(post, author)
+            if post.visibility == "FRIENDS":
+                only_to_followers = True
+            else:
+                only_to_followers = False
+            send_post_to_inboxes(post, author, only_to_followers)
         serializer = PostSerializer(post)
 
         return Response(serializer.data, status = status.HTTP_201_CREATED)
