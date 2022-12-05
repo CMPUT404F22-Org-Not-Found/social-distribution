@@ -45,7 +45,7 @@ function PublicStream() {
     //   console.log(allPosts);
     // });
     
-    const baseURL = "http://localhost:8000/public/"
+    const baseURL = "https://cmput404-t04.herokuapp.com/public/"
     axios.get(baseURL).then((response) => {
       // console.log(response.data.items)
       setAllPosts(response.data.items);
@@ -86,6 +86,7 @@ function PublicStream() {
           commentsURL={val.comments}
           visibility={val.visibility}
           reloadPosts={getPosts}
+          post={val}
         />
       ))}
     </div >

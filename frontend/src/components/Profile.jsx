@@ -210,6 +210,7 @@ function Profile() {
               commentsURL={val.comments}
               visibility={val.visibility}
               reloadPosts={getPosts}
+              post={val}
             />
           ))}
         </div>

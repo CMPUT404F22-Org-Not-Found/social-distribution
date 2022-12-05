@@ -15,7 +15,7 @@ var ReactCommonmark = require('react-commonmark');
 
 function Post(props) {
   const {
-    id, name, user, author, title, description, contentType, content, img, from, commentsURL, visibility, reloadPosts,
+    id, name, user, author, title, description, contentType, content, img, from, commentsURL, visibility, reloadPosts, post
   } = props
 
   const [openCommentDialog, setOpenCommentDialog] = useState(false);
@@ -65,7 +65,7 @@ function Post(props) {
   }
 
   const getCommentsForPost = () => {
-    
+
     console.log("CommentsURL:", commentsURL);
     axios.get(commentsURL + "/").then((response) => {
       console.log(response.data.comments);
@@ -94,20 +94,20 @@ function Post(props) {
         contentType: inputType,
         published: commentDate.toISOString(),
       };
-    
+
       axiosInstance.post(commentsURL + "/", postData)
         .then((response) => {
           console.log(response);
           document.getElementById("name").value = "";
           getCommentsForPost();
-          
+
         });
-      
+
       console.log(postData);
       console.log(commentsURL);
-    
+
       console.log(newComment);
-      
+
     } else {
       console.log("All fields have not been filled. Cannot make post.")
     }
@@ -152,8 +152,21 @@ function Post(props) {
     console.log("sharing post to:", authorToSend);
     // add axios call to share post here
 
-    setAuthorToSend("");
-    handleCloseShareDialog();
+    console.log("Sending post:")
+    const postID = authorToSend.split("/").pop();
+
+    const postUrl = "authors/" + postID + "/inbox/"
+    console.log(post)
+    console.log(postUrl)
+    console.log("Make axios call to send a share post.");
+
+    axiosInstance.post(postUrl, post)
+        .then((response) => {
+            console.log("post shared")
+            console.log(response);
+            setAuthorToSend("");
+            handleCloseShareDialog();
+        })
   };
 
   // HANDLE EDIT DIALOG
@@ -244,7 +257,7 @@ function Post(props) {
 
   const displayLike = (id, type) => {
     // check if object has been liked by user, display corresponding icon
-    
+
     if (allLikedObjects.includes(id)) {
       return (
         <IconButton aria-label="like" style={{ display: checkIfLoggedIn() }}>
@@ -302,7 +315,7 @@ function Post(props) {
 
   const checkComment = (val) => {
     if (val.contentType === "text/markdown") {
-      return (<ListItemText primary={<ReactCommonmark source={val.comment}/>} secondary={val.author.displayName} />);
+      return (<ListItemText primary={<ReactCommonmark source={val.comment} />} secondary={val.author.displayName} />);
     }
     else if (val.contentType === "text/plain") {
       return (<ListItemText primary={val.comment} secondary={val.author.displayName} />);
@@ -318,10 +331,10 @@ function Post(props) {
   }
 
   const hiddenFileInput = React.useRef(null);
-  
+
   const handleFileClick = event => {
     hiddenFileInput.current.click();
-  };  
+  };
 
   const handleFileUpload = event => {
     const fileUploaded = event.target.files[0];
@@ -346,7 +359,7 @@ function Post(props) {
           title={title}
           subheader={name}
         />
-        
+
         { }
         <CardContent>
           <Typography variant="body2" color="text.primary">
@@ -424,35 +437,35 @@ function Post(props) {
               <div className="UploadImage">
                 <Button variant="contained" component="label" onClick={handleFileClick}>
                   Upload Image
-                  <input type="file" ref={hiddenFileInput} onChange={handleFileUpload} hidden/>
+                  <input type="file" ref={hiddenFileInput} onChange={handleFileUpload} hidden />
                 </Button>
               </div>
               : ""
             }
           </div>
           <div className="formElement">
-          {inputType === "text/plain" || inputType === "text/markdown" ?
-            <TextField
-              multiline
-              autoFocus
-              margin="dense"
-              id="name"
-              label="Add Comment"
-              type="comment"
-              fullWidth
-              variant="standard"
-              onChange={handleChangeComment}
-              style={{ display: checkIfLoggedIn() }}
-            />
-            : ""
-          }
-        </div>
+            {inputType === "text/plain" || inputType === "text/markdown" ?
+              <TextField
+                multiline
+                autoFocus
+                margin="dense"
+                id="name"
+                label="Add Comment"
+                type="comment"
+                fullWidth
+                variant="standard"
+                onChange={handleChangeComment}
+                style={{ display: checkIfLoggedIn() }}
+              />
+              : ""
+            }
+          </div>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseCommentDialog}>Cancel</Button>
           <Button onClick={handleSubmitComments} style={{ display: checkIfLoggedIn() }}>Comment</Button>
         </DialogActions>
-        
+
       </Dialog>
 
       {/* Dialog for sharing post */}
@@ -546,4 +559,5 @@ Post.propTypes = {
   commentsURL: PropTypes.string.isRequired,
   visibility: PropTypes.string.isRequired,
   reloadPosts: PropTypes.func.isRequired,
+  post: PropTypes.object.isRequired,
 }

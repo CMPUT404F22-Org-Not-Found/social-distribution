@@ -109,6 +109,7 @@ function Inbox() {
           commentsURL={val.comments}
           visibility={val.visibility}
           reloadPosts={getInboxItems}
+          post={val}
         />
       );
     } else if (val.type === "Follow") {

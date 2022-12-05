@@ -30,7 +30,7 @@ function Login() {
         password,
       }
       // const url = "/api-token-auth/"
-      const url = "http://localhost:8000/author-object/"
+      const url = "https://cmput404-t04.herokuapp.com/author-object/"
 
       axios.post(url, params).then((response) => {
         console.log(response.data);

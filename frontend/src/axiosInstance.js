@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const axiosInstance = axios.create({
-    baseURL: 'http://localhost:8000/',
+    baseURL: 'https://cmput404-t04.herokuapp.com/',
     timeout: 0,
     headers: {
         'Authorization': `Token ${window.localStorage.getItem("auth-token")}`
