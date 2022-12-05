@@ -25,7 +25,7 @@ def update_db_with_global_authors():
     for node in Node.objects.filter(is_connected=True):
         try:
             logger.error(f"[INFO]: Attempting to update authors from node {node.host}")
-            authors_url = f"{node.host}authors/"
+            authors_url = f"{node.host}authors/?size=100"
             response = requests.get(authors_url, auth=(node.username, node.password))
             if response.status_code == 200:
                 create_or_update_authors(response.json()["items"])
