@@ -15,13 +15,16 @@ var ReactCommonmark = require('react-commonmark');
 
 function Post(props) {
   const {
-    id, name, user, author, title, description, contentType, content, img, from, commentsURL, visibility,
+    id, name, user, author, title, description, contentType, content, img, from, commentsURL, visibility, reloadPosts,
   } = props
 
   const [openCommentDialog, setOpenCommentDialog] = useState(false);
   const [commentsForPost, setCommentsForPost] = useState([]);
   const [inputType, setInputType] = useState("");
   const [newComment, setNewComment] = useState("");
+  const [openShareDialog, setOpenShareDialog] = useState(false);
+  const [allAuthors, setAllAuthors] = useState([]);
+  const [authorToSend, setAuthorToSend] = useState("");
   const [openEditDialog, setOpenEditDialog] = useState(false);
   const [allLikedObjects, setAllLikedObjects] = useState([]);
   const authorObject = JSON.parse(localStorage.getItem("author"));
@@ -118,6 +121,41 @@ function Post(props) {
     return false;
   };
 
+  // HANDLE SHARE DIALOG
+  const handleClickOpenShareDialog = () => {
+    setOpenShareDialog(true);
+  };
+
+  const handleCloseShareDialog = () => {
+    setOpenShareDialog(false);
+  };
+
+  const getAllAuthors = () => {
+    const url = "authors/"
+
+    axiosInstance.get(url)
+      .then((response) => {
+        console.log(response);
+        setAllAuthors(response.data.items)
+      })
+  };
+
+  const SelectAuthor = (authorID) => {
+    if (authorToSend === "") {
+      setAuthorToSend(authorID);
+    } else {
+      setAuthorToSend("");
+    }
+  };
+
+  const handleSharePost = () => {
+    console.log("sharing post to:", authorToSend);
+    // add axios call to share post here
+
+    setAuthorToSend("");
+    handleCloseShareDialog();
+  };
+
   // HANDLE EDIT DIALOG
   const handleOpenEditDialog = () => {
     setOpenEditDialog(true);
@@ -125,6 +163,7 @@ function Post(props) {
 
   const handleCloseEditDialog = () => {
     setOpenEditDialog(false);
+    reloadPosts();
   };
 
   const handleSubmitEdit = () => {
@@ -133,6 +172,15 @@ function Post(props) {
 
     }
   };
+
+  const checkImageExists = (image) => {
+    // check if image needs to be displayed
+    let style = '';
+    if (image === 'null') {
+      style = 'none'
+    }
+    return style;
+  }
 
   const checkFromProfile = () => {
     // check if componenet is being displayed in Profile
@@ -154,6 +202,8 @@ function Post(props) {
       console.log()
       console.log("Liked Objects", allLikedObjects);
     }
+    getAllAuthors();
+    console.log("All Authors", allAuthors);
   }, []);
 
   // HANDLE LIKING OBJECTS
@@ -190,7 +240,6 @@ function Post(props) {
         console.log(response);
         getAllLikedObjects();
       });
-    
   };
 
   const displayLike = (id, type) => {
@@ -317,7 +366,7 @@ function Post(props) {
           <IconButton aria-label="comment" onClick={handleClickOpenCommentDialog}>
             <ChatBubbleOutlineIcon />
           </IconButton>
-          <IconButton aria-label="share">
+          <IconButton aria-label="share" onClick={handleClickOpenShareDialog}>
             <ShareIcon />
           </IconButton>
           {checkFromProfile()}
@@ -406,6 +455,37 @@ function Post(props) {
         
       </Dialog>
 
+      {/* Dialog for sharing post */}
+      <Dialog
+        open={openShareDialog}
+        onClose={handleCloseShareDialog}
+        maxWidth='md'
+        fullWidth={true}
+      >
+        <DialogTitle>Share post to:</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {allAuthors.map((val) => (
+              <div key={val.id}>
+                <ListItem
+                  key={val.id}
+                  disableGutters
+                  onClick={() => { SelectAuthor(val.id) }}
+                  selected={val.id == authorToSend}
+                >
+                  <ListItemText primary={val.displayName} />
+                </ListItem>
+                <Divider />
+              </div>
+            ))}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseShareDialog}>Cancel</Button>
+          <Button onClick={handleSharePost} style={{ display: checkIfLoggedIn() }}>Share</Button>
+        </DialogActions>
+      </Dialog>
+
       {/* Dialog for editing post */}
       <Dialog
         open={openEditDialog}
@@ -465,4 +545,5 @@ Post.propTypes = {
   from: PropTypes.string.isRequired,
   commentsURL: PropTypes.string.isRequired,
   visibility: PropTypes.string.isRequired,
+  reloadPosts: PropTypes.func.isRequired,
 }

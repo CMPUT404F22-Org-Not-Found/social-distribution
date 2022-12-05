@@ -5,7 +5,7 @@ from django.db import models
 from django.utils import timezone
 from author.models import Author
 
-DEFAULT_HOST = "http://127.0.0.1:8000/"
+DEFAULT_HOST = "https://cmput404-t04.herokuapp.com/"
 
 import uuid
 # Create your models here.

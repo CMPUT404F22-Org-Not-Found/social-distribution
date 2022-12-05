@@ -38,7 +38,7 @@ function PublicStream() {
     },
   ]
 
-  function getPosts() { 
+  const getPosts = () => { 
     // axiosInstance.get(`/authors/c01ade2f-49ec-4889-8ecf-a461cd8d5e31/posts/`)
     // .then((response) => {
     //   setAllPosts(response.data.data);
@@ -57,17 +57,6 @@ function PublicStream() {
     getPosts();
     console.log(allPosts);
   }, []);
-
-  const sampleComments = [
-    {
-      user: 'aditr',
-      comment: 'Welcome to the app. Adding extra words to check width.',
-    },
-    {
-      user: 'skotha',
-      comment: 'I love twitter.',
-    }
-  ]
 
   function checkImageExists(val) {
     if (val.contentType === "image/png;base64" || val.contentType === "image/jpeg;base64") {
@@ -96,6 +85,7 @@ function PublicStream() {
           from={"public"}
           commentsURL={val.comments}
           visibility={val.visibility}
+          reloadPosts={getPosts}
         />
       ))}
     </div >
