@@ -20,8 +20,9 @@ function CreateNewPost(props) {
   const [inputType, setInputType] = useState(contentType);
   const [contentText, setContent] = useState(content);
   const [visibilityType, setVisibility] = useState(visibility);
-
   const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
+
+ 
 
   const handleTitleChange = (event) => {
     setTitle(event.target.value);
@@ -98,6 +99,7 @@ function CreateNewPost(props) {
         .then((response) => {
           console.log("created new post")
           console.log(response);
+          closeDialog();
         })
 
     } else {
@@ -131,7 +133,8 @@ function CreateNewPost(props) {
         .then((response) => {
           console.log("successfully edited post");
           console.log(response);
-          window.location.reload();
+          // window.location.reload();
+          closeDialog();
         });
     } else {
       console.log("All fields have not been filled. Cannot make post.")
@@ -177,7 +180,7 @@ function CreateNewPost(props) {
       .then((response) => {
         console.log(response);
         console.log("Deleted post");
-        window.location.reload();
+        closeDialog();
       });
   }
 
