@@ -153,7 +153,14 @@ function Post(props) {
     // add axios call to share post here
 
     console.log("Sending post:")
-    const postID = authorToSend.split("/").pop();
+    let postID = authorToSend.split("/").pop();
+
+    const URLtoParse = new URL(authorToSend)
+    if (URLtoParse.hostname === "cmput-404-team-1.herokuapp.com"){
+      postID = postID.replace(/-/g,"");
+    }
+
+    console.log("Final URL:", postID);
 
     const postUrl = "authors/" + postID + "/inbox/"
     console.log(post)
@@ -244,8 +251,18 @@ function Post(props) {
       object: id,
     }
 
-    console.log("ID:", id);
-    const objectAuthorID = id.split("/")[4];
+    // console.log("ID:", id);
+    // // console.log("Like SPLIT ID:", id.split("/"));
+    // console.log("Like SPLIT ID -3:", id.split("/").reverse()[2]);
+    let objectAuthorID = id.split("/").reverse()[2];
+
+    const URLtoParse = new URL(id)
+    if (URLtoParse.hostname === "cmput-404-team-1.herokuapp.com"){
+      objectAuthorID = objectAuthorID.replace(/-/g,"");
+    }
+
+    console.log("Final URL:", objectAuthorID);
+
     const url = "/authors/" + objectAuthorID + "/inbox/";
 
     axiosInstance.post(url, likeData)
