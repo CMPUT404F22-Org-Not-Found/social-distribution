@@ -155,10 +155,10 @@ function Post(props) {
     console.log("Sending post:")
     let postID = authorToSend.split("/").pop();
 
-    const URLtoParse = new URL(authorToSend)
-    if (URLtoParse.hostname === "cmput-404-team-1.herokuapp.com"){
-      postID = postID.replace(/-/g,"");
-    }
+    // const URLtoParse = new URL(authorToSend)
+    // if (URLtoParse.hostname === "cmput-404-team-1.herokuapp.com"){
+    //   postID = postID.replace(/-/g,"");
+    // }
 
     console.log("Final URL:", postID);
 
@@ -256,10 +256,10 @@ function Post(props) {
     // console.log("Like SPLIT ID -3:", id.split("/").reverse()[2]);
     let objectAuthorID = id.split("/").reverse()[2];
 
-    const URLtoParse = new URL(id)
-    if (URLtoParse.hostname === "cmput-404-team-1.herokuapp.com"){
-      objectAuthorID = objectAuthorID.replace(/-/g,"");
-    }
+    // const URLtoParse = new URL(id)
+    // if (URLtoParse.hostname === "cmput-404-team-1.herokuapp.com"){
+    //   objectAuthorID = objectAuthorID.replace(/-/g,"");
+    // }
 
     console.log("Final URL:", objectAuthorID);
 

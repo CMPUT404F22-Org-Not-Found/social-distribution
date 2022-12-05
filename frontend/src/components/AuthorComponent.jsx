@@ -40,10 +40,10 @@ function AuthorComponent(props) {
         // console.log("SPLIT ID:", id.split("/"))
         let postID = id.split("/").pop();
 
-        const URLtoParse = new URL(id)
-        if (URLtoParse.hostname === "cmput-404-team-1.herokuapp.com") {
-            postID = postID.replace(/-/g, "");
-        }
+        // const URLtoParse = new URL(id)
+        // if (URLtoParse.hostname === "cmput-404-team-1.herokuapp.com") {
+        //     postID = postID.replace(/-/g, "");
+        // }
 
         console.log("Final URL:", postID);
 
