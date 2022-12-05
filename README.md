@@ -2,6 +2,9 @@
 
 CMPUT 404 Group Project Repo
 
+## Video Demo
+https://www.youtube.com/watch?v=dqZNT5IdY7Q
+
 
 ## Working Endpoints
 * Authentication
