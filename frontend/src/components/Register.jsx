@@ -64,7 +64,7 @@ function Register() {
     }
 
     console.log(registerData);
-    const url = "http://localhost:8000/register/"
+    const url = "https://cmput404-t04.herokuapp.com/register/"
 
     axios.post(url, registerData)
     .then((response) => {

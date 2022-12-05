@@ -14,7 +14,7 @@ function AuthorList() {
     //   setAllAuthorList(response.data.items);
     // });
 
-    const baseURL = "http://localhost:8000/authors/"
+    const baseURL = "https://cmput404-t04.herokuapp.com/authors/"
     axios.get(baseURL).then((response) => {
       setAllAuthors(response.data.items);
     });
