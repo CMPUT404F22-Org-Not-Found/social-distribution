@@ -26,3 +26,29 @@
   min-width: 10rem;
   background-color: lightgray;
 }
+
+.ProfileData {
+  display: flex;
+  flex-direction: row;
+  margin-left: 5%;
+  padding-right: 5%;
+  width: 100%;
+}
+
+.PersonalInfo {
+  display: flex;
+  flex-direction: column;
+  margin-left: 5%;
+  margin-right: 5%;
+}
+
+.data {
+  margin-left: 5%;
+  min-width: fit-content;
+  line-height: 28px;
+}
+
+.NewPost {
+  text-align: left;
+  margin-left: 5%;
+}
