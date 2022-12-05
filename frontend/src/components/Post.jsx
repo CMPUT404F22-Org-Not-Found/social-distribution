@@ -236,11 +236,11 @@ function Post(props) {
     const objectAuthorID = id.split("/")[4];
     const url = "/authors/" + objectAuthorID + "/inbox/";
 
-    // axiosInstance.post(url, likeData)
-    //   .then((response) => {
-    //     console.log(response);
-    //   });
-    // window.location.reload();
+    axiosInstance.post(url, likeData)
+      .then((response) => {
+        console.log(response);
+      });
+    window.location.reload();
 
   };
 

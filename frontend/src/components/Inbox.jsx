@@ -3,6 +3,7 @@ import axios from "axios";
 import React, { useState } from "react";
 import { useEffect } from "react";
 import axiosInstance from "../axiosInstance";
+import FriendRequest from "./FriendRequest";
 import Post from "./Post";
 import './PublicStream.css';
 var isGithubUrl = require('is-github-url');
@@ -91,63 +92,6 @@ function Inbox() {
     }
   }
 
-  const acceptFollowRequest = (followerURL) => {
-    const followerID = followerURL.split("/").pop();
-    const url = "authors/" + authorId + "/followers/" + followerID;
-    const data = {
-      author_id: authorId,
-      foreign_id: followerID,
-    }
-    axiosInstance.put(url, data)
-      .then((response) => {
-        console.log("Accept:", response)
-      });
-  }
-
-  const checkIfRequestAccepted = (followerURL) => {
-    // make axios call to check if friend request had already been accepted.
-    const followerID = followerURL.split("/").pop();
-    const url = "authors/" + authorId + "/followers/" + followerID;
-    let accepted = false;
-
-    // let promise = new Promise((result) => {
-    //   axiosInstance.get(url)
-    //     .then((response) => {
-    //       console.log("Request Check:", response)
-
-    //       console.log("ResponseDetail:", response.data.detail === undefined)
-    //       if (response.data.detail === undefined) {
-    //         accepted = true;
-    //         // return (
-    //         //   <Button onClick={() => { acceptFollowRequest(followerURL) }}>Accept</Button>
-    //         // )
-            
-    //       } else{
-    //         console.log("Returning button")
-    //         return (
-    //           <Button onClick={() => { acceptFollowRequest(followerURL) }}>Accept</Button>
-    //         )
-    //       }
-    //     });
-    // });
-
-    // promise.then( result => {
-    //   // let style = '';
-    //   // if (accepted) {
-    //   //   style = 'none'
-    //   // }
-    //   // return style;
-    //   console.log("Accepted?:",accepted)
-
-    //   if (!accepted) {
-    //     console.log("Returning Button")
-    //     return (
-    //       <Button onClick={() => { acceptFollowRequest(followerURL) }}>Accept</Button>
-    //     )
-    //   }
-    // })
-  }
-
   const inboxItemType = (val) => {
     if (val.type === 'post') {
       return (
@@ -169,17 +113,11 @@ function Inbox() {
       );
     } else if (val.type === "Follow") {
       return (
-        <Card className="FollowCard" variant="outlined">
-          <CardContent>
-            <Typography variant="body2" color="text.primary">
-              {val.summary}
-            </Typography>
-          </CardContent>
-          <CardActions>
-            {checkIfRequestAccepted(val.actor.id)}
-            {/* <Button onClick={() => {acceptFollowRequest(val.actor.id)}} style={{ display: checkIfRequestAccepted(val.actor.id) }}>Accept</Button> */}
-          </CardActions>
-        </Card>
+        <FriendRequest
+          followerURL={val.actor.id}
+          summary={val.summary}
+          reloadPosts={getInboxItems}
+        />
       );
     } else {
       return (
