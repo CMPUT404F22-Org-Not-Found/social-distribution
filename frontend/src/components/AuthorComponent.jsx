@@ -37,7 +37,8 @@ function AuthorComponent(props) {
         };
         console.log("Make axios call to send a friend request.");
 
-        const postID = id.split("/")[4];
+        // console.log("SPLIT ID:", id.split("/"))
+        const postID = id.split("/").pop();
         const postUrl = "authors/" + postID + "/inbox/"
         console.log(postData)
         console.log(postUrl)

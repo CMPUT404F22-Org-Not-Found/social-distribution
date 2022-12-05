@@ -244,8 +244,10 @@ function Post(props) {
       object: id,
     }
 
-    console.log("ID:", id);
-    const objectAuthorID = id.split("/")[4];
+    // console.log("ID:", id);
+    // // console.log("Like SPLIT ID:", id.split("/"));
+    // console.log("Like SPLIT ID -3:", id.split("/").reverse()[2]);
+    const objectAuthorID = id.split("/").reverse()[2];
     const url = "/authors/" + objectAuthorID + "/inbox/";
 
     axiosInstance.post(url, likeData)
