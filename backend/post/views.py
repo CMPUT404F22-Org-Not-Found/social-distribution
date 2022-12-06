@@ -31,7 +31,7 @@ class PublicView(APIView):
     def get(self,request):
 
         posts = list(self.retrieve())
-        size = request.query_params.get("size",5)
+        size = request.query_params.get("size",100)
         page = request.query_params.get("page",1)
         
         paginator = Paginator(posts,size)
