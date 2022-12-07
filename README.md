@@ -1,6 +1,48 @@
 # social-distribution
-
 CMPUT 404 Group Project Repo
+
+A distributed peer-to-peer social networking app!
+
+Frontend deployed site can be found [here](https://socialdistribution-t04.herokuapp.com/)
+Backend deployed site can be found [here](https://cmput404-t04.herokuapp.com/)
+
+## Team Members and Licensing
+Generally everything is LICENSE'D under the Apache 2 license by Abram Hindle.
+
+All text is licensed under the CC-BY-SA 4.0 http://creativecommons.org/licenses/by-sa/4.0/deed.en_US
+
+Contributors:
+
+* Sanjeev Kotha
+* Urvi Patel
+* Adit Rada
+* Marzookh Farook
+* Ervin Binu
+
+## API documentation
+Can be found via the wiki [here](https://github.com/CMPUT404F22-Org-Not-Found/social-distribution/wiki/Backend-Endpoints)
+
+## Run
+To run backend, from the subdirectory
+```shell
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+To run frontend from the subdirectory
+```shell
+npm install
+npm start
+```
+## Technologies Used
+
+* Django
+* Heroku
+* React
+* Python
+* JavaScript
+* Axios
+* Postgres
 
 ## Video Demo
 https://www.youtube.com/watch?v=dqZNT5IdY7Q
